@@ -18,8 +18,8 @@ export default async function handler(
             const { email } = req.body as CreateUserType; 
             if(!email) return res.status(400).send("Bad request");
             const exit = await prisma.user.findUnique({where : { email }});
-            if(exit) return res.status(200).json({ user : exit })
-            const user = await prisma.user.create({ data : { email }})
+            if(exit) return res.status(200).json({ user : exit });
+            const user = await prisma.user.create({ data : { email }});
             return res.status(200).json({ user });
         }
         

@@ -7,8 +7,9 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/login")
-  } , [])
+    router.push("/happy-chatting/login");
+  } , []);
+
   return (
     <>
       main page
