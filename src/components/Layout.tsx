@@ -5,9 +5,10 @@ import SideBar from "./SideBar";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/store/hooks";
-import { createUser } from "@/store/slices/userSlice";
+import { changeStatus, createUser } from "@/store/slices/userSlice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import { Status } from "@/types/user";
 
 
 interface Props {
@@ -38,6 +39,15 @@ const Layout = ( { children } : Props) => {
             }
        }
      } , [ session ])
+
+     
+
+     useEffect(() => {
+        dispatch(changeStatus(Status.online));
+        return () => {
+            dispatch(changeStatus(Status.online));
+        }
+     } , [])
 
     return (
         <Box>

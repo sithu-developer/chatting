@@ -14,7 +14,17 @@ datasource db {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String
+  bio   String?
+
+  UserProfiles UserProfiles[]
+}
+
+model UserProfiles {
+  id     Int  @id @default(autoincrement())
+  userId Int  
+  profileUrl String
+  user   User @relation(fields: [userId], references: [id])
 }

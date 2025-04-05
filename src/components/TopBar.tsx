@@ -1,6 +1,7 @@
 import { Box, AppBar, Toolbar, IconButton, Typography, Button } from "@mui/material";
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import SearchIcon from '@mui/icons-material/Search';
+import { useRouter } from "next/router";
 
 interface Props {
   open : boolean,
@@ -8,11 +9,15 @@ interface Props {
 }
 
 const TopBar = ( { open , setOpen } : Props ) => {
+    const router = useRouter();
+    const path = router.asPath;
+    const isLogin = path.includes("/happy-chatting/login")
+
     return (
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="static">
             <Toolbar sx={{ bgcolor : "secondary.main"}}>
-              <IconButton
+              {!isLogin && <IconButton
                 size="large"
                 edge="start"
                 color="inherit"
@@ -21,13 +26,13 @@ const TopBar = ( { open , setOpen } : Props ) => {
                 onClick={() => setOpen(true)}
               >
                 <MenuRoundedIcon />
-              </IconButton>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              </IconButton>}
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 , textAlign : isLogin ? "center" : "start" }}>
                 Happy Chatting
               </Typography>
-              <IconButton color="inherit" >
+              {!isLogin && <IconButton color="inherit" >
                 <SearchIcon />
-              </IconButton>
+              </IconButton>}
             </Toolbar>
           </AppBar>
         </Box>

@@ -26,14 +26,14 @@ const SideBar = ({ open , setOpen } : Props) => {
             <Drawer open={open} onClose={() => setOpen(false)} >
                 <Box sx={{ width : "300px"}}>
                     <Box  sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , flexDirection : "column" , gap : "10px"}}>
-                        <Box onClick={() => {
+                        <Box sx={{ cursor : "pointer" , width : "80px" , height : "80px" , overflow : "hidden" , borderRadius : "50px" , display : "flex", justifyContent : "center" , alignItems : "center" }} onClick={() => {
                           setOpen(false);
                           setOpenSideBarComponent({ id : 1 , open : true});
                         }}>
-                          <img src="/defaultProfile.jpg"  style={{ width : "80px" , height : "80px" , borderRadius : "50px" }} />
+                          <img src="/defaultProfile.jpg" alt="profile photo" style={{ width : "80px"}}/>
                         </Box>
                         <Box>
-                            <Typography fontWeight={600} sx={{ fontSize : "17px" }} >{ user.name ? user.name : "User Name here" }</Typography>
+                            <Typography fontWeight={600} sx={{ fontSize : "17px" }} >{ user.name }</Typography>
                             <Typography fontWeight={100} sx={{ fontSize : "14px" }} >{ user && user.email }</Typography>
                         </Box>
                     </Box>
