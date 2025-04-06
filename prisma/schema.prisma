@@ -14,17 +14,20 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String
-  bio   String?
-
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  firstName    String
+  lastName     String
+  bio          String?
+  day          Int
+  month        Int
+  year         Int
   UserProfiles UserProfiles[]
 }
 
 model UserProfiles {
-  id     Int  @id @default(autoincrement())
-  userId Int  
+  id         Int    @id @default(autoincrement())
+  userId     Int
   profileUrl String
-  user   User @relation(fields: [userId], references: [id])
+  user       User   @relation(fields: [userId], references: [id])
 }

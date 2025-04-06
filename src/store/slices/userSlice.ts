@@ -1,4 +1,4 @@
-import { CreateUserType, Status } from "@/types/user";
+import { CreateUserType, Status, UpdatedUserType } from "@/types/user";
 import { envValues } from "@/util/envValues";
 import { User } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -31,9 +31,28 @@ export const createUser = createAsyncThunk("userSlice/createUser" , async( user 
         const { user , userProfiles } = await response.json();
         thunkApi.dispatch(setUser(user));
         thunkApi.dispatch(setUserProfiles(userProfiles));
+        thunkApi.dispatch(changeStatus(Status.online));
         isSuccess && isSuccess();
     } catch( error ) {
         isFail && isFail
+    }
+})
+
+export const updateUser = createAsyncThunk("userSlice/updateUser" , async( updatedUser : UpdatedUserType , thunkApi ) => {
+    const { id , firstName , lastName , bio , day , month , year , isSuccess , isFail } = updatedUser;
+    try {
+        const response = await fetch( `${envValues.apiUrl}/user` , {
+            method : "PUT" ,
+            headers : {
+                "content-type" : "application/json"
+            },
+            body : JSON.stringify({ id , firstName , lastName , bio , day , month , year })
+        });
+        const { user } = await response.json();
+        thunkApi.dispatch(setUser(user));
+        isSuccess && isSuccess();
+    } catch( err ) {
+        isFail && isFail();
     }
 })
 

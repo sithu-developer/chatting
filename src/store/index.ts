@@ -5,8 +5,8 @@ import userProfilesReducer from "./slices/userProfilesSlice"
 
 export const store = configureStore({
   reducer: {
-    userSliceReducer : userSliceReducer,
-    userProfilesReducer : userProfilesReducer,
+    userSlice : userSliceReducer,
+    userProfiles : userProfilesReducer,
     
   },
 })

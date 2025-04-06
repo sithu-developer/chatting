@@ -40,14 +40,16 @@ const Layout = ( { children } : Props) => {
        }
      } , [ session ])
 
-     
-
      useEffect(() => {
-        dispatch(changeStatus(Status.online));
-        return () => {
+        if( navigator !== undefined && navigator.onLine ) {
             dispatch(changeStatus(Status.online));
+        } else {
+            dispatch(changeStatus(Status.offline));
         }
-     } , [])
+        return () => {
+            dispatch(changeStatus(Status.offline));
+        }
+     } , [ ])
 
     return (
         <Box>

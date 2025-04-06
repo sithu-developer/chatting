@@ -17,7 +17,7 @@ interface Props {
 
 
 const SideBar = ({ open , setOpen } : Props) => {
-   const user = useAppSelector(store => store.userSliceReducer.user);
+   const user = useAppSelector(store => store.userSlice.user);
    const [ openSideBarComponent , setOpenSideBarComponent ] = useState<OpenSideBarComponent>({id : 1 , open : false});
 
    if(user)
@@ -33,7 +33,7 @@ const SideBar = ({ open , setOpen } : Props) => {
                           <img src="/defaultProfile.jpg" alt="profile photo" style={{ width : "80px"}}/>
                         </Box>
                         <Box>
-                            <Typography fontWeight={600} sx={{ fontSize : "17px" }} >{ user.name }</Typography>
+                            <Typography fontWeight={600} sx={{ fontSize : "17px" }} >{ user.firstName + " " + user.lastName }</Typography>
                             <Typography fontWeight={100} sx={{ fontSize : "14px" }} >{ user && user.email }</Typography>
                         </Box>
                     </Box>

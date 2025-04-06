@@ -1,3 +1,5 @@
+import { User } from "@prisma/client";
+
 export interface CreateUserType extends SuccessOrFailType {
     email : string
 }
@@ -11,3 +13,5 @@ export enum Status {
     online = "online" ,
     offline = "offline"
 }
+
+export interface UpdatedUserType extends SuccessOrFailType , User {}
