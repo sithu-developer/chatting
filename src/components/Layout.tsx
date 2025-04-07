@@ -1,14 +1,15 @@
-import { Box } from "@mui/material"
+import { Alert, Backdrop, Box, CircularProgress, Snackbar } from "@mui/material"
 import { ReactNode } from "react";
 import TopBar from "./TopBar";
 import SideBar from "./SideBar";
 import { useState } from "react";
 import { useEffect } from "react";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { changeStatus, createUser } from "@/store/slices/userSlice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Status } from "@/types/user";
+import { changeSnackBar } from "@/store/slices/generalSlice";
 
 
 interface Props {
@@ -17,7 +18,8 @@ interface Props {
 
 const Layout = ( { children } : Props) => {
      const [ open , setOpen ] = useState<boolean>(false);
-
+     const snackBar = useAppSelector(store => store.general.snackBar);
+     const isLoading = useAppSelector(store => store.general.isLoading);
      const { data: session } = useSession();
      const dispatch = useAppDispatch();
      const router = useRouter();
@@ -51,14 +53,36 @@ const Layout = ( { children } : Props) => {
         }
      } , [ ])
 
+    const handleCloseSnackBar = () => {
+        dispatch(changeSnackBar({...snackBar , isSnackBarOpen : false}));
+    }
+
+    
+
+
     return (
         <Box>
             <TopBar open={open} setOpen={setOpen} />
             <Box>
                 {children}
             </Box>
-            <button ></button>
             <SideBar open={open} setOpen={setOpen} />
+            <Snackbar open={snackBar.isSnackBarOpen} autoHideDuration={6000} onClose={handleCloseSnackBar} anchorOrigin={{horizontal : "center" , vertical : "bottom"}} >
+                <Alert
+                  onClose={handleCloseSnackBar}
+                  severity={snackBar.severity}
+                  variant="filled"
+                  sx={{ width: "fit-content" }}
+                >
+                  {snackBar.message}
+                </Alert>
+            </Snackbar>
+            <Backdrop
+              sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+              open={isLoading}
+            >
+              <CircularProgress color="inherit" />
+            </Backdrop>
         </Box>
     )
 }

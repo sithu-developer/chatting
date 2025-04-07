@@ -3,18 +3,18 @@ import { envValues } from "@/util/envValues";
 import { User } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { setUserProfiles } from "./userProfilesSlice";
+import { changeSnackBar } from "./generalSlice";
+import { Severity } from "@/types/general";
 
 interface UserSliceInitailStateType {
     user : User | null
     status : Status
-    isLoading : boolean
     error : Error | null
 }
 
 const initialState : UserSliceInitailStateType = {
     user : null,
     status : Status.offline,
-    isLoading : false,
     error : null
 }
 

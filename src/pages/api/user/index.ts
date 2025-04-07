@@ -23,7 +23,7 @@ export default async function handler(
                 const userProfiles = await prisma.userProfiles.findMany({ where : { userId : exit.id }})
                 return res.status(200).json({ user : exit , userProfiles })
             } else {
-                const user = await prisma.user.create({ data : { email , firstName : "Default" , lastName : "name" , bio : "Happy Chatting" , day : 1 , month : 1 , year : 2000 }});
+                const user = await prisma.user.create({ data : { email , firstName : "Default" , lastName : "name" , bio : "" , day : 1 , month : 1 , year : 2000 }});
                 return res.status(200).json({ user , userProfiles : [] });
             }
         } else if ( method === "PUT") {
