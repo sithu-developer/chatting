@@ -14,20 +14,34 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
+  id           Int                 @id @default(autoincrement())
+  email        String              @unique
   firstName    String
   lastName     String
   bio          String?
   day          Int
   month        Int
   year         Int
-  UserProfiles UserProfiles[]
+  profileUrl   String?
+  forUserId    UserIdAndFriendId[] @relation(name: "forUserId")
+  forFriendId  UserIdAndFriendId[] @relation(name: "forFriendId")
 }
 
-model UserProfiles {
-  id         Int    @id @default(autoincrement())
-  userId     Int
-  profileUrl String
-  user       User   @relation(fields: [userId], references: [id])
+
+model UserIdAndFriendId {
+  id       Int     @id @default(autoincrement())
+  userId   Int
+  friendId Int
+  user     User    @relation(name: "forUserId", fields: [userId], references: [id])
+  friend   User    @relation(name: "forFriendId", fields: [friendId], references: [id])
+  forChats Chats[]
+}
+
+model Chats {
+  id                      Int               @id @default(autoincrement())
+  userAndFriendRelationId Int
+  chat                    String
+  fromUser                Boolean
+  sendTime                String
+  userIdAndFriendId       UserIdAndFriendId @relation(fields: [userAndFriendRelationId], references: [id])
 }

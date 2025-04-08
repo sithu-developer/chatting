@@ -2,18 +2,17 @@ import { CreateUserType, Status, UpdatedUserType } from "@/types/user";
 import { envValues } from "@/util/envValues";
 import { User } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { setUserProfiles } from "./userProfilesSlice";
-import { changeSnackBar } from "./generalSlice";
-import { Severity } from "@/types/general";
 
 interface UserSliceInitailStateType {
     user : User | null
+    friends : User[]
     status : Status
     error : Error | null
 }
 
 const initialState : UserSliceInitailStateType = {
     user : null,
+    friends : [],
     status : Status.offline,
     error : null
 }
@@ -28,9 +27,9 @@ export const createUser = createAsyncThunk("userSlice/createUser" , async( user 
             },
             body : JSON.stringify( { email })
         });
-        const { user , userProfiles } = await response.json();
+        const { user , friends } = await response.json();
         thunkApi.dispatch(setUser(user));
-        thunkApi.dispatch(setUserProfiles(userProfiles));
+        thunkApi.dispatch(setFriends(friends));
         thunkApi.dispatch(changeStatus(Status.online));
         isSuccess && isSuccess();
     } catch( error ) {
@@ -65,10 +64,13 @@ export const userSlice = createSlice({
         },
         setUser : ( state , action : PayloadAction<User> ) => {
             state.user = action.payload;
+        },
+        setFriends : ( state , action : PayloadAction<User[]> ) => {
+            state.friends = action.payload;
         }
     }
 })
 
-export const { changeStatus , setUser } = userSlice.actions;
+export const { changeStatus , setUser , setFriends } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -9,6 +9,7 @@ import MyProfile from "./MyProfile";
 import { useState } from "react";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import NewGroup from "./NewGroup";
+import NewFriends from "./NewFriends";
 
 interface Props {
     open : boolean,
@@ -30,7 +31,7 @@ const SideBar = ({ open , setOpen } : Props) => {
                           setOpen(false);
                           setOpenSideBarComponent({ id : 1 , open : true});
                         }}>
-                          <img src="/defaultProfile.jpg" alt="profile photo" style={{ width : "80px"}}/>
+                          <img src={user.profileUrl ? user.profileUrl : "/defaultProfile.jpg"} alt="profile photo" style={{ width : "80px"}}/>
                         </Box>
                         <Box>
                             <Typography fontWeight={600} sx={{ fontSize : "17px" }} >{ user.firstName + " " + user.lastName }</Typography>
@@ -88,6 +89,7 @@ const SideBar = ({ open , setOpen } : Props) => {
             
             <MyProfile openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
             <NewGroup openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
+            <NewFriends openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
         </Box>
     )
 }

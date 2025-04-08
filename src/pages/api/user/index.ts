@@ -20,11 +20,14 @@ export default async function handler(
             if(!email) return res.status(400).send("Bad request");
             const exit = await prisma.user.findUnique({where : { email }});
             if(exit) {
-                const userProfiles = await prisma.userProfiles.findMany({ where : { userId : exit.id }})
-                return res.status(200).json({ user : exit , userProfiles })
+                const friends = await prisma.user.findMany({ where : { id : { not : exit.id } }});
+
+                return res.status(200).json({ user : exit , friends })
             } else {
                 const user = await prisma.user.create({ data : { email , firstName : "Default" , lastName : "name" , bio : "" , day : 1 , month : 1 , year : 2000 }});
-                return res.status(200).json({ user , userProfiles : [] });
+                const friends = await prisma.user.findMany({ where : { id : { not : user.id } }});
+
+                return res.status(200).json({ user , friends });
             }
         } else if ( method === "PUT") {
             const { id , firstName , lastName , bio , day , month , year } = req.body as User;

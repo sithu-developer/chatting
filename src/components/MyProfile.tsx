@@ -37,8 +37,7 @@ const MyProfile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) 
             <Box sx={{ bgcolor : "primary.main"  }}>
                 <Box sx={{ position : "relative"}}>
                     <Box sx={{ width : "330px" , height : "300px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center"}}>
-                        <img src={"/defaultProfile.jpg"} style={{ width : "330px"}} />
-                        <img src={"/defaultProfile.jpg"} style={{ width : "330px"}} />
+                        <img src={user.profileUrl ? user.profileUrl : "/defaultProfile.jpg"} alt="profile photo" style={{ width : "330px"}} />
                     </Box>
                     <Box sx={{ position : "absolute" , top : "8px" , right : "5px" , display : "flex" , alignItems : "center" , gap : "5px"}} >
                         <IconButton>
