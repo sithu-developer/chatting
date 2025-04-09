@@ -1,19 +1,19 @@
-import { CreateUserType, Status, UpdatedUserType } from "@/types/user";
+import { CreateUserType, UpdatedUserType } from "@/types/user";
 import { envValues } from "@/util/envValues";
 import { User } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { setUserIdAndFriendIds } from "./userIdAndFriendIdSlice";
+import { setChats } from "./chatsSlice";
 
 interface UserSliceInitailStateType {
     user : User | null
     friends : User[]
-    status : Status
     error : Error | null
 }
 
 const initialState : UserSliceInitailStateType = {
     user : null,
     friends : [],
-    status : Status.offline,
     error : null
 }
 
@@ -27,10 +27,11 @@ export const createUser = createAsyncThunk("userSlice/createUser" , async( user 
             },
             body : JSON.stringify( { email })
         });
-        const { user , friends } = await response.json();
+        const { user , friends , userIdAndFriendIds , chats  } = await response.json();
         thunkApi.dispatch(setUser(user));
         thunkApi.dispatch(setFriends(friends));
-        thunkApi.dispatch(changeStatus(Status.online));
+        thunkApi.dispatch(setUserIdAndFriendIds(userIdAndFriendIds));
+        thunkApi.dispatch(setChats( chats ));
         isSuccess && isSuccess();
     } catch( error ) {
         isFail && isFail
@@ -38,14 +39,14 @@ export const createUser = createAsyncThunk("userSlice/createUser" , async( user 
 })
 
 export const updateUser = createAsyncThunk("userSlice/updateUser" , async( updatedUser : UpdatedUserType , thunkApi ) => {
-    const { id , firstName , lastName , bio , day , month , year , isSuccess , isFail } = updatedUser;
+    const { id , firstName , lastName , bio , day , month , year , isOnline , isSuccess , isFail } = updatedUser;
     try {
         const response = await fetch( `${envValues.apiUrl}/user` , {
             method : "PUT" ,
             headers : {
                 "content-type" : "application/json"
             },
-            body : JSON.stringify({ id , firstName , lastName , bio , day , month , year })
+            body : JSON.stringify({ id , firstName , lastName , bio , day , month , year , isOnline })
         });
         const { user } = await response.json();
         thunkApi.dispatch(setUser(user));
@@ -59,9 +60,6 @@ export const userSlice = createSlice({
     name : "userSlice" , 
     initialState ,
     reducers : {
-        changeStatus : ( state , action : PayloadAction<Status>) => {
-            state.status = action.payload;
-        },
         setUser : ( state , action : PayloadAction<User> ) => {
             state.user = action.payload;
         },
@@ -71,6 +69,6 @@ export const userSlice = createSlice({
     }
 })
 
-export const { changeStatus , setUser , setFriends } = userSlice.actions;
+export const { setUser , setFriends } = userSlice.actions;
 
 export default userSlice.reducer;

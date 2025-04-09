@@ -26,7 +26,6 @@ interface Props {
 
 const MyProfile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) => {
     const user = useAppSelector(store => store.userSlice.user);
-    const userStatus = useAppSelector(store => store.userSlice.status);
     const [ editInfoOpen , setEditInfoOpen ] = useState<boolean>(false);
     const months = [ "Jan" , "Fab" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" ];
 
@@ -49,7 +48,7 @@ const MyProfile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) 
                     </Box>
                     <Box sx={{ position : "absolute" , bottom : "8px" , left : "10px"}}>
                         <Typography sx={{ fontWeight : "bold" , fontSize : "17px"}}>{user.firstName + " " + user.lastName}</Typography>
-                        <Typography sx={{ fontSize : "14px" , color : "lightgray" }}>{userStatus}</Typography>
+                        <Typography sx={{ fontSize : "14px" , color : "lightgray" }}>{user.isOnline ? "online" : "offline"}</Typography>
                     </Box>
                     <Fab 
                         component="label"

@@ -39,8 +39,8 @@ const SideBar = ({ open , setOpen } : Props) => {
                         </Box>
                     </Box>
                     <Box sx={{ bgcolor : "primary.main" , height : "83vh"}} >
-                        {sliderComponents.slice(0 , 1).map(item => <List key={item.id} >
-                            <ListItem key={item.name} disablePadding >
+                        {sliderComponents.slice(0 , 1).map(item => <List key={item.id} sx={{ ":hover" : { bgcolor : "#3b4044"}}} >
+                            <ListItem disablePadding >
                               <ListItemButton onClick={() => {
                                 setOpen(false);
                                 setOpenSideBarComponent({ id : item.id , open : true});
@@ -54,8 +54,8 @@ const SideBar = ({ open , setOpen } : Props) => {
                         </List>
                         )}
                         <Divider sx={{ width : "280px" , ml : "10px"}} />
-                        {sliderComponents.slice(1 , -1).map(item => <List key={item.id} >
-                            <ListItem key={item.name} disablePadding>
+                        {sliderComponents.slice(1 , -1).map(item => <List key={item.id} sx={{ ":hover" : { bgcolor : "#3b4044"}}} >
+                            <ListItem  disablePadding>
                               <ListItemButton onClick={() => {
                                 setOpen(false);
                                 setOpenSideBarComponent({ id : item.id , open : true});
@@ -69,8 +69,8 @@ const SideBar = ({ open , setOpen } : Props) => {
                         </List>
                         )}
                         <Divider />
-                        {sliderComponents.slice(-1 , sliderComponents.length).map(item => <List key={item.id} >
-                            <ListItem key={item.name} disablePadding>
+                        {sliderComponents.slice(-1 , sliderComponents.length).map(item => <List key={item.id} sx={{ ":hover" : { bgcolor : "#3b4044"}}} >
+                            <ListItem disablePadding>
                               <ListItemButton onClick={() => {
                                 setOpen(false);
                                 setOpenSideBarComponent({ id : item.id , open : true});

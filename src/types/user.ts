@@ -9,9 +9,5 @@ export interface SuccessOrFailType {
     isFail ?: (value ?: any) => void;
 }
 
-export enum Status {
-    online = "online" ,
-    offline = "offline"
-}
 
 export interface UpdatedUserType extends SuccessOrFailType , User {}

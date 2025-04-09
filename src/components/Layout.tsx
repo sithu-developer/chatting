@@ -5,10 +5,9 @@ import SideBar from "./SideBar";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { changeStatus, createUser } from "@/store/slices/userSlice";
+import { createUser, updateUser } from "@/store/slices/userSlice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import { Status } from "@/types/user";
 import { changeSnackBar } from "@/store/slices/generalSlice";
 
 
@@ -24,7 +23,8 @@ const Layout = ( { children } : Props) => {
      const dispatch = useAppDispatch();
      const router = useRouter();
      const path = router.asPath;     
-
+     const user = useAppSelector(store => store.userSlice.user);
+     const { id } = router.query;
      
      useEffect(() => {
        if (session && session.user && session.user.email) {
@@ -43,26 +43,31 @@ const Layout = ( { children } : Props) => {
      } , [ session ])
 
      useEffect(() => {
-        if( navigator !== undefined && navigator.onLine ) {
-            dispatch(changeStatus(Status.online));
-        } else {
-            dispatch(changeStatus(Status.offline));
+        if(user) {
+            const handleOnline = () => {
+                dispatch(updateUser({...user , isOnline : true }))
+            };
+            const handleOffline = () => {
+                dispatch(updateUser({...user , isOnline : false }))
+            } 
+
+            window.addEventListener("online" , handleOnline )
+            window.addEventListener("offline" , handleOffline )
+            return () => {
+                window.removeEventListener("online" , handleOnline )
+                window.removeEventListener("offline" , handleOffline )
+            }
         }
-        return () => {
-            dispatch(changeStatus(Status.offline));
-        }
-     } , [ ])
+     } , [ user ])  // check isOnline final
 
     const handleCloseSnackBar = () => {
         dispatch(changeSnackBar({...snackBar , isSnackBarOpen : false}));
     }
 
-    
-
 
     return (
         <Box>
-            <TopBar open={open} setOpen={setOpen} />
+            {!id && <TopBar open={open} setOpen={setOpen} />}
             <Box>
                 {children}
             </Box>

@@ -23,8 +23,10 @@ model User {
   month        Int
   year         Int
   profileUrl   String?
+  isOnline     Boolean
   forUserId    UserIdAndFriendId[] @relation(name: "forUserId")
   forFriendId  UserIdAndFriendId[] @relation(name: "forFriendId")
+  Chats        Chats[]             
 }
 
 
@@ -41,7 +43,9 @@ model Chats {
   id                      Int               @id @default(autoincrement())
   userAndFriendRelationId Int
   chat                    String
-  fromUser                Boolean
+  fromUserId              Int
   sendTime                String
+  seen                    Boolean
   userIdAndFriendId       UserIdAndFriendId @relation(fields: [userAndFriendRelationId], references: [id])
+  User                    User @relation(fields: [fromUserId], references: [id])
 }
