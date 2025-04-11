@@ -1,11 +1,12 @@
 import { useAppSelector } from "@/store/hooks";
-import { Box, Dialog, Divider, IconButton, TextField, Typography } from "@mui/material";
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { Box, Dialog, Divider, IconButton, Input, Typography } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import { useState } from "react";
 import { User } from "@prisma/client";
+import FiberNewRoundedIcon from '@mui/icons-material/FiberNewRounded';
+import { useRouter } from "next/router";
 
 interface Props {
     openSideBarComponent : OpenSideBarComponent,
@@ -20,12 +21,13 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
     const [ searchValue , setSearchValue ] = useState<string>("");
     const relationIdsOfFriendIds = userIdAndFriendIds.map(item => item.friendId);
     const relationIdsOfUserIds = userIdAndFriendIds.map(item => item.userId);
-    const yourFriendIds = [...relationIdsOfFriendIds , ...relationIdsOfUserIds].filter(item => item !== user.id)
+    const repeatedYourFriendIds = [...relationIdsOfFriendIds , ...relationIdsOfUserIds].filter(item => item !== user.id)
+    const yourFriendIds = [...new Set(repeatedYourFriendIds)];
     const yourFriends = friends.filter(item => yourFriendIds.includes(item.id));
     const newFriends = friends.filter(item => !yourFriendIds.includes(item.id));
     const filteredYourFriends = yourFriends.filter(item => (item.firstName.toLowerCase() + " " + item.lastName.toLowerCase()).includes(searchValue.toLowerCase()));
     const filteredNewFriends = newFriends.filter(item => (item.firstName.toLowerCase() + " " + item.lastName.toLowerCase()).includes(searchValue.toLowerCase()));
-
+    const router = useRouter();
 
     return (
         <Dialog open={ openSideBarComponent.id === 3 && openSideBarComponent.open } onClose={() => {
@@ -33,7 +35,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
             setSearchOpen(false);
         }} >
             <Box sx={{ bgcolor : "secondary.main" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , p : "5px 5px 5px 20px"}} >
-                {searchOpen ? <TextField variant="standard" autoFocus placeholder="Search" value={searchValue} onChange={(event) => setSearchValue(event.target.value)} />
+                {searchOpen ? <Input autoFocus placeholder="Search" value={searchValue} onChange={(event) => setSearchValue(event.target.value)} />
                 : <Typography >Friends</Typography>}
                 <Box sx={{ display : "flex" , alignItems : "center" , gap : "2px"}} >
                     {!searchOpen && <IconButton onClick={() => setSearchOpen(true) } >
@@ -51,7 +53,11 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                 {userIdAndFriendIds.length ? <Box>
                     <Typography sx={{ px : "20px" , py : "5px" , color : "info.main" }}>Your Friends</Typography>
                     {filteredYourFriends.length ? filteredYourFriends.map(item => (
-                        <Box key={item.id} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
+                        <Box key={item.id} onClick={() => {
+                            setOpenSideBarComponent({ ...openSideBarComponent , open : false});
+                            setSearchOpen(false);
+                            router.push(`/happy-chatting/chats/${item.id}`)
+                        }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >
                                 <img src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} style={{ width : "45px"}} />
                             </Box>
@@ -70,12 +76,17 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                 <Box>
                     <Typography sx={{ px : "20px" , py : "5px" , color : "info.main" }}>New Friends</Typography>
                     {filteredNewFriends.length ? filteredNewFriends.map(item => (
-                        <Box key={item.id} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
+                        <Box key={item.id} onClick={() => {
+                            setOpenSideBarComponent({ ...openSideBarComponent , open : false});
+                            setSearchOpen(false);
+                            router.push(`/happy-chatting/chats/${item.id}`)
+                        }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >
                                 <img src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} style={{ width : "45px"}} />
                             </Box>
-                            <Box sx={{ display : "flex" , flexGrow : 1 }} >
+                            <Box sx={{ display : "flex" , flexGrow : 1 , justifyContent : "space-between" }} >
                                 <Typography>{item.firstName} {item.lastName}</Typography>
+                                <FiberNewRoundedIcon sx={{ color : "GrayText"}} />
                             </Box>
                         </Box>
                     ))

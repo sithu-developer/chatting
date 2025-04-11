@@ -14,21 +14,19 @@ datasource db {
 }
 
 model User {
-  id           Int                 @id @default(autoincrement())
-  email        String              @unique
-  firstName    String
-  lastName     String
-  bio          String?
-  day          Int
-  month        Int
-  year         Int
-  profileUrl   String?
-  isOnline     Boolean
-  forUserId    UserIdAndFriendId[] @relation(name: "forUserId")
-  forFriendId  UserIdAndFriendId[] @relation(name: "forFriendId")
-  Chats        Chats[]             
+  id          Int                 @id @default(autoincrement())
+  email       String              @unique
+  firstName   String
+  lastName    String
+  bio         String?
+  day         Int
+  month       Int
+  year        Int
+  profileUrl  String?
+  isOnline    Boolean
+  forUserId   UserIdAndFriendId[] @relation(name: "forUserId")
+  forFriendId UserIdAndFriendId[] @relation(name: "forFriendId")
 }
-
 
 model UserIdAndFriendId {
   id       Int     @id @default(autoincrement())
@@ -40,12 +38,21 @@ model UserIdAndFriendId {
 }
 
 model Chats {
-  id                      Int               @id @default(autoincrement())
+  id                      Int                  @id @default(autoincrement())
   userAndFriendRelationId Int
   chat                    String
-  fromUserId              Int
-  sendTime                String
   seen                    Boolean
-  userIdAndFriendId       UserIdAndFriendId @relation(fields: [userAndFriendRelationId], references: [id])
-  User                    User @relation(fields: [fromUserId], references: [id])
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+  userIdAndFriendId       UserIdAndFriendId    @relation(fields: [userAndFriendRelationId], references: [id])
+  ReplyChat               ReplyChatRelations[] @relation(name: "forReplyChatId")
+  ToChat                  ReplyChatRelations[] @relation(name: "forToChatId")
+}
+
+model ReplyChatRelations {
+  id          Int   @id @default(autoincrement())
+  replyChatId Int
+  ToChatId    Int
+  ReplyChat   Chats @relation(name: "forReplyChatId", fields: [replyChatId], references: [id])
+  ToChat      Chats @relation(name: "forToChatId", fields: [ToChatId], references: [id])
 }

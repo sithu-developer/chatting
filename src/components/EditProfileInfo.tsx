@@ -16,7 +16,7 @@ interface Props {
 }
 
 const defaultUser : User = {
-    id : 0 , email : "" , firstName : "" , lastName : "" , bio : "" , day : 1 , month : 1 , year : 2000 , profileUrl : null
+    id : 0 , email : "" , firstName : "" , lastName : "" , bio : "" , day : 1 , month : 1 , year : 2000 , profileUrl : null , isOnline : false
 }
 
 const EditProfileInfo = ( {  editInfoOpen , setEditInfoOpen } : Props ) => {

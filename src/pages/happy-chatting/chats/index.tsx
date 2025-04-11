@@ -11,7 +11,8 @@ const ChatsPage = () => {
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
     const relationIdsOfFriendIds = userIdAndFriendIds.map(item => item.friendId);
     const relationIdsOfUserIds = userIdAndFriendIds.map(item => item.userId);
-    const yourFriendIds = [...relationIdsOfFriendIds , ...relationIdsOfUserIds].filter(item => item !== user.id)
+    const repeatedYourFriendIds = [...relationIdsOfFriendIds , ...relationIdsOfUserIds].filter(item => item !== user.id)
+    const yourFriendIds = [...new Set(repeatedYourFriendIds)];
     const yourFriends = friends.filter(item => yourFriendIds.includes(item.id));
 
 
