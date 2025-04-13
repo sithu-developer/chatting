@@ -23,7 +23,7 @@ export default async function handler(
                 const user = await prisma.user.update({ where : { id : exit.id} , data : { isOnline : true }})
                 const friends = await prisma.user.findMany({ where : { id : { not : user.id } }});
                 const userIdAndFriendIds = await prisma.userIdAndFriendId.findMany({ where : { OR : [ { userId : user.id } , { friendId : user.id }] }});
-                const chats = await prisma.chats.findMany({ where : { userAndFriendRelationId : { in : userIdAndFriendIds.map(item => item.id)}}});
+                const chats = await prisma.chats.findMany({ where : { userAndFriendRelationId : { in : userIdAndFriendIds.map(item => item.id)}} , orderBy : { id : "asc"}});
                 return res.status(200).json({ user , friends , userIdAndFriendIds , chats })
             } else {
                 const user = await prisma.user.create({ data : { email , firstName : "Default" , lastName : "name" , bio : "" , day : 1 , month : 1 , year : 2000 , isOnline : true }});

@@ -17,10 +17,13 @@ const userIdAndFriendIdSlice = createSlice({
     reducers : {
         setUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId[]> ) => {
             state.userIdAndFriendIds = action.payload;
+        },
+        addUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId> ) => {
+            state.userIdAndFriendIds = [...state.userIdAndFriendIds , action.payload ];
         }
     }
 })
 
-export const { setUserIdAndFriendIds } = userIdAndFriendIdSlice.actions;
+export const { setUserIdAndFriendIds , addUserIdAndFriendIds } = userIdAndFriendIdSlice.actions;
 
 export default userIdAndFriendIdSlice.reducer;

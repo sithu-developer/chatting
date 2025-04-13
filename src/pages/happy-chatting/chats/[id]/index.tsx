@@ -1,4 +1,4 @@
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Box, IconButton, Input, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
@@ -9,6 +9,7 @@ import KeyboardVoiceOutlinedIcon from '@mui/icons-material/KeyboardVoiceOutlined
 import { useEffect, useState } from "react";
 import { NewChat } from "@/types/chats";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import { createChat } from "@/store/slices/chatsSlice";
 
 const defaultNewChat : NewChat = {
     chat : "" , friendId : 0 , userId : 0
@@ -21,7 +22,8 @@ const ChattingPage = () => {
     const id = Number(query.id);
     const friends = useAppSelector(store => store.userSlice.friends);
     const currentFriend = friends.find(item => item.id === id);
-    const user = useAppSelector(store => store.userSlice.user)
+    const user = useAppSelector(store => store.userSlice.user);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if(id && user) {
@@ -30,6 +32,11 @@ const ChattingPage = () => {
     } , [id , user ])
     
     if(!currentFriend) return null;
+
+    const handleCreateChat = () => {
+        dispatch(createChat({...newChat}));
+    }
+
     return (
         <Box>
             <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between"}} >
@@ -49,13 +56,14 @@ const ChattingPage = () => {
                     <MoreVertRoundedIcon sx={{ color : "white"}} />
                 </IconButton>
             </Box>
+            {/* // start here  */}
             <Box sx={{ height : "93vh" , bgcolor : "primary.main" }}>
                 <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , backgroundAttachment : "fixed" , zIndex : 1000 , position : "fixed" , bottom : "0px" , width : "100vw" }} >
                     <IconButton>
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
-                    <Input sx={{ flexGrow : 1}} defaultValue={newChat.chat} placeholder="Message" onChange={(event) => setNewChat({...newChat , chat : event.target.value})} />
-                    {newChat.chat ? <IconButton onClick={() => console.log(newChat)} >  {/* // start here */}
+                    <Input sx={{ flexGrow : 1}} defaultValue={newChat.chat} autoFocus placeholder="Message" onChange={(event) => setNewChat({...newChat , chat : event.target.value})} />
+                    {newChat.chat ? <IconButton onClick={handleCreateChat} > 
                         <SendRoundedIcon sx={{color : "info.main" }} />
                     </IconButton>
                     :<Box>

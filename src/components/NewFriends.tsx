@@ -73,7 +73,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                     <Typography sx={{ textAlign : "center" , p : "10px"}}>No Friends yet</Typography>
                 </Box> }
                 <Divider variant="middle" />
-                <Box>
+                {newFriends.length ? <Box>
                     <Typography sx={{ px : "20px" , py : "5px" , color : "info.main" }}>New Friends</Typography>
                     {filteredNewFriends.length ? filteredNewFriends.map(item => (
                         <Box key={item.id} onClick={() => {
@@ -91,7 +91,11 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                         </Box>
                     ))
                     : <Typography sx={{ textAlign : "center" , p : "10px"}}>No Result</Typography>}
-                </Box>
+                </Box> 
+                :<Box>
+                    <Typography sx={{ px : "20px" , py : "5px" , color : "info.main" }}>Your Friends</Typography>
+                    <Typography sx={{ textAlign : "center" , p : "10px"}}>No new Friends yet</Typography>
+                </Box>}
             </Box>
         </Dialog>
     )

@@ -42,17 +42,10 @@ model Chats {
   userAndFriendRelationId Int
   chat                    String
   seen                    Boolean
+  replyId                 Int?
   createdAt               DateTime             @default(now())
   updatedAt               DateTime             @updatedAt
   userIdAndFriendId       UserIdAndFriendId    @relation(fields: [userAndFriendRelationId], references: [id])
-  ReplyChat               ReplyChatRelations[] @relation(name: "forReplyChatId")
-  ToChat                  ReplyChatRelations[] @relation(name: "forToChatId")
-}
-
-model ReplyChatRelations {
-  id          Int   @id @default(autoincrement())
-  replyChatId Int
-  ToChatId    Int
-  ReplyChat   Chats @relation(name: "forReplyChatId", fields: [replyChatId], references: [id])
-  ToChat      Chats @relation(name: "forToChatId", fields: [ToChatId], references: [id])
+  Chats                   Chats[] @relation("forReplyId")
+  forReplyId              Chats?  @relation("forReplyId" , fields: [replyId] , references: [id])
 }
