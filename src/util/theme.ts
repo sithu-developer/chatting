@@ -11,7 +11,8 @@ export const theme = createTheme({
         text : {
             primary : "#fff",
             secondary : "#F5F5F5"
-        }
+        },
+        
     } ,
     typography : {
         //  fontFamily : "system-ui",
