@@ -23,7 +23,6 @@ export default async function handler(
         return res.status(200).json({ newChat })
     } else {
         const newUserIdAndFriendId = await prisma.userIdAndFriendId.create({ data : { userId , friendId }});
-        console.log(newUserIdAndFriendId)
         const newChat = await prisma.chats.create({ data : { chat , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id }});
         return res.status(200).json({ newChat , newUserIdAndFriendId });
     }

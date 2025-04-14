@@ -36,7 +36,7 @@ const Layout = ( { children } : Props) => {
             } else {
                 const email = String(session.user.email);
                 dispatch(createUser({ email , isSuccess : () => {
-                    router.push(router.asPath)
+                    router.push(router.asPath);
                 }}));
             }
        }
@@ -59,6 +59,18 @@ const Layout = ( { children } : Props) => {
             }
         }
      } , [ user ])  // check isOnline final
+
+     useEffect(() => {
+        if(user) {
+            const interval = setInterval(() => {
+                    dispatch(createUser({ email : user.email}))
+            } , 3000);
+
+            return () => {
+                clearInterval(interval)
+            };
+        }
+     } , [ user ]);
 
     const handleCloseSnackBar = () => {
         dispatch(changeSnackBar({...snackBar , isSnackBarOpen : false}));
