@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Box, IconButton, Input, Typography } from "@mui/material";
+import { Box, Collapse, IconButton, Input, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
@@ -7,10 +7,15 @@ import SentimentSatisfiedOutlinedIcon from '@mui/icons-material/SentimentSatisfi
 import AttachmentOutlinedIcon from '@mui/icons-material/AttachmentOutlined';
 import KeyboardVoiceOutlinedIcon from '@mui/icons-material/KeyboardVoiceOutlined';
 import { useEffect, useRef, useState } from "react";
-import { NewChat } from "@/types/chats";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat } from "@/store/slices/chatsSlice";
 import { Chats, UserIdAndFriendId } from "@prisma/client";
+import { ChatMenuType, NewChat } from "@/types/chats";
+import MessageMenu from "@/components/MessageMenu";
+import { TransitionGroup } from 'react-transition-group';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
+
 
 const defaultNewChat : NewChat = {
     chat : "" , friendId : 0 , userId : 0
@@ -19,6 +24,8 @@ const defaultNewChat : NewChat = {
 const ChattingPage = () => {
     const [ newChat , setNewChat ] = useState<NewChat>(defaultNewChat);
     const [ currentChats , setCurrentChats ] = useState<Chats[]>([]);
+    const [ chatMenu , setChatMenu ] = useState<ChatMenuType>( {chat : null , anchorEl : null });
+    const [ replyChat , setReplyChat ] = useState<Chats | null>(null);
     const router = useRouter();
     const query = router.query;
     const friendId = Number(query.id);
@@ -43,7 +50,7 @@ const ChattingPage = () => {
         if(lastRef.current) {
             lastRef.current.scrollIntoView({ behavior: 'instant' });
         }
-    } , [lastRef.current])
+    } , [lastRef.current , replyChat])
     
 
     
@@ -57,7 +64,7 @@ const ChattingPage = () => {
 
     return (
         <Box sx={{ height : "100vh" , display : "flex" , flexDirection : "column" , justifyContent : "center" , alignItems : "center"}}>
-            <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , backgroundAttachment : "fixed" , zIndex : 1000 , position : "fixed" , top : "0px" , width : "100vw"}} >
+            <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw"}} >
                 <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px" }}>
                     <IconButton onClick={() => router.push("/happy-chatting/chats")} >
                         <ArrowBackRoundedIcon sx={{ color : "white"}} />
@@ -74,13 +81,13 @@ const ChattingPage = () => {
                     <MoreVertRoundedIcon sx={{ color : "white"}} />
                 </IconButton>
             </Box>
-            <Box sx={{ display : "flex" , flexDirection : "column" , gap : "3px" , overflowY: 'auto', bgcolor : "primary.main" , height : "100vh" , width : "100vw" , pt : "72px" , pb : "45px" }} >
+            <Box sx={{ display : "flex" , flexDirection : "column" , gap : "3px" , overflowY: 'auto', bgcolor : "primary.main" , height : "100vh" , width : "100vw" , pt : "72px" , pb : (replyChat ? "97px" : "48px") }} >
                 {currentChats.map(item => {
                     const time = new Date(item.createdAt);
                     const userIdAndFriendIdOfChat = userIdAndFriendIds.find(element => element.id === item.userAndFriendRelationId) as UserIdAndFriendId;
                     return (
-                    <Box key={item.id} sx={{ bgcolor : "primary.main" , display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , px : "5px" }} >
-                        <Box sx={{ bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , width : "fit-content" , maxWidth : "80%" , p : "5px" , borderRadius : "15px 15px 0px 15px" , flexWrap : "wrap" , wordBreak : "break-word"  }}>
+                    <Box key={item.id} onClick={(event) => setChatMenu({ chat : item , anchorEl : event.currentTarget})} sx={{ bgcolor : "primary.main" , display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , px : "5px" , cursor : "pointer" }} >
+                        <Box sx={{ bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , width : "fit-content" , maxWidth : "80%" , p : "5px" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "15px 15px 0px 15px" : "15px 15px 15px 0px" , flexWrap : "wrap" , wordBreak : "break-word"  }}>
                             <Typography sx={{ color : "text.primary"}} >{item.chat}</Typography>
                             <Box sx={{ display : "flex" , justifyContent : "flex-end" , width : "100%" , height : "15px"}}>
                                 <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(time.getHours() > 12 ? time.getHours() - 12 : time.getHours()) + ":" + time.getMinutes() + " " + (time.getHours() > 12 ? "PM" : "AM")}</Typography>
@@ -88,25 +95,42 @@ const ChattingPage = () => {
                         </Box>
                     </Box>
                 )})}
-                <div ref={lastRef} />
+                <Box ref={lastRef} />
+                <MessageMenu chatMenu={chatMenu} setChatMenu={setChatMenu} setReplyChat={setReplyChat} />
             </Box>
             
-            <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , backgroundAttachment : "fixed" , zIndex : 1000 , position : "fixed" , bottom : "0px" , width : "100vw" }} >
-                <IconButton>
-                    <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
-                </IconButton>
-                <Input sx={{ flexGrow : 1}} value={newChat.chat} autoFocus placeholder="Message" onChange={(event) => setNewChat({...newChat , chat : event.target.value})} />
-                {newChat.chat ? <IconButton onClick={handleCreateChat} > 
-                    <SendRoundedIcon sx={{color : "info.main" }} />
-                </IconButton>
-                :<Box sx={{ display : "flex"}} >
+            <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >
+                {replyChat && <TransitionGroup>
+                    <Collapse >
+                        <Box sx={{ display : "flex" , bgcolor : "secondary.main" , justifyContent : "space-between" , alignItems : "center" , gap : "10px" , pl : "10px" }} >
+                            <ReplyRoundedIcon sx={{ color : "info.main" , fontSize : "35px"}} />
+                            <Box sx={{ flexGrow : 1}}>
+                                <Typography sx={{ color : "info.main" , fontWeight : "bold"}} >Reply to {currentFriend.firstName + " " + currentFriend.lastName}</Typography>
+                                <Typography sx={{ color : "GrayText"}} >{replyChat.chat}</Typography>
+                            </Box>
+                            <IconButton onClick={() => setReplyChat(null)} >
+                                <CloseRoundedIcon sx={{ color : "GrayText"}} />
+                            </IconButton>
+                        </Box>
+                    </Collapse>
+                </TransitionGroup>}
+                <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , py : "3px" }} >
                     <IconButton>
-                        <AttachmentOutlinedIcon sx={{ transform : "rotate(135deg)" , color : "GrayText"}} />
+                        <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
-                    <IconButton>
-                        <KeyboardVoiceOutlinedIcon sx={{ color : "GrayText"}} />
+                    <Input sx={{ flexGrow : 1}} value={newChat.chat} autoFocus placeholder="Message" onChange={(event) => setNewChat({...newChat , chat : event.target.value})} />
+                    {newChat.chat ? <IconButton onClick={handleCreateChat} > 
+                        <SendRoundedIcon sx={{color : "info.main" }} />
                     </IconButton>
-                </Box>}
+                    :<Box sx={{ display : "flex"}} >
+                        <IconButton>
+                            <AttachmentOutlinedIcon sx={{ transform : "rotate(135deg)" , color : "GrayText"}} />
+                        </IconButton>
+                        <IconButton>
+                            <KeyboardVoiceOutlinedIcon sx={{ color : "GrayText"}} />
+                        </IconButton>
+                    </Box>}
+                </Box>
             </Box>
         </Box>
     )

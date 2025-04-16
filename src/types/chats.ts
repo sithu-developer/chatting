@@ -1,3 +1,4 @@
+import { Chats } from "@prisma/client";
 import { SuccessOrFailType } from "./user";
 
 export interface NewChat extends SuccessOrFailType {
@@ -5,4 +6,9 @@ export interface NewChat extends SuccessOrFailType {
     userId : number,
     friendId : number,
     replyId ?: number
+}
+
+export interface ChatMenuType {
+    chat : Chats | null,
+    anchorEl : null | HTMLElement,
 }
