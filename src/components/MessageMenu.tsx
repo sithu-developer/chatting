@@ -5,16 +5,18 @@ import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import { ChatMenuType } from "@/types/chats";
+import { ChatMenuType, NewChat } from "@/types/chats";
 import { Chats } from "@prisma/client";
 
 interface Props {
     chatMenu : ChatMenuType
     setChatMenu : ( value : ChatMenuType ) => void;
-    setReplyChat : (value : Chats | null) => void
+    setReplyChat : (value : Chats | null) => void;
+    setNewChat : (value : NewChat) => void;
+    newChat : NewChat;
 }
 
-const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat } : Props) => {
+const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newChat } : Props) => {
     const open = Boolean(chatMenu.anchorEl);
 
     return (
@@ -44,7 +46,8 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat } : Props) => {
       >
         <MenuItem onClick={() => {
             setReplyChat(chatMenu.chat) 
-             setChatMenu({anchorEl : null , chat : null})  // here
+            setChatMenu({anchorEl : null , chat : null});
+            setNewChat({...newChat , replyId : (chatMenu.chat as Chats).id });
         }}>
            <KeyboardReturnRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Reply</Typography>

@@ -18,7 +18,7 @@ const initialState : UserSliceInitailStateType = {
 }
 
 export const createUser = createAsyncThunk("userSlice/createUser" , async( user : CreateUserType , thunkApi) => {
-    const { email , isFail , isSuccess } = user;
+    const { email , fromLayout , isFail , isSuccess } = user;
     try {
         const response = await fetch(`${envValues.apiUrl}/user` , {
             method : "POST" ,
@@ -28,7 +28,7 @@ export const createUser = createAsyncThunk("userSlice/createUser" , async( user 
             body : JSON.stringify( { email })
         });
         const { user , friends , userIdAndFriendIds , chats  } = await response.json();
-        thunkApi.dispatch(setUser(user));
+        !fromLayout && thunkApi.dispatch(setUser(user));
         thunkApi.dispatch(setFriends(friends));
         thunkApi.dispatch(setUserIdAndFriendIds(userIdAndFriendIds));
         thunkApi.dispatch(setChats( chats ));

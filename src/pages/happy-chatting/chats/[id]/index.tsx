@@ -18,7 +18,7 @@ import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
 
 
 const defaultNewChat : NewChat = {
-    chat : "" , friendId : 0 , userId : 0
+    chat : "" , friendId : 0 , userId : 0 , replyId : null
 }
 
 const ChattingPage = () => {
@@ -36,21 +36,25 @@ const ChattingPage = () => {
     const chats = useAppSelector(store => store.chatsSlice.chats);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
     const lastRef = useRef< HTMLDivElement | null >(null);
+    const inputRef = useRef<HTMLInputElement | null >(null);
 
     useEffect(() => {
         if(friendId && user && currentFriend && chats.length ) {
-            setNewChat({chat : "" , friendId , userId : user.id });
+            setNewChat({ ...newChat , friendId , userId : user.id });
             const currentUserAndFriendRelationIds = userIdAndFriendIds.filter(item => (item.userId === user.id && item.friendId === currentFriend.id) || (item.userId === currentFriend.id && item.friendId === user.id )).map(item => item.id);
             const currChats = chats.filter(item => currentUserAndFriendRelationIds.includes(item.userAndFriendRelationId));
             setCurrentChats(currChats);
         }
-    } , [ friendId , user , chats ])
+    } , [ friendId , user , chats ]);
 
     useEffect(() => {
         if(lastRef.current) {
             lastRef.current.scrollIntoView({ behavior: 'instant' });
         }
-    } , [lastRef.current , replyChat])
+        if(replyChat && inputRef.current) {
+            inputRef.current.querySelector('input')?.focus();
+        }
+    } , [lastRef.current , replyChat , currentChats.length ])
     
 
     
@@ -59,6 +63,7 @@ const ChattingPage = () => {
     const handleCreateChat = () => {
         dispatch(createChat({...newChat , isSuccess : () => {
             setNewChat(defaultNewChat);
+            setReplyChat(null)
         }}));
     }
 
@@ -85,18 +90,28 @@ const ChattingPage = () => {
                 {currentChats.map(item => {
                     const time = new Date(item.createdAt);
                     const userIdAndFriendIdOfChat = userIdAndFriendIds.find(element => element.id === item.userAndFriendRelationId) as UserIdAndFriendId;
+                    const replyChat = chats.find(chat => chat.id === item.replyId);
+                    const replyUserId = userIdAndFriendIds.find(userIdAndFriendId => replyChat && (userIdAndFriendId.id === replyChat.userAndFriendRelationId))?.userId;
+                    const replyUser = (replyUserId === user.id) ? user : friends.find(friend => friend.id === replyUserId);
+
                     return (
                     <Box key={item.id} onClick={(event) => setChatMenu({ chat : item , anchorEl : event.currentTarget})} sx={{ bgcolor : "primary.main" , display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , px : "5px" , cursor : "pointer" }} >
-                        <Box sx={{ bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , width : "fit-content" , maxWidth : "80%" , p : "5px" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "15px 15px 0px 15px" : "15px 15px 15px 0px" , flexWrap : "wrap" , wordBreak : "break-word"  }}>
-                            <Typography sx={{ color : "text.primary"}} >{item.chat}</Typography>
-                            <Box sx={{ display : "flex" , justifyContent : "flex-end" , width : "100%" , height : "15px"}}>
-                                <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(time.getHours() > 12 ? time.getHours() - 12 : time.getHours()) + ":" + time.getMinutes() + " " + (time.getHours() > 12 ? "PM" : "AM")}</Typography>
+                        <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" , display : "flex" , flexDirection : "column"  }}>
+                            { (replyChat && replyUser) && <Box sx={{ bgcolor : "rgba(255, 255, 255, 0.15)"  , borderRadius : "4px" , borderLeft : (userIdAndFriendIdOfChat.userId === user.id) ? "4px solid white" :( replyUser.id === user.id ) ? "4px solid rgb(6, 188, 76)" :  "4px solid rgb(171, 109, 233)" , px : "5px" }}>
+                                <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
+                                <Typography sx={{ color : "text.secondary"}}>{replyChat.chat}</Typography>
+                            </Box>}
+                            <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
+                                <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.chat}</Typography>
+                                <Box sx={{ display : "flex" , justifyContent : "flex-end" , height : "11px" , flexGrow : 1 }}>
+                                    <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(time.getHours() > 12 ? time.getHours() - 12 : time.getHours()) + ":" + time.getMinutes() + " " + (time.getHours() > 12 ? "PM" : "AM")}</Typography>
+                                </Box>
                             </Box>
                         </Box>
                     </Box>
                 )})}
-                <Box ref={lastRef} />
-                <MessageMenu chatMenu={chatMenu} setChatMenu={setChatMenu} setReplyChat={setReplyChat} />
+                <div ref={lastRef} />
+                <MessageMenu chatMenu={chatMenu} setChatMenu={setChatMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} />
             </Box>
             
             <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >
@@ -108,7 +123,10 @@ const ChattingPage = () => {
                                 <Typography sx={{ color : "info.main" , fontWeight : "bold"}} >Reply to {currentFriend.firstName + " " + currentFriend.lastName}</Typography>
                                 <Typography sx={{ color : "GrayText"}} >{replyChat.chat}</Typography>
                             </Box>
-                            <IconButton onClick={() => setReplyChat(null)} >
+                            <IconButton onClick={() => {
+                                setReplyChat(null);
+                                setNewChat({...newChat , replyId : null });
+                            }} >
                                 <CloseRoundedIcon sx={{ color : "GrayText"}} />
                             </IconButton>
                         </Box>
@@ -118,7 +136,7 @@ const ChattingPage = () => {
                     <IconButton>
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
-                    <Input sx={{ flexGrow : 1}} value={newChat.chat} autoFocus placeholder="Message" onChange={(event) => setNewChat({...newChat , chat : event.target.value})} />
+                    <Input ref={inputRef} sx={{ flexGrow : 1}} value={newChat.chat} autoFocus placeholder="Message" onChange={(event) => setNewChat({...newChat , chat : event.target.value})} />
                     {newChat.chat ? <IconButton onClick={handleCreateChat} > 
                         <SendRoundedIcon sx={{color : "info.main" }} />
                     </IconButton>

@@ -63,7 +63,7 @@ const Layout = ( { children } : Props) => {
      useEffect(() => {
         if(user) {
             const interval = setInterval(() => {
-                    dispatch(createUser({ email : user.email}))
+                    dispatch(createUser({ email : user.email , fromLayout : true }))
             } , 3000);
 
             return () => {

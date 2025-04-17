@@ -1,7 +1,8 @@
 import { User } from "@prisma/client";
 
 export interface CreateUserType extends SuccessOrFailType {
-    email : string
+    email : string;
+    fromLayout ?: boolean
 }
 
 export interface SuccessOrFailType {
