@@ -66,7 +66,7 @@ const ChatsPage = () => {
                 </Box>
             </Link>
             {friendsAndChats.map(item => {
-                const time = new Date(item.chat.createdAt);
+                const createdTime = new Date(item.chat.createdAt);
                 return (
                     <Link key={item.friend.id} href={`./chats/${item.friend.id}`} style={{ textDecoration : "none" }}  >
                         <Box sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , ":hover" : { bgcolor : "#3b4044" }}} >
@@ -78,10 +78,10 @@ const ChatsPage = () => {
                                 <Box>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
                                         <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
-                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(time.getHours() > 12 ? time.getHours() - 12 : time.getHours()) + ":" + time.getMinutes() + " " + (time.getHours() > 12 ? "PM" : "AM")}</Typography>
+                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
                                     </Box>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                        <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.chat}</Typography>
+                                        <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
                                         <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
                                             <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
                                         </Box>

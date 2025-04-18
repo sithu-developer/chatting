@@ -1,8 +1,9 @@
-import { NewChat } from "@/types/chats";
+import { NewChat, UpdatedChat } from "@/types/chats";
 import { envValues } from "@/util/envValues";
 import { Chats } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addUserIdAndFriendIds } from "./userIdAndFriendIdSlice";
+import { SuccessOrFailType } from "@/types/user";
 
 interface ChatsInitialState {
     chats : Chats[],
@@ -15,14 +16,14 @@ const initialState : ChatsInitialState = {
 }
 
 export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( newChat : NewChat , thunkApi ) => {
-    const { chat , friendId ,userId , replyId , isFail , isSuccess } = newChat;
+    const { message , friendId ,userId , replyId , isFail , isSuccess } = newChat;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "POST",
             headers : {
                 "Content-type" : "application/json"
             },
-            body : JSON.stringify({ chat , friendId , userId , replyId })
+            body : JSON.stringify({ message , friendId , userId , replyId })
         });
         const { newChat , newUserIdAndFriendId } = await response.json();
         thunkApi.dispatch(addChat(newChat));
@@ -31,6 +32,25 @@ export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( new
     } catch (err) {
         isFail && isFail();
     }
+})
+
+export const updateChat = createAsyncThunk("chatsSlice/updateChat" , async( editedChat : UpdatedChat , thunkApi ) => {
+    const { id , message , isFail , isSuccess } = editedChat;
+    try {
+        const response = await fetch(`${envValues.apiUrl}/chats` , {
+            method : "PUT" ,
+            headers : {
+                "Content-type" : "application/json"
+            },
+            body : JSON.stringify({ id , message })
+        });
+        const { chat } = await response.json();
+        thunkApi.dispatch(replaceChat(chat));
+        isSuccess && isSuccess();
+    } catch(err) {
+        isFail && isFail();
+    }
+
 })
 
 const chatSlice = createSlice({
@@ -42,10 +62,13 @@ const chatSlice = createSlice({
         },
         addChat : ( state , action : PayloadAction<Chats> ) => {
             state.chats = [...state.chats , action.payload ];
+        },
+        replaceChat : ( state , action : PayloadAction<Chats> ) => {
+            state.chats = state.chats.map(chat => chat.id === action.payload.id ? action.payload : chat);
         }
     }
 });
 
-export const { setChats , addChat } = chatSlice.actions;
+export const { setChats , addChat , replaceChat } = chatSlice.actions;
 
 export default chatSlice.reducer;

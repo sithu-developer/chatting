@@ -64,7 +64,7 @@ const Layout = ( { children } : Props) => {
         if(user) {
             const interval = setInterval(() => {
                     dispatch(createUser({ email : user.email , fromLayout : true }))
-            } , 3000);
+            } , 5000);
 
             return () => {
                 clearInterval(interval)
