@@ -18,12 +18,15 @@ const userIdAndFriendIdSlice = createSlice({
         setUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId[]> ) => {
             state.userIdAndFriendIds = action.payload;
         },
-        addUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId> ) => {
+        addUserIdAndFriendId : ( state , action : PayloadAction<UserIdAndFriendId> ) => {
             state.userIdAndFriendIds = [...state.userIdAndFriendIds , action.payload ];
+        },
+        removeUserIdAndFriendId : ( state , action : PayloadAction<UserIdAndFriendId>) => {
+            state.userIdAndFriendIds = state.userIdAndFriendIds.filter(item => item.id !== action.payload.id);
         }
     }
 })
 
-export const { setUserIdAndFriendIds , addUserIdAndFriendIds } = userIdAndFriendIdSlice.actions;
+export const { setUserIdAndFriendIds , addUserIdAndFriendId , removeUserIdAndFriendId } = userIdAndFriendIdSlice.actions;
 
 export default userIdAndFriendIdSlice.reducer;

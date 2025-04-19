@@ -5,9 +5,10 @@ import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import { ChatMenuType, NewChat } from "@/types/chats";
-import { Chats } from "@prisma/client";
+import { ChatMenuType, DeleteConfirmationItemsType, NewChat } from "@/types/chats";
+import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import { useAppSelector } from "@/store/hooks";
 
 interface Props {
     chatMenu : ChatMenuType
@@ -16,15 +17,20 @@ interface Props {
     setNewChat : (value : NewChat) => void;
     newChat : NewChat;
     setEditedChat : (value : Chats | null ) => void;
+    setDeleteConfirmationItems : (value : DeleteConfirmationItemsType ) => void;
 }
 
-const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newChat , setEditedChat } : Props) => {
+const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newChat , setEditedChat , setDeleteConfirmationItems } : Props) => {
     const open = Boolean(chatMenu.anchorEl);
+    const user = useAppSelector(store => store.userSlice.user) as User;
+    const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds)
     
     if(chatMenu.chat === null ) return null;
     const createdTime = new Date(chatMenu.chat.createdAt);
     const updatedTime = new Date(chatMenu.chat.updatedAt);
     const isEdited = createdTime.getTime() !== updatedTime.getTime();
+    const userIdAndFriendIdOfChat = userIdAndFriendIds.find(element => element.id === (chatMenu.chat as Chats).userAndFriendRelationId) as UserIdAndFriendId;
+
     
     
     return (
@@ -64,7 +70,10 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
            <KeyboardReturnRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Reply</Typography>
         </MenuItem>
-        <MenuItem onClick={() => navigator.clipboard.writeText((chatMenu.chat as Chats).message)}  >
+        <MenuItem onClick={() => {
+            navigator.clipboard.writeText((chatMenu.chat as Chats).message);
+            setChatMenu({anchorEl : null , chat : null});
+        }}  >
            <ContentCopyRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Copy</Typography>
         </MenuItem>
@@ -76,14 +85,17 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
            <PushPinOutlinedIcon sx={{  mr : "15px" , transform : "rotate(45deg)" , color : "GrayText" }} />
            <Typography>Pin</Typography>
         </MenuItem>
-        <MenuItem onClick={() => {
+        {(user.id === userIdAndFriendIdOfChat.userId) && <MenuItem onClick={() => {
             setChatMenu({anchorEl : null , chat : null});
             setEditedChat(chatMenu.chat as Chats)
-        }} >
+        }}>
            <EditOutlinedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Edit</Typography>
-        </MenuItem>
-        <MenuItem >
+        </MenuItem>}
+        <MenuItem onClick={() => {
+            setChatMenu({anchorEl : null , chat : null});
+            setDeleteConfirmationItems({ open : true , chatToDelete : (chatMenu.chat as Chats) });
+        }} >
            <DeleteOutlineRoundedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Delete</Typography>
         </MenuItem>

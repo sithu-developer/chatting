@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Box, IconButton, TextField, Typography } from "@mui/material";
+import { Box, IconButton, Input, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
@@ -10,10 +10,11 @@ import { useEffect, useRef, useState } from "react";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat, updateChat } from "@/store/slices/chatsSlice";
 import { Chats, UserIdAndFriendId } from "@prisma/client";
-import { ChatMenuType, NewChat } from "@/types/chats";
+import { ChatMenuType, DeleteConfirmationItemsType, NewChat } from "@/types/chats";
 import MessageMenu from "@/components/MessageMenu";
 import ReplyOrEdit from "@/components/ReplyOrEdit";
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
+import DeleteConfirmation from "@/components/DeleteConfirmation";
 
 
 const defaultNewChat : NewChat = {
@@ -26,11 +27,12 @@ const ChattingPage = () => {
     const [ chatMenu , setChatMenu ] = useState<ChatMenuType>( {chat : null , anchorEl : null });
     const [ replyChat , setReplyChat ] = useState<Chats | null>(null);
     const [ editedChat , setEditedChat ] = useState<Chats | null>(null);
+    const [ deleteConfirmationItems , setDeleteConfirmationItems ] = useState<DeleteConfirmationItemsType>( {open : false} );
     const friends = useAppSelector(store => store.userSlice.friends);
     const user = useAppSelector(store => store.userSlice.user);
     const chats = useAppSelector(store => store.chatsSlice.chats);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
-    
+
     const router = useRouter();
     const query = router.query;
     const friendId = Number(query.id);
@@ -108,13 +110,14 @@ const ChattingPage = () => {
                 </IconButton>
             </Box>
             <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" , overflowY: 'auto', bgcolor : "primary.main" , height : "100vh" , width : "100vw" , pt : "72px" , pb : (replyChat ? "97px" : "48px") }} >
-                {currentChats.map(item => {
+                {currentChats.length ? currentChats.map(item => {
                     const createdTime = new Date(item.createdAt);
                     const updatedTime = new Date(item.updatedAt);
                     const userIdAndFriendIdOfChat = userIdAndFriendIds.find(element => element.id === item.userAndFriendRelationId) as UserIdAndFriendId;
                     const replyChat = chats.find(chat => chat.id === item.replyId);
                     const replyUserId = userIdAndFriendIds.find(userIdAndFriendId => replyChat && (userIdAndFriendId.id === replyChat.userAndFriendRelationId))?.userId;
                     const replyUser = (replyUserId === user.id) ? user : friends.find(friend => friend.id === replyUserId);
+                    if(userIdAndFriendIdOfChat)
                     return (
                     <Box key={item.id} ref={(el : HTMLDivElement | null) => { replyRefs.current[item.id] = el}} onClick={(event) => setChatMenu({ chat : item , anchorEl : event.currentTarget})} sx={{ bgcolor : "primary.main" , display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , px : "5px" , py : "1.5px" , cursor : "pointer" }} >
                         <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" , display : "flex" , flexDirection : "column"  }}>
@@ -141,9 +144,11 @@ const ChattingPage = () => {
                             </Box>
                         </Box>
                     </Box>
-                )})}
+                )})
+                : <Box></Box>}
                 <div ref={lastRef} />
-                <MessageMenu chatMenu={chatMenu} setChatMenu={setChatMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} setEditedChat={setEditedChat} />
+                <MessageMenu chatMenu={chatMenu} setChatMenu={setChatMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} setEditedChat={setEditedChat} setDeleteConfirmationItems={setDeleteConfirmationItems} />
+                <DeleteConfirmation deleteItemType="Message" deleteConfirmationItems={deleteConfirmationItems} setDeleteConfirmationItems={setDeleteConfirmationItems} />
             </Box>
             
             <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >
@@ -153,7 +158,7 @@ const ChattingPage = () => {
                     <IconButton>
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
-                    <TextField variant="standard" ref={inputRef} sx={{ flexGrow : 1}} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value})} />
+                    <Input ref={inputRef} sx={{ flexGrow : 1}} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value})} />
                     {(newChat.message || editedChat?.message) ? editedChat?.message ? <IconButton onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px"}} > 
                         <DoneRoundedIcon sx={{color : "text.primary" }} />
                     </IconButton>
