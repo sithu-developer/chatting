@@ -10,9 +10,10 @@ export interface NewChat extends SuccessOrFailType {
 
 export interface UpdatedChat extends SuccessOrFailType , Chats {};
 
-export interface DeleteConfirmationItemsType {
+export interface ConfirmationItemsType {
     open : boolean,
     chatToDelete ?: Chats,
+    chatToPin    ?: Chats
 } 
 
 export interface DeletedChat extends SuccessOrFailType {

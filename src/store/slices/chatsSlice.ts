@@ -34,14 +34,14 @@ export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( new
 })
 
 export const updateChat = createAsyncThunk("chatsSlice/updateChat" , async( editedChat : UpdatedChat , thunkApi ) => {
-    const { id , message , isFail , isSuccess } = editedChat;
+    const { id , message , isPin , isFail , isSuccess } = editedChat;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "PUT" ,
             headers : {
                 "Content-type" : "application/json"
             },
-            body : JSON.stringify({ id , message })
+            body : JSON.stringify({ id , message , isPin })
         });
         const { chat } = await response.json();
         thunkApi.dispatch(replaceChat(chat));

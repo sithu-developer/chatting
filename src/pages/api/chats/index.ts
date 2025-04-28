@@ -28,12 +28,12 @@ export default async function handler(
         return res.status(200).json({ newChat , newUserIdAndFriendId });
     }
   } else if ( method === "PUT") {
-    const { id , message } = req.body as UpdatedChat;
-    const isValid = id && message;
+    const { id , message , isPin } = req.body as UpdatedChat;
+    const isValid = id && message && isPin !== undefined;
     if(!isValid) return res.status(400).send("Bad request");
     const exit = await prisma.chats.findUnique({ where : { id }});
     if(!exit) return res.status(400).send("Bad request");
-    const chat = await prisma.chats.update({ where : { id } , data : { message }});
+    const chat = await prisma.chats.update({ where : { id } , data : { message , isPin }});
     return res.status(200).json({ chat });
   } else if ( method === "DELETE" ) {
     const { id } = req.body as DeletedChat;
