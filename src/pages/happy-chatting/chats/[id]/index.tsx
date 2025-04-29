@@ -16,7 +16,7 @@ import ReplyOrEdit from "@/components/ReplyOrEdit";
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import Confirmation from "@/components/Confirmation";
 import PinMessages from "@/components/PinMessages";
-
+import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null
@@ -143,7 +143,8 @@ const ChattingPage = () => {
                             </Box>)}
                             <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
                                 <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>
-                                <Box sx={{ display : "flex" , justifyContent : "flex-end" , height : "11px" , flexGrow : 1 }}>
+                                <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , flexGrow : 1 }}>
+                                    {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px"}} />}
                                     <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
                                 </Box>
                             </Box>

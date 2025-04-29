@@ -9,6 +9,10 @@ import { ChatMenuType, ConfirmationItemsType, NewChat } from "@/types/chats";
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import DoNotDisturbOffOutlinedIcon from '@mui/icons-material/DoNotDisturbOffOutlined';
+import { updateChat } from "@/store/slices/chatsSlice";
+import { changeSnackBar } from "@/store/slices/generalSlice";
+import { Severity } from "@/types/general";
 
 interface Props {
     chatMenu : ChatMenuType
@@ -32,7 +36,12 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
     const isEdited = createdTime.getTime() !== updatedTime.getTime();
     const userIdAndFriendIdOfChat = userIdAndFriendIds.find(element => element.id === (chatMenu.chat as Chats).userAndFriendRelationId) as UserIdAndFriendId;
 
-
+    const handleUnpin = () => {
+        setChatMenu({anchorEl : null , chat : null});
+        dispatch(updateChat({...chatMenu.chat as Chats , isPin : false , isSuccess : () => {
+            dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message unpinned." , severity : Severity.success }))
+        } }))
+    }
     
     return (
         <Menu
@@ -82,13 +91,17 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
            <ShortcutOutlinedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Forward</Typography>
         </MenuItem>
-        <MenuItem onClick={() => {
+        {chatMenu.chat.isPin ? <MenuItem onClick={handleUnpin} >
+            <DoNotDisturbOffOutlinedIcon  sx={{  mr : "15px" , color : "GrayText" }} />
+           <Typography>Unpin</Typography>
+        </MenuItem>
+        :<MenuItem onClick={() => {
             setChatMenu({anchorEl : null , chat : null});
             setConfirmationItems({ open : true , chatToPin : (chatMenu.chat as Chats)})
         }} >
            <PushPinOutlinedIcon sx={{  mr : "15px" , transform : "rotate(45deg)" , color : "GrayText" }} />
            <Typography>Pin</Typography>
-        </MenuItem>
+        </MenuItem>}
         {(user.id === userIdAndFriendIdOfChat.userId) && <MenuItem onClick={() => {
             setChatMenu({anchorEl : null , chat : null});
             setEditedChat(chatMenu.chat as Chats)

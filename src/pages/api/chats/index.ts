@@ -16,7 +16,6 @@ export default async function handler(
   if(method === "POST") {
     const { message , friendId , userId , replyId } = req.body as NewChat;
     const isValid = message && friendId && userId && replyId !== undefined ;
-    console.log(req.body)
     if(!isValid) return res.status(400).send("Bad request");
     const exitUserIdAndFriendId = await prisma.userIdAndFriendId.findFirst({ where : { AND : { userId , friendId }}});
     if(exitUserIdAndFriendId) {
@@ -33,8 +32,13 @@ export default async function handler(
     if(!isValid) return res.status(400).send("Bad request");
     const exit = await prisma.chats.findUnique({ where : { id }});
     if(!exit) return res.status(400).send("Bad request");
-    const chat = await prisma.chats.update({ where : { id } , data : { message , isPin }});
-    return res.status(200).json({ chat });
+    if(exit.message === message ) {
+      const chat = await prisma.chats.update({ where : { id } , data : { isPin , updatedAt : exit.updatedAt }});
+      return res.status(200).json({ chat });
+    } else {
+      const chat = await prisma.chats.update({ where : { id } , data : { message }});
+      return res.status(200).json({ chat });
+    }
   } else if ( method === "DELETE" ) {
     const { id } = req.body as DeletedChat;
     if(!id) return res.status(400).send("Bad request");
