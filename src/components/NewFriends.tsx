@@ -33,6 +33,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
         <Dialog open={ openSideBarComponent.id === 3 && openSideBarComponent.open } onClose={() => {
             setOpenSideBarComponent({ ...openSideBarComponent , open : false});
             setSearchOpen(false);
+            setSearchValue("");
         }} >
             <Box sx={{ bgcolor : "secondary.main" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , p : "5px 5px 5px 20px"}} >
                 {searchOpen ? <Input autoFocus placeholder="Search" value={searchValue} onChange={(event) => setSearchValue(event.target.value)} />
@@ -44,6 +45,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                     <IconButton onClick={() => {
                         setOpenSideBarComponent({ ...openSideBarComponent , open : false});
                         setSearchOpen(false);
+                        setSearchValue("");
                     }} >
                         <CloseRoundedIcon  sx={{ color : "white"}}  />
                     </IconButton>
@@ -56,6 +58,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                         <Box key={item.id} onClick={() => {
                             setOpenSideBarComponent({ ...openSideBarComponent , open : false});
                             setSearchOpen(false);
+                            setSearchValue("");
                             router.push(`/happy-chatting/chats/${item.id}`)
                         }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >
@@ -79,6 +82,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                         <Box key={item.id} onClick={() => {
                             setOpenSideBarComponent({ ...openSideBarComponent , open : false});
                             setSearchOpen(false);
+                            setSearchValue("");
                             router.push(`/happy-chatting/chats/${item.id}`)
                         }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >

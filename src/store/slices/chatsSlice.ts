@@ -15,18 +15,19 @@ const initialState : ChatsInitialState = {
 }
 
 export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( newChat : NewChat , thunkApi ) => {
-    const { message , friendId ,userId , replyId , isFail , isSuccess } = newChat;
+    const { message , friendId ,userId , replyId , forwardFriendIds , forwardFriendId , isFail , isSuccess } = newChat;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "POST",
             headers : {
                 "Content-type" : "application/json"
             },
-            body : JSON.stringify({ message , friendId , userId , replyId })
+            body : JSON.stringify({ message , friendId , userId , replyId , forwardFriendIds , forwardFriendId })
         });
-        const { newChat , newUserIdAndFriendId } = await response.json();
-        thunkApi.dispatch(addChat(newChat));
+        const { newChat , newUserIdAndFriendId , newForwardChats } = await response.json();
+        newChat && thunkApi.dispatch(addChat(newChat));
         newUserIdAndFriendId && thunkApi.dispatch(addUserIdAndFriendId(newUserIdAndFriendId));
+        newForwardChats && thunkApi.dispatch(addForwardChats(newForwardChats))
         isSuccess && isSuccess();
     } catch (err) {
         isFail && isFail();
@@ -86,10 +87,13 @@ const chatSlice = createSlice({
         },
         removeChat : ( state , action : PayloadAction<Chats> ) => {
             state.chats = state.chats.filter(chat => chat.id !== action.payload.id);
+        },
+        addForwardChats : ( state , action : PayloadAction<Chats[]>) => {
+            state.chats = [...state.chats , ...action.payload ];
         }
     }
 });
 
-export const { setChats , addChat , replaceChat , removeChat } = chatSlice.actions;
+export const { setChats , addChat , replaceChat , removeChat , addForwardChats } = chatSlice.actions;
 
 export default chatSlice.reducer;

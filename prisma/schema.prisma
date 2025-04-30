@@ -26,6 +26,7 @@ model User {
   isOnline    Boolean
   forUserId   UserIdAndFriendId[] @relation(name: "forUserId")
   forFriendId UserIdAndFriendId[] @relation(name: "forFriendId")
+  forForwardFriendId  Chats[]
 }
 
 model UserIdAndFriendId {
@@ -44,12 +45,11 @@ model Chats {
   seen                    Boolean
   replyId                 Int?
   isPin                   Boolean              @default(false)
-  forwardChatId           Int?
+  forwardFriendId         Int?
   createdAt               DateTime             @default(now())
   updatedAt               DateTime             @updatedAt
   userIdAndFriendId       UserIdAndFriendId    @relation(fields: [userAndFriendRelationId], references: [id])
   Chats                   Chats[] @relation("forReplyId")
   forReplyId              Chats?  @relation("forReplyId" , fields: [replyId] , references: [id])
-  Chat                    Chats[] @relation("forForwardChatId")
-  forForwardChatId        Chats?   @relation("forForwardChatId" , fields: [forwardChatId] , references: [id])
+  forForwardFriendId         User?   @relation(fields: [forwardFriendId] , references: [id])
 }

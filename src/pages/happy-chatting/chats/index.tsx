@@ -5,11 +5,8 @@ import Link from "next/link";
 import { useAppSelector } from "@/store/hooks";
 import { Chats, User } from "@prisma/client";
 import { useEffect, useState } from "react";
+import { FriendAndChatType } from "@/types/user";
 
-interface FriendAndChatType {
-    friend : User;
-    chat : Chats;
-}
 
 const ChatsPage = () => {
     const friends = useAppSelector(store => store.userSlice.friends);
@@ -61,7 +58,7 @@ const ChatsPage = () => {
                                 </Box>
                             </Box>
                         </Box>
-                        <Divider sx={{ bgcolor : "" }} />
+                        <Divider />
                     </Box> 
                 </Box>
             </Link>
@@ -87,7 +84,7 @@ const ChatsPage = () => {
                                         </Box>
                                     </Box>
                                 </Box>
-                                <Divider sx={{ bgcolor : "" }} />
+                                <Divider />
                             </Box> 
                         </Box>
                     </Link>

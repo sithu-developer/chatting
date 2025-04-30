@@ -14,17 +14,25 @@ export default async function handler(
 
   const method = req.method;
   if(method === "POST") {
-    const { message , friendId , userId , replyId } = req.body as NewChat;
-    const isValid = message && friendId && userId && replyId !== undefined ;
+    const { message , friendId , userId , replyId , forwardFriendId , forwardFriendIds } = req.body as NewChat;
+    const isValid = message && friendId && userId && replyId !== undefined && forwardFriendId !== undefined && forwardFriendIds !== undefined;
     if(!isValid) return res.status(400).send("Bad request");
-    const exitUserIdAndFriendId = await prisma.userIdAndFriendId.findFirst({ where : { AND : { userId , friendId }}});
-    if(exitUserIdAndFriendId) {
-        const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : exitUserIdAndFriendId.id , replyId }})
-        return res.status(200).json({ newChat })
+    if(forwardFriendId) {
+      const userIdAndFriendIds = await prisma.userIdAndFriendId.findMany({ where : { AND : { userId , friendId : { in : forwardFriendIds }} }})
+      const newForwardChats = await prisma.$transaction(
+        userIdAndFriendIds.map(item => prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : item.id , forwardFriendId }}))
+      )
+      return res.status(200).send({newForwardChats})
     } else {
-        const newUserIdAndFriendId = await prisma.userIdAndFriendId.create({ data : { userId , friendId }});
-        const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId }});
-        return res.status(200).json({ newChat , newUserIdAndFriendId });
+      const exitUserIdAndFriendId = await prisma.userIdAndFriendId.findFirst({ where : { AND : { userId , friendId }}});
+      if(exitUserIdAndFriendId) {
+          const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : exitUserIdAndFriendId.id , replyId }})
+          return res.status(200).json({ newChat })
+      } else {
+          const newUserIdAndFriendId = await prisma.userIdAndFriendId.create({ data : { userId , friendId }});
+          const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId }});
+          return res.status(200).json({ newChat , newUserIdAndFriendId });
+      }
     }
   } else if ( method === "PUT") {
     const { id , message , isPin } = req.body as UpdatedChat;

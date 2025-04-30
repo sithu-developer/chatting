@@ -126,7 +126,7 @@ const EditProfileInfo = ( {  editInfoOpen , setEditInfoOpen } : Props ) => {
                 </Backdrop>
             </DialogContent>
             <DialogActions sx={{bgcolor : "primary.main"}} >
-                <IconButton  sx={{ bgcolor : "secondary.main" , ":hover" : { bgcolor : "primary.light" }}}
+                <IconButton  sx={{ bgcolor : "secondary.main" , ":hover" : { bgcolor : "secondary.light" }}}
                     onClick={() => {
                         setUpdatedUser(user);
                         setEditInfoOpen(false);
@@ -134,7 +134,7 @@ const EditProfileInfo = ( {  editInfoOpen , setEditInfoOpen } : Props ) => {
                 >
                     <CloseRoundedIcon sx={{ color : "white"}} />
                 </IconButton>
-                <IconButton onClick={handleUpdateUser} disabled={!updatedUser.firstName && !updatedUser.lastName} sx={{ bgcolor : "secondary.main" , ":hover" : { bgcolor : "primary.light" } }} >
+                <IconButton onClick={handleUpdateUser} disabled={!updatedUser.firstName && !updatedUser.lastName} sx={{ bgcolor : "secondary.main" , ":hover" : { bgcolor : "secondary.light" } }} >
                     <CheckRoundedIcon color={(!updatedUser.firstName && !updatedUser.lastName) ? "error" : "success"}  />
                 </IconButton>
             </DialogActions>

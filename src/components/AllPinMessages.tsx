@@ -31,7 +31,7 @@ const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } :
                     <CloseRoundedIcon sx={{color : "white"}} />
                 </IconButton>
             </DialogTitle>
-            <Box sx={{ bgcolor : "primary.main" , p : "30px 20px" , maxHeight : "70vh" , minWidth : "300px" , overflowY : "auto"}}>
+            <Box sx={{ bgcolor : "primary.main" , p : "30px 10px" , maxHeight : "70vh" , minWidth : "300px" , overflowY : "auto"}}>
                 {pinChats.map(item => {
                     const createdTime = new Date(item.createdAt);
                     const updatedTime = new Date(item.updatedAt);

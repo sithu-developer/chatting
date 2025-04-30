@@ -5,7 +5,7 @@ import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import { ChatMenuType, ConfirmationItemsType, NewChat } from "@/types/chats";
+import { ChatMenuType, ConfirmationItemsType, ForwardItemsType, NewChat } from "@/types/chats";
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -22,9 +22,10 @@ interface Props {
     newChat : NewChat;
     setEditedChat : (value : Chats | null ) => void;
     setConfirmationItems : (value : ConfirmationItemsType ) => void;
+    setForwardItems : (value : ForwardItemsType) => void;
 }
 
-const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newChat , setEditedChat , setConfirmationItems } : Props) => {
+const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newChat , setEditedChat , setConfirmationItems , setForwardItems } : Props) => {
     const open = Boolean(chatMenu.anchorEl);
     const user = useAppSelector(store => store.userSlice.user) as User;
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
@@ -87,7 +88,10 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
            <ContentCopyRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Copy</Typography>
         </MenuItem>
-        <MenuItem  >
+        <MenuItem onClick={() => {
+            setChatMenu({anchorEl : null , chat : null});
+            setForwardItems({ open : true , forwardChat : chatMenu.chat as Chats})
+        }}>
            <ShortcutOutlinedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Forward</Typography>
         </MenuItem>
