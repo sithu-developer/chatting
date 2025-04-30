@@ -87,7 +87,7 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
            <ContentCopyRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Copy</Typography>
         </MenuItem>
-        <MenuItem >
+        <MenuItem  >
            <ShortcutOutlinedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Forward</Typography>
         </MenuItem>
