@@ -18,6 +18,8 @@ import Confirmation from "@/components/Confirmation";
 import PinMessages from "@/components/PinMessages";
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
 import ForwardMessage from "@/components/ForwardMessage";
+import Profile from "@/components/Profile";
+import { OpenSideBarComponent } from "@/types/sideBarComponent";
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardFriendId : null
@@ -36,6 +38,7 @@ const ChattingPage = () => {
     const user = useAppSelector(store => store.userSlice.user);
     const chats = useAppSelector(store => store.chatsSlice.chats);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
+    const [ openFriendProfileComponent , setOpenFriendProfileComponent ] = useState<OpenSideBarComponent>({id : 1 , open : false});
 
     const router = useRouter();
     const query = router.query;
@@ -98,8 +101,13 @@ const ChattingPage = () => {
         <Box sx={{ height : "100vh" , display : "flex" , flexDirection : "column" , justifyContent : "center" , alignItems : "center"}}>
             <Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
                 <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" }} >
-                    <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px" }}>
-                        <IconButton onClick={() => router.push("/happy-chatting/chats")} >
+                    <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px" , flexGrow : 1 , cursor : "pointer" }} onClick={() => {
+                        setOpenFriendProfileComponent({id : 1 , open : true , friendId : currentFriend.id })
+                    }} >
+                        <IconButton onClick={(e) =>{
+                            e.stopPropagation();
+                            router.push("/happy-chatting/chats");
+                        }} >
                             <ArrowBackRoundedIcon sx={{ color : "white"}} />
                         </IconButton>
                         <Box sx={{ width : "45px" , height : "45px" , borderRadius : "30px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center" }} >
@@ -116,6 +124,7 @@ const ChattingPage = () => {
                 </Box>
                 {pinChats.length ? <PinMessages pinChats={pinChats} messageRef={messageRef} />
                 : <span />}
+                <Profile openSideBarComponent={openFriendProfileComponent} setOpenSideBarComponent={setOpenFriendProfileComponent} />
             </Box>
             <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" , overflowY: 'auto', bgcolor : "primary.main" , height : "100vh" , width : "100vw" , pt :(pinChats.length ? "112px" : "72px") , pb : (replyChat ? "97px" : "48px") }} >
                 {currentChats.length ? currentChats.map(item => {
@@ -154,7 +163,7 @@ const ChattingPage = () => {
                                 <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
                                     <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>
                                     <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , flexGrow : 1 }}>
-                                        {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px"}} />}
+                                        {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px" }} />}
                                         <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
                                     </Box>
                                 </Box>

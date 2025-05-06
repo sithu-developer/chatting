@@ -5,7 +5,7 @@ import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import MyProfile from "./MyProfile";
+import Profile from "./Profile";
 import { useState } from "react";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import NewGroup from "./NewGroup";
@@ -87,7 +87,7 @@ const SideBar = ({ open , setOpen } : Props) => {
                 </Box>
             </Drawer>
             
-            <MyProfile openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
+            <Profile openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
             <NewGroup openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
             <NewFriends openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
         </Box>
