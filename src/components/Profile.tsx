@@ -43,9 +43,9 @@ const Profile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) =>
                         <img src={friend ? (friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg") : (user.profileUrl ? user.profileUrl : "/defaultProfile.jpg")} alt="profile photo" style={{ width : "330px"}} />
                     </Box>
                     <Box sx={{ position : "absolute" , top : "8px" , right : "5px" , display : "flex" , alignItems : "center" , gap : "5px"}} >
-                        <IconButton>
+                        {!friend && <IconButton>
                             <EditRoundedIcon sx={{ color : "white" }} fontSize="small" onClick={() => setEditInfoOpen(true) } />
-                        </IconButton>
+                        </IconButton>}
                         <IconButton>
                             <CloseRoundedIcon sx={{ color : "white" }} onClick={() => setOpenSideBarComponent({ id : 0 , friendId : undefined , open : false })} />
                         </IconButton>

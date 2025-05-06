@@ -140,7 +140,10 @@ const ChattingPage = () => {
                     return (
                     <Box key={item.id} ref={(el : HTMLDivElement | null) => { messageRef.current[item.id] = el}} onClick={(event) => setChatMenu({ chat : item , anchorEl : event.currentTarget})} sx={{ bgcolor : "primary.main" , display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , px : "5px" , py : "1.5px" , cursor : "pointer" }} >
                         <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" }}>
-                            {forwardFriend && <Box sx={{ mb : "2px" , color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.primary" : "rgb(6, 188, 76)" }}> 
+                            {forwardFriend && <Box sx={{ mb : "2px" , color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.primary" : "rgb(6, 188, 76)" }} onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenFriendProfileComponent({id : 1 , open : true , friendId : forwardFriend.id })
+                            }}> 
                                 <Typography sx={{   lineHeight: 1 , fontSize : "14px" }}>Forwarded from</Typography>
                                 <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
                             </Box>}
