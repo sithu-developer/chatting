@@ -1,4 +1,4 @@
-import { Chats, User } from "@prisma/client";
+import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 
 export interface CreateUserType extends SuccessOrFailType {
     email : string;
@@ -10,9 +10,10 @@ export interface SuccessOrFailType {
     isFail ?: (value ?: any) => void;
 }
 
-export interface FriendAndChatType {
+export interface FriendAndChatAndRelationType {
     friend : User;
     chat : Chats;
+    userIdAndFriendId : UserIdAndFriendId
 }
 
 export interface UpdatedUserType extends SuccessOrFailType , User {}

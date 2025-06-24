@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import SearchIcon from '@mui/icons-material/Search';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { FriendAndChatType } from "@/types/user";
+import { FriendAndChatAndRelationType } from "@/types/user";
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
 import { ForwardItemsType } from "@/types/chats";
@@ -12,6 +12,8 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat } from "@/store/slices/chatsSlice";
 import { changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
+import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+
 
 interface Props {
     forwardItems : ForwardItemsType;
@@ -27,8 +29,8 @@ const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
     const user = useAppSelector(store => store.userSlice.user) as User;
     const chats = useAppSelector(store => store.chatsSlice.chats);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
-    const [ friendsAndChats , setFriendsAndChats ] = useState<FriendAndChatType[]>([]);
-    const filteredFriendsAndChats = friendsAndChats.filter(item => (item.friend.firstName + " " + item.friend.lastName).toLowerCase().includes(searchValue.toLowerCase()));
+    const [ friendsAndChatsAndRelation , setFriendsAndChatsAndRelation] = useState<FriendAndChatAndRelationType[]>([]);
+    const filteredFriendsAndChats = friendsAndChatsAndRelation.filter(item => (item.friend.firstName + " " + item.friend.lastName).toLowerCase().includes(searchValue.toLowerCase()));
 
     const dispatch = useAppDispatch();
 
@@ -37,17 +39,29 @@ const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
             const relationIdsOfFriendIds = userIdAndFriendIds.map(item => item.friendId);
             const relationIdsOfUserIds = userIdAndFriendIds.map(item => item.userId);
             const repeatedYourFriendIds = [...relationIdsOfFriendIds , ...relationIdsOfUserIds].filter(item => item !== user.id)
+            
             const yourFriendIds = [...new Set(repeatedYourFriendIds)];
             const yourFriends = friends.filter(item => yourFriendIds.includes(item.id));
 
-            const lastChatsAndRelatedFriends : FriendAndChatType[] = yourFriendIds.map(friendId => {
+            const lastChatsAndRelatedFriendsAndRelation : FriendAndChatAndRelationType[] = yourFriendIds.map(friendId => {
                 const currentFriendRelationIds =  userIdAndFriendIds.filter(userIdAndFriendId =>( userIdAndFriendId.friendId === friendId || userIdAndFriendId.userId === friendId)).map(item => item.id)
                 const currentFriendLastChat = chats.findLast(chat => currentFriendRelationIds.includes(chat.userAndFriendRelationId)) as Chats;
                 const relatedFriend = yourFriends.find(friend => friend.id === friendId) as User;
-                return {friend : relatedFriend , chat : currentFriendLastChat };
+                const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend.id) as UserIdAndFriendId;
+                return {friend : relatedFriend , chat : currentFriendLastChat , userIdAndFriendId };
 
-            }).sort(( a , b ) => b.chat.id - a.chat.id) ;
-            setFriendsAndChats(lastChatsAndRelatedFriends);
+            });
+
+            const savedChatRelation = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === user.id );
+            if(savedChatRelation) {
+                const savedLastMessage = chats.findLast(chat => chat.userAndFriendRelationId === savedChatRelation.id) as Chats;
+                lastChatsAndRelatedFriendsAndRelation.push({ chat : savedLastMessage , friend : user , userIdAndFriendId : savedChatRelation });
+                const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
+                setFriendsAndChatsAndRelation(sortedItems);
+            } else {
+                const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
+                setFriendsAndChatsAndRelation(sortedItems);
+            }
         }
     } , [ user , friends , chats , userIdAndFriendIds ])
 
@@ -99,9 +113,12 @@ const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
                             }
                         }} sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , cursor : "pointer" , ":hover" : { bgcolor : "#3b4044" }}} >
                             <Box sx={{ position : "relative"}}>
-                                <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
+                                {item.friend.id !== user.id ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
                                     <img alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} style={{ width : "55px"}} />
                                 </Box>
+                                :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
+                                    <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />
+                                </Box>}
                                 {exit && <Box  sx={{ position : "absolute" , bottom : "1px" , right : "1px" , bgcolor : "white" , width : "15px" , height : "15px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" }}>
                                     <CheckCircleRoundedIcon color="success" />
                                 </Box>}
@@ -110,14 +127,16 @@ const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
                                 <span></span>
                                 <Box sx={{ userSelect : "none"}}>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                        <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
+                                        {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
+                                        :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
                                         <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
                                     </Box>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
                                         <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
-                                        <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
+                                        {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
                                             <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
-                                        </Box>
+                                        </Box>:
+                                        <span></span>}
                                     </Box>
                                 </Box>
                                 <Divider />

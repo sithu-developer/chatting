@@ -33,6 +33,7 @@ model UserIdAndFriendId {
   id       Int     @id @default(autoincrement())
   userId   Int
   friendId Int
+  isPinChat Boolean @default(false)
   user     User    @relation(name: "forUserId", fields: [userId], references: [id])
   friend   User    @relation(name: "forFriendId", fields: [friendId], references: [id])
   forChats Chats[]

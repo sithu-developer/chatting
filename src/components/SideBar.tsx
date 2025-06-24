@@ -10,6 +10,7 @@ import { useState } from "react";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import NewGroup from "./NewGroup";
 import NewFriends from "./NewFriends";
+import { useRouter } from "next/router";
 
 interface Props {
     open : boolean,
@@ -20,6 +21,7 @@ interface Props {
 const SideBar = ({ open , setOpen } : Props) => {
    const user = useAppSelector(store => store.userSlice.user);
    const [ openSideBarComponent , setOpenSideBarComponent ] = useState<OpenSideBarComponent>({id : 1 , open : false});
+   const router = useRouter();
 
    if(user)
     return (
@@ -56,9 +58,13 @@ const SideBar = ({ open , setOpen } : Props) => {
                         <Divider sx={{ width : "280px" , ml : "10px"}} />
                         {sliderComponents.slice(1 , -1).map(item => <List key={item.id} sx={{ ":hover" : { bgcolor : "#3b4044"}}} >
                             <ListItem  disablePadding>
-                              <ListItemButton onClick={() => {
+                              <ListItemButton onClick={() => {  
                                 setOpen(false);
-                                setOpenSideBarComponent({ id : item.id , open : true});
+                                if(item.id === 4) {
+                                  router.push(`/happy-chatting/chats/${user.id}`)
+                                } else {
+                                  setOpenSideBarComponent({ id : item.id , open : true});
+                                }
                               }}>
                                 <ListItemIcon sx={{ color : "lightgray" }}>
                                   <item.icon/>

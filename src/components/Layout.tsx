@@ -27,7 +27,7 @@ const Layout = ( { children } : Props) => {
      const { id } = router.query;
      
      useEffect(() => {
-       if (session && session.user && session.user.email) {
+       if (session && session.user && session.user.email && !user) {
            if(path === "/" || path === "/happy-chatting" || path === "/happy-chatting/login" ) {
                 const email = String(session.user.email);
                 dispatch(createUser({ email , isSuccess : () => {

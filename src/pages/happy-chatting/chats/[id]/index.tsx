@@ -20,6 +20,8 @@ import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
 import ForwardMessage from "@/components/ForwardMessage";
 import Profile from "@/components/Profile";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
+import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardFriendId : null
@@ -59,6 +61,15 @@ const ChattingPage = () => {
             setCurrentChats(currChats);
             const pinChats = currChats.filter(chat => chat.isPin === true);
             setPinChats(pinChats);
+        } else if(user && friendId && friendId === user.id) {
+            setNewChat({ ...newChat , friendId , userId : user.id });
+            const userAndFriendRelationIdForSavedChat = userIdAndFriendIds.find(item =>  item.userId === user.id && item.friendId === user.id);
+            if(userAndFriendRelationIdForSavedChat) {
+                const currChats = chats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdForSavedChat.id );
+                setCurrentChats(currChats);
+                const pinChats = currChats.filter(chat => chat.isPin === true);
+                setPinChats(pinChats);
+            }
         }
     } , [ friendId , user , chats ]);
 
@@ -74,7 +85,7 @@ const ChattingPage = () => {
         }
     } , [lastRef.current , replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
         
-    if(!currentFriend || !user) return null;
+    if(!user) return null;
 
     const handleCreateChat = () => {
         dispatch(createChat({...newChat , isSuccess : () => {
@@ -101,8 +112,10 @@ const ChattingPage = () => {
         <Box sx={{ height : "100vh" , display : "flex" , flexDirection : "column" , justifyContent : "center" , alignItems : "center"}}>
             <Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
                 <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" }} >
-                    <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px" , flexGrow : 1 , cursor : "pointer" }} onClick={() => {
-                        setOpenFriendProfileComponent({id : 1 , open : true , friendId : currentFriend.id })
+                    <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px" , flexGrow : 1 , cursor : (currentFriend ? "pointer" : "default") }} onClick={() => {
+                        if(currentFriend) {
+                            setOpenFriendProfileComponent({id : 1 , open : true , friendId : currentFriend.id })
+                        }
                     }} >
                         <IconButton onClick={(e) =>{
                             e.stopPropagation();
@@ -110,13 +123,17 @@ const ChattingPage = () => {
                         }} >
                             <ArrowBackRoundedIcon sx={{ color : "white"}} />
                         </IconButton>
-                        <Box sx={{ width : "45px" , height : "45px" , borderRadius : "30px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center" }} >
+                        {currentFriend ? <Box sx={{ width : "45px" , height : "45px" , borderRadius : "30px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center" }} >
                             <img alt="your friend profile" src={currentFriend.profileUrl ? currentFriend.profileUrl : "/defaultProfile.jpg"} style={{ width : "45px"}} />
                         </Box>
-                        <Box >
+                        :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" }} >
+                            <BookmarkBorderRoundedIcon sx={{ fontSize : "30px" , color : "white"}} />
+                        </Box>}
+                        {currentFriend ? <Box >
                             <Typography sx={{ color : "white"}} >{currentFriend.firstName + " " + currentFriend.lastName }</Typography>
                             <Typography sx={{ color : (currentFriend.isOnline ? "info.main" : "GrayText" )}}  >{currentFriend.isOnline ? "online" : "offline"}</Typography>
                         </Box>
+                        :<Typography  sx={{ color : "white"}}>Saved Messages</Typography>}
                     </Box>
                     <IconButton>
                         <MoreVertRoundedIcon sx={{ color : "white"}} />
