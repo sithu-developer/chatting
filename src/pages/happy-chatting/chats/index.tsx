@@ -1,11 +1,12 @@
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Button, Divider, Typography } from "@mui/material";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
-import Link from "next/link";
 import { useAppSelector } from "@/store/hooks";
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FriendAndChatAndRelationType } from "@/types/user";
+import { useRouter } from "next/router";
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 
 
 const ChatsPage = () => {
@@ -14,7 +15,10 @@ const ChatsPage = () => {
     const chats = useAppSelector(store => store.chatsSlice.chats);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
     const [ friendsAndChatsAndRelation , setFriendsAndChatsAndRelation] = useState<FriendAndChatAndRelationType[]>([]);
-    
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const [ selectedFriends , setSelectedFriends ] = useState<User[]>([]);
+    const router = useRouter();
+
     useEffect(() => {
         if(user && friends.length && chats.length && userIdAndFriendIds.length ) {
             const relationIdsOfFriendIds = userIdAndFriendIds.map(item => item.friendId);
@@ -30,7 +34,6 @@ const ChatsPage = () => {
                 const relatedFriend = yourFriends.find(friend => friend.id === friendId) as User;
                 const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend.id) as UserIdAndFriendId;
                 return {friend : relatedFriend , chat : currentFriendLastChat , userIdAndFriendId };
-
             });
 
             const savedChatRelation = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === user.id );
@@ -43,46 +46,93 @@ const ChatsPage = () => {
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
                 setFriendsAndChatsAndRelation(sortedItems);
             }
-
-            
         }
     } , [ user , friends , chats , userIdAndFriendIds ])
 
-    
+    const handleMouseDown = ( exit : User | undefined , item : FriendAndChatAndRelationType) => {
+        timerRef.current = setTimeout(() => {
+            if(exit) {
+                const friendsAfterRemove  = selectedFriends.filter(friend => friend.id !== item.friend.id);
+                setSelectedFriends(friendsAfterRemove);
+            } else {
+                setSelectedFriends([...selectedFriends , item.friend ]);
+            }
+        } , 800)
+    }
+
+    const handleMouseUp = () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
 
     return (
         <Box sx={{ bgcolor : "primary.main" , height : "95vh"}}>
             {friendsAndChatsAndRelation.map(item => {
                 const createdTime = new Date(item.chat.createdAt);
+                const exit = selectedFriends.find(friend => friend.id === item.friend.id );
+
                 return (
-                    <Link key={item.friend.id} href={`./chats/${item.friend.id}`} style={{ textDecoration : "none" }}  >
-                        <Box sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , ":hover" : { bgcolor : "#3b4044" }}} >
+                    <Box key={item.friend.id}
+
+                    onContextMenu={(e) => {
+                        e.preventDefault();
+                        if(!exit) {
+                            setSelectedFriends([...selectedFriends , item.friend ]);
+                        }
+                    }} 
+
+                    onClick={() => {
+                        if(selectedFriends.length) {
+                            if(exit) {
+                                const friendsAfterRemove  = selectedFriends.filter(friend => friend.id !== item.friend.id);
+                                setSelectedFriends(friendsAfterRemove);
+                            } else {
+                                setSelectedFriends([...selectedFriends , item.friend ]);
+                            }
+                        } else {
+                            router.push(`./chats/${item.friend.id}`)
+                        }
+                    }}
+
+                    onTouchStart={() => { handleMouseDown( exit , item ) }}
+                    onMouseDown={() => { handleMouseDown( exit , item ) }}
+                    onTouchEnd={handleMouseUp} 
+                    onMouseUp={handleMouseUp}
+
+                    sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , ":hover" : { bgcolor : "#3b4044" }}} 
+                    >
+                        <Box sx={{ position : "relative"}}>
                             {item.friend.id !== user.id ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
                                 <img alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} style={{ width : "55px"}} />
                             </Box>
                             :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
                                 <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />
                             </Box>}
-                            <Box sx={{ display : "flex" , flexDirection : "column" , flexGrow : 1 , gap : "15px" }} >
-                                <span></span>
-                                <Box>
-                                    <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                        {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
-                                        :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
-                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
-                                    </Box>
-                                    <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                        <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
-                                        {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
-                                            <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
-                                        </Box>:
-                                        <span></span>}
-                                    </Box>
-                                </Box>
-                                <Divider />
-                            </Box> 
+                            {exit && <Box  sx={{ position : "absolute" , bottom : "1px" , right : "1px" , bgcolor : "white" , width : "15px" , height : "15px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" }}>
+                                <CheckCircleRoundedIcon color="success" />
+                            </Box>}
                         </Box>
-                    </Link>
+                        <Box sx={{ display : "flex" , flexDirection : "column" , flexGrow : 1 , gap : "15px" , userSelect : "none" }} >
+                            <span></span>
+                            <Box>
+                                <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
+                                    {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
+                                    :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
+                                    <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                </Box>
+                                <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
+                                    <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
+                                    {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
+                                        <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
+                                    </Box>:
+                                    <span></span>}
+                                </Box>
+                            </Box>
+                            <Divider />
+                        </Box> 
+                    </Box>
                 )
             })}
         </Box>

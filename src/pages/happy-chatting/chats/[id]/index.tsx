@@ -21,6 +21,7 @@ import ForwardMessage from "@/components/ForwardMessage";
 import Profile from "@/components/Profile";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 
 
 const defaultNewChat : NewChat = {
@@ -41,6 +42,7 @@ const ChattingPage = () => {
     const chats = useAppSelector(store => store.chatsSlice.chats);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
     const [ openFriendProfileComponent , setOpenFriendProfileComponent ] = useState<OpenSideBarComponent>({id : 1 , open : false});
+    const [ selectedChats , setSelectedChats ] = useState<Chats[]>([]);
 
     const router = useRouter();
     const query = router.query;
@@ -52,6 +54,7 @@ const ChattingPage = () => {
     const lastRef = useRef< HTMLDivElement | null >(null);
     const inputRef = useRef<HTMLInputElement | null >(null);
     const messageRef = useRef<{ [ key : number ] : HTMLDivElement | null }>({});
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if(friendId && user && currentFriend ) {
@@ -108,6 +111,24 @@ const ChattingPage = () => {
         }
     }
 
+    const handleMouseDown = ( exit : Chats | undefined , item : Chats) => {
+        timerRef.current = setTimeout(() => {
+            if(exit) {
+                const chatsAfterRemove  = selectedChats.filter(selectedChat => selectedChat.id !== item.id);
+                setSelectedChats(chatsAfterRemove);
+            } else {
+                setSelectedChats([...selectedChats , item ]);
+            }
+        } , 800)
+    }
+
+    const handleMouseUp = () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+
     return (
         <Box sx={{ height : "100vh" , display : "flex" , flexDirection : "column" , justifyContent : "center" , alignItems : "center"}}>
             <Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
@@ -153,38 +174,69 @@ const ChattingPage = () => {
                     const replyUser = (replyUserId === user.id) ? user : friends.find(friend => friend.id === replyUserId);
                     const forwardFriend = [...friends , user].find(friend => friend.id === item.forwardFriendId);
 
+                    const exit = selectedChats.find(chat => chat.id === item.id)
+
                     if(userIdAndFriendIdOfChat)
                     return (
-                    <Box key={item.id} ref={(el : HTMLDivElement | null) => { messageRef.current[item.id] = el}} onClick={(event) => setChatMenu({ chat : item , anchorEl : event.currentTarget})} sx={{ bgcolor : "primary.main" , display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , px : "5px" , py : "1.5px" , cursor : "pointer" }} >
-                        <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" }}>
-                            {forwardFriend && <Box sx={{ mb : "2px" , color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.primary" : "rgb(6, 188, 76)" }} onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenFriendProfileComponent({id : 1 , open : true , friendId : forwardFriend.id })
-                            }}> 
-                                <Typography sx={{   lineHeight: 1 , fontSize : "14px" }}>Forwarded from</Typography>
-                                <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
-                            </Box>}
-                            <Box sx={{ display : "flex" , flexDirection : "column"  }}>
-                                { (replyChat && replyUser) && (
-                                <Box onClick={(e) => {
+                    <Box key={item.id} sx={{ display : "flex" , alignItems : "center" ,  bgcolor : (exit ? "rgba(206, 212, 224, 0.15)" : "primary.main")}}  >
+                        {selectedChats.length && (!exit ? <Box sx={{ width : "28px" , height : "28px" , borderRadius : "20px" , border : "2px solid white" , mx : "10px" }} ></Box>
+                        :<Box  sx={{ bgcolor : "white" , width : "28px" , height : "28px" , borderRadius : "20px" , display : "flex" , justifyContent : "center" , alignItems : "center", mx : "10px"  }}>
+                            <CheckCircleRoundedIcon color="success" sx={{ fontSize : "31px"}} />
+                        </Box>)}
+                        <Box ref={(el : HTMLDivElement | null) => { messageRef.current[item.id] = el}} 
+
+                        sx={{ display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , flexGrow : 1 , px : "5px" , py : "1.5px" , cursor : "pointer" }} 
+                        
+                        onClick={(event) => {
+                            if(selectedChats.length) {
+                                if(exit) {
+                                    const chatsAfterRemove  = selectedChats.filter(selectedChat => selectedChat.id !== item.id);
+                                    setSelectedChats(chatsAfterRemove);
+                                } else {
+                                    setSelectedChats([...selectedChats , item ]);
+                                }
+                            } else {
+                                setChatMenu({ chat : item , anchorEl : event.currentTarget})
+                            }
+                        }}
+
+                        onTouchStart={() =>  handleMouseDown( exit , item ) }
+                        onMouseDown={() =>  handleMouseDown( exit , item )}
+                        onTouchEnd={handleMouseUp} 
+                        onMouseUp={handleMouseUp}
+
+                        >   
+
+                            <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" }}>
+                                {forwardFriend && <Box sx={{ mb : "2px" , color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.primary" : "rgb(6, 188, 76)" }} onClick={(e) => {
                                     e.stopPropagation();
-                                    const replyBox = messageRef.current[replyChat.id];
-                                    if(replyBox) {
-                                        replyBox.scrollIntoView({behavior : "smooth" , block : "center"});
-                                        replyBox.style.backgroundColor = "rgba(206, 212, 224, 0.15)";
-                                        setTimeout(() => {
-                                            replyBox.style.backgroundColor = "";
-                                        } , 2000)
-                                    }
-                                }} sx={{ bgcolor : "rgba(255, 255, 255, 0.15)"  , borderRadius : "4px" , borderLeft : (userIdAndFriendIdOfChat.userId === user.id) ? "4px solid white" :( replyUser.id === user.id ) ? "4px solid rgb(6, 188, 76)" :  "4px solid rgb(171, 109, 233)" , px : "5px" }}>
-                                    <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
-                                    <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
-                                </Box>)}
-                                <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
-                                    <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>
-                                    <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , flexGrow : 1 }}>
-                                        {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px" }} />}
-                                        <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                    setOpenFriendProfileComponent({id : 1 , open : true , friendId : forwardFriend.id })
+                                }}> 
+                                    <Typography sx={{   lineHeight: 1 , fontSize : "14px" }}>Forwarded from</Typography>
+                                    <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
+                                </Box>}
+                                <Box sx={{ display : "flex" , flexDirection : "column"  }}>
+                                    { (replyChat && replyUser) && (
+                                    <Box onClick={(e) => {
+                                        e.stopPropagation();
+                                        const replyBox = messageRef.current[replyChat.id];
+                                        if(replyBox) {
+                                            replyBox.scrollIntoView({behavior : "smooth" , block : "center"});
+                                            replyBox.style.backgroundColor = "rgba(206, 212, 224, 0.15)";
+                                            setTimeout(() => {
+                                                replyBox.style.backgroundColor = "";
+                                            } , 2000)
+                                        }
+                                    }} sx={{ bgcolor : "rgba(255, 255, 255, 0.15)"  , borderRadius : "4px" , borderLeft : (userIdAndFriendIdOfChat.userId === user.id) ? "4px solid white" :( replyUser.id === user.id ) ? "4px solid rgb(6, 188, 76)" :  "4px solid rgb(171, 109, 233)" , px : "5px" }}>
+                                        <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
+                                        <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
+                                    </Box>)}
+                                    <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
+                                        <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>
+                                        <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , flexGrow : 1 }}>
+                                            {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px" }} />}
+                                            <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                        </Box>
                                     </Box>
                                 </Box>
                             </Box>
