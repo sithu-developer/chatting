@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Box, IconButton, Input, Typography } from "@mui/material";
+import { Box, IconButton, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
@@ -22,6 +22,12 @@ import Profile from "@/components/Profile";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
+import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+
 
 
 const defaultNewChat : NewChat = {
@@ -43,6 +49,7 @@ const ChattingPage = () => {
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
     const [ openFriendProfileComponent , setOpenFriendProfileComponent ] = useState<OpenSideBarComponent>({id : 1 , open : false});
     const [ selectedChats , setSelectedChats ] = useState<Chats[]>([]);
+    const [ heightOfInput , setHeightOfInput ] = useState<number>(48);
 
     const router = useRouter();
     const query = router.query;
@@ -88,12 +95,18 @@ const ChattingPage = () => {
         }
     } , [lastRef.current , replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
         
+    useEffect(() => {
+        if(lastRef.current) {
+            lastRef.current.scrollIntoView({ behavior : 'smooth'})
+        }
+    } , [heightOfInput])
     if(!user) return null;
 
     const handleCreateChat = () => {
         dispatch(createChat({...newChat , isSuccess : () => {
             setNewChat(defaultNewChat);
-            setReplyChat(null)
+            setReplyChat(null);
+            setHeightOfInput(48);
         }}))
     }
 
@@ -131,7 +144,40 @@ const ChattingPage = () => {
 
     return (
         <Box sx={{ height : "100vh" , display : "flex" , flexDirection : "column" , justifyContent : "center" , alignItems : "center"}}>
-            <Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
+            {selectedChats.length ? <Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
+                <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" }} >
+                    <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px"}}>
+                        <IconButton onClick={() => setSelectedChats([])}>
+                            <CloseRoundedIcon sx={{ color : "white"}} />
+                        </IconButton>
+                        <Typography sx={{ color : "white"}} >{selectedChats.length}</Typography>
+                    </Box>
+                    <Box sx={{ display : "flex" , gap : "10px"}}>
+                        {selectedChats.length === 1 && <IconButton onClick={() => {
+                            setEditedChat(selectedChats[0])
+                            setSelectedChats([])
+                        }} >
+                            <EditOutlinedIcon sx={{ color : "white"}} />
+                        </IconButton>}
+                        <IconButton onClick={() => {
+                            navigator.clipboard.writeText(selectedChats.map(selectedChat => selectedChat.message).join("\n\n"))
+                            setSelectedChats([])
+                        }} >
+                            <ContentCopyRoundedIcon sx={{ transform : "scaleY(-1)" , color : "white" }} />
+                        </IconButton>
+                        <IconButton>
+                            <ShortcutOutlinedIcon sx={{  color : "white" }} />
+                        </IconButton>
+                        <IconButton>
+                            <DeleteOutlineRoundedIcon sx={{ color : "white" }} />
+                        </IconButton>
+                    </Box>
+                </Box>
+                {pinChats.length ? <PinMessages pinChats={pinChats} messageRef={messageRef} />
+                : <span />}
+                <Profile openSideBarComponent={openFriendProfileComponent} setOpenSideBarComponent={setOpenFriendProfileComponent} />
+            </Box>
+            :<Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
                 <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" }} >
                     <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px" , flexGrow : 1 , cursor : (currentFriend ? "pointer" : "default") }} onClick={() => {
                         if(currentFriend) {
@@ -163,8 +209,8 @@ const ChattingPage = () => {
                 {pinChats.length ? <PinMessages pinChats={pinChats} messageRef={messageRef} />
                 : <span />}
                 <Profile openSideBarComponent={openFriendProfileComponent} setOpenSideBarComponent={setOpenFriendProfileComponent} />
-            </Box>
-            <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" , overflowY: 'auto', bgcolor : "primary.main" , height : "100vh" , width : "100vw" , pt :(pinChats.length ? "112px" : "72px") , pb : (replyChat ? "97px" : "48px") }} >
+            </Box>}
+            <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" , overflowY: 'auto', bgcolor : "primary.main" , height : "100vh" , width : "100vw" , pt :(pinChats.length ? "112px" : "72px") , pb : (replyChat ? heightOfInput + 49 + "px" : heightOfInput + "px") }} >
                 {currentChats.length ? currentChats.map(item => {
                     const createdTime = new Date(item.createdAt);
                     const updatedTime = new Date(item.updatedAt);
@@ -179,7 +225,7 @@ const ChattingPage = () => {
                     if(userIdAndFriendIdOfChat)
                     return (
                     <Box key={item.id} sx={{ display : "flex" , alignItems : "center" ,  bgcolor : (exit ? "rgba(206, 212, 224, 0.15)" : "primary.main")}}  >
-                        {selectedChats.length && (!exit ? <Box sx={{ width : "28px" , height : "28px" , borderRadius : "20px" , border : "2px solid white" , mx : "10px" }} ></Box>
+                        {selectedChats.length && (!exit ? <Box sx={{ width : "28px" , height : "28px" , minHeight : "28px" , minWidth : "28px" , borderRadius : "20px" , border : "2px solid white" , mx : "10px" }} ></Box>
                         :<Box  sx={{ bgcolor : "white" , width : "28px" , height : "28px" , borderRadius : "20px" , display : "flex" , justifyContent : "center" , alignItems : "center", mx : "10px"  }}>
                             <CheckCircleRoundedIcon color="success" sx={{ fontSize : "31px"}} />
                         </Box>)}
@@ -216,7 +262,7 @@ const ChattingPage = () => {
                                     <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
                                 </Box>}
                                 <Box sx={{ display : "flex" , flexDirection : "column"  }}>
-                                    { (replyChat && replyUser) && (
+                                    {(replyChat && replyUser) && (
                                     <Box onClick={(e) => {
                                         e.stopPropagation();
                                         const replyBox = messageRef.current[replyChat.id];
@@ -231,9 +277,9 @@ const ChattingPage = () => {
                                         <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
                                         <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
                                     </Box>)}
-                                    <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
-                                        <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>
-                                        <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , flexGrow : 1 }}>
+                                    <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
+                                        <Typography sx={{ color : "text.primary" , flexGrow : 1 , whiteSpace : "pre-line" , mr : (item.message.includes("\n") ? "20px" : "0") }} >{item.message}</Typography>
+                                        <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , width : (item.message.includes("\n") ? "100%" : "auto") , flexGrow : 1 }}>
                                             {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px" }} />}
                                             <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
                                         </Box>
@@ -257,7 +303,10 @@ const ChattingPage = () => {
                     <IconButton>
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
-                    <Input ref={inputRef} sx={{ flexGrow : 1}} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value})} />
+                    <TextField multiline variant="standard" ref={inputRef} sx={{ flexGrow : 1}} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => {
+                        editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
+                        setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
+                    }} />
                     {(newChat.message || editedChat?.message) ? editedChat?.message ? <IconButton onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px"}} > 
                         <DoneRoundedIcon sx={{color : "text.primary" }} />
                     </IconButton>
