@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-import { DeletedChat, NewChat, UpdatedChat } from "@/types/chats";
+import { DeletedChats, NewChat, UpdatedChat } from "@/types/chats";
 import { prisma } from "@/util/prisma";
 
 export default async function handler(
@@ -48,17 +48,17 @@ export default async function handler(
       return res.status(200).json({ chat });
     }
   } else if ( method === "DELETE" ) {
-    const { id } = req.body as DeletedChat;
-    if(!id) return res.status(400).send("Bad request");
-    const exit = await prisma.chats.findUnique({ where : { id }});
-    if(!exit) return res.status(400).send("Bad request");
-    const deletedChat = await prisma.chats.delete({ where : { id }});
-    const otherChats = await prisma.chats.findMany({ where : { userAndFriendRelationId : deletedChat.userAndFriendRelationId }});
+    const { deletedIds } = req.body as DeletedChats;
+    if(deletedIds === undefined || !deletedIds.length ) return res.status(400).send("Bad request");
+    const exit = await prisma.chats.findMany({ where : { id : { in : deletedIds } }});
+    if(!exit.length) return res.status(400).send("Bad request");
+    await prisma.chats.deleteMany({ where : { id : { in : deletedIds } }});
+    const otherChats = await prisma.chats.findMany({ where : { userAndFriendRelationId : exit[0].userAndFriendRelationId }});
     if(otherChats.length) {
-      return res.status(200).json( { deletedChat })
+      return res.status(200).json( { deletedChats : exit })
     } else {
-      const deletedUserIdAndFriendId = await prisma.userIdAndFriendId.delete({ where : { id : deletedChat.userAndFriendRelationId }});
-      return res.status(200).json({ deletedChat , deletedUserIdAndFriendId });
+      const deletedUserIdAndFriendId = await prisma.userIdAndFriendId.delete({ where : { id : exit[0].userAndFriendRelationId }});
+      return res.status(200).json({ deletedChats : exit , deletedUserIdAndFriendId });
     }
   }
 }

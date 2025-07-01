@@ -115,7 +115,7 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
         </MenuItem>}
         <MenuItem onClick={() => {
             setChatMenu({anchorEl : null , chat : null});
-            setConfirmationItems({ open : true , chatToDelete : (chatMenu.chat as Chats) });
+            setConfirmationItems({ open : true , chatsToDelete : [(chatMenu.chat as Chats)] });
         }} >
            <DeleteOutlineRoundedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Delete</Typography>

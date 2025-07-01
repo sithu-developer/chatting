@@ -14,12 +14,12 @@ export interface UpdatedChat extends SuccessOrFailType , Chats {};
 
 export interface ConfirmationItemsType {
     open : boolean,
-    chatToDelete ?: Chats,
+    chatsToDelete ?: Chats[],
     chatToPin    ?: Chats
 } 
 
-export interface DeletedChat extends SuccessOrFailType {
-    id : number,
+export interface DeletedChats extends SuccessOrFailType {
+    deletedIds : number[],
 };
 
 export interface ChatMenuType {

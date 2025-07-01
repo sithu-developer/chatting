@@ -1,4 +1,4 @@
-import { DeletedChat, NewChat, UpdatedChat } from "@/types/chats";
+import { DeletedChats, NewChat, UpdatedChat } from "@/types/chats";
 import { envValues } from "@/util/envValues";
 import { Chats } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -53,19 +53,21 @@ export const updateChat = createAsyncThunk("chatsSlice/updateChat" , async( edit
 
 })
 
-export const deleteChat = createAsyncThunk("chatsSlice/deleteChat" , async( deleteChat : DeletedChat , thunkApi ) => {
-    const { id , isSuccess , isFail } = deleteChat;
+export const deleteChat = createAsyncThunk("chatsSlice/deleteChat" , async( deleteChats : DeletedChats , thunkApi ) => {
+    const { deletedIds , isSuccess , isFail } = deleteChats;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "DELETE" , 
             headers : {
                 "content-type" : "application/json"
             },
-            body : JSON.stringify({ id })
+            body : JSON.stringify({ deletedIds })
         });
-        const { deletedChat , deletedUserIdAndFriendId } = await response.json();
-        thunkApi.dispatch(removeChat(deletedChat));
-        deletedUserIdAndFriendId && thunkApi.dispatch(removeUserIdAndFriendId(deletedUserIdAndFriendId));
+        const { deletedChats , deletedUserIdAndFriendId } = await response.json();
+        thunkApi.dispatch(removeChat(deletedChats));
+        if(deletedUserIdAndFriendId)  {
+            thunkApi.dispatch(removeUserIdAndFriendId(deletedUserIdAndFriendId));
+        }
         isSuccess && isSuccess();
     } catch(err) {
         isFail && isFail();
@@ -85,8 +87,9 @@ const chatSlice = createSlice({
         replaceChat : ( state , action : PayloadAction<Chats> ) => {
             state.chats = state.chats.map(chat => chat.id === action.payload.id ? action.payload : chat);
         },
-        removeChat : ( state , action : PayloadAction<Chats> ) => {
-            state.chats = state.chats.filter(chat => chat.id !== action.payload.id);
+        removeChat : ( state , action : PayloadAction<Chats[]> ) => {
+            const deletedIds = action.payload.map(item => item.id);
+            state.chats = state.chats.filter(chat => !deletedIds.includes(chat.id) );
         },
         addForwardChats : ( state , action : PayloadAction<Chats[]>) => {
             state.chats = [...state.chats , ...action.payload ];
