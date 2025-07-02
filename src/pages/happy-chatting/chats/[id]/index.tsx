@@ -27,6 +27,7 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { copyTexts } from "@/util/general";
 
 
 
@@ -164,29 +165,7 @@ const ChattingPage = () => {
                         </IconButton>
                         :<span></span>}
                         <IconButton onClick={() => {
-                            let tempId = 0;
-                            if(currentFriend && selectedChats.length > 1) {
-                                navigator.clipboard.writeText(selectedChats.sort((a , b) => a.id - b.id).map(selectedChat => {
-                                    const eachUserIdAndFriendId = userIdAndFriendIds.find(each => each.id === selectedChat.userAndFriendRelationId) as UserIdAndFriendId;
-                                    if(eachUserIdAndFriendId.userId === user.id) {
-                                        if(tempId !== user.id) {
-                                            tempId = user.id;
-                                            return user.firstName + " " + user.lastName + ":\n" + selectedChat.message;
-                                        } else {
-                                            return selectedChat.message
-                                        }
-                                    } else {
-                                        if(tempId !== currentFriend.id) {
-                                            tempId = currentFriend.id;
-                                            return currentFriend.firstName + " " + currentFriend.lastName + ":\n" + selectedChat.message;
-                                        } else {
-                                            return selectedChat.message;
-                                        }
-                                    }
-                                }).join("\n\n"));
-                            } else {
-                                navigator.clipboard.writeText(selectedChats.sort((a , b) => a.id - b.id).map(selectedChat => selectedChat.message).join("\n\n"))
-                            }
+                            copyTexts({currentFriend , selectedChats , user , userIdAndFriendIds});
                             setSelectedChats([])
                         }} >
                             <ContentCopyRoundedIcon sx={{ transform : "scaleY(-1)" , color : "white" }} />
@@ -330,20 +309,20 @@ const ChattingPage = () => {
                 {replyChat && <ReplyOrEdit chat={replyChat} setChat={setReplyChat}  setNewChat={setNewChat} newChat={newChat} />}
                 {editedChat && <ReplyOrEdit chat={editedChat} setChat={setEditedChat} />}
                 <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , py : "3px" }} >
-                    <IconButton>
+                    <IconButton sx={{ alignSelf : "flex-end"}} >
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
                     <TextField multiline variant="standard" ref={inputRef} sx={{ flexGrow : 1 , maxHeight : "150px" , overflowY : "auto" }} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => {
                         editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
                         setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
                     }} />
-                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat?.message.trim().replace(/^\n+|\n+$/g, '') ) ? (editedChat?.message ? <IconButton onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px"}} > 
+                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat?.message.trim().replace(/^\n+|\n+$/g, '') ) ? (editedChat?.message ? <IconButton onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end"}} > 
                         <DoneRoundedIcon sx={{color : "text.primary" }} />
                     </IconButton>
-                    : <IconButton onClick={handleCreateChat} > 
+                    : <IconButton onClick={handleCreateChat} sx={{  alignSelf : "flex-end" }} > 
                         <SendRoundedIcon sx={{color : "info.main" }} />
                     </IconButton> )
-                    :<Box sx={{ display : "flex"}} >
+                    :<Box sx={{ display : "flex" , alignSelf : "flex-end"}} >
                         <IconButton>
                             <AttachmentOutlinedIcon sx={{ transform : "rotate(135deg)" , color : "GrayText"}} />
                         </IconButton>
