@@ -11,6 +11,7 @@ import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import NewGroup from "./NewGroup";
 import NewFriends from "./NewFriends";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 interface Props {
     open : boolean,
@@ -33,7 +34,7 @@ const SideBar = ({ open , setOpen } : Props) => {
                           setOpen(false);
                           setOpenSideBarComponent({ id : 1 , open : true});
                         }}>
-                          <img src={user.profileUrl ? user.profileUrl : "/defaultProfile.jpg"} alt="profile photo" style={{ width : "80px"}}/>
+                          <Image src={user.profileUrl ? user.profileUrl : "/defaultProfile.jpg"} alt="profile photo" width={500} height={500} style={{ width : "80px" , height : "auto"}}/>
                         </Box>
                         <Box>
                             <Typography fontWeight={600} sx={{ fontSize : "17px" }} >{ user.firstName + " " + user.lastName }</Typography>

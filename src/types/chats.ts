@@ -7,7 +7,7 @@ export interface NewChat extends SuccessOrFailType {
     friendId : number,
     replyId : number | null;
     forwardFriendIds : number[];
-    forwardFriendId : number | null;
+    forwardChats : Chats[]
 }
 
 export interface UpdatedChat extends SuccessOrFailType , Chats {};
@@ -29,5 +29,5 @@ export interface ChatMenuType {
 
 export interface ForwardItemsType {
     open : boolean;
-    forwardChat ?: Chats;
+    forwardChats ?: Chats[];
 }

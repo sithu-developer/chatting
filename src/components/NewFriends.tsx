@@ -7,6 +7,7 @@ import { useState } from "react";
 import { User } from "@prisma/client";
 import FiberNewRoundedIcon from '@mui/icons-material/FiberNewRounded';
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 interface Props {
     openSideBarComponent : OpenSideBarComponent,
@@ -62,7 +63,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                             router.push(`/happy-chatting/chats/${item.id}`)
                         }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                <img src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} style={{ width : "45px"}} />
+                                <Image alt="profile photo" src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto"}} />
                             </Box>
                             <Box sx={{ display : "flex"  , flexGrow : 1 }} >
                                 <Typography>{item.firstName} {item.lastName}</Typography>
@@ -86,7 +87,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                             router.push(`/happy-chatting/chats/${item.id}`)
                         }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                <img src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} style={{ width : "45px"}} />
+                                <Image alt="profile photo" src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto"}} />
                             </Box>
                             <Box sx={{ display : "flex" , flexGrow : 1 , justifyContent : "space-between" }} >
                                 <Typography>{item.firstName} {item.lastName}</Typography>

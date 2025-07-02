@@ -15,14 +15,14 @@ const initialState : ChatsInitialState = {
 }
 
 export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( newChat : NewChat , thunkApi ) => {
-    const { message , friendId ,userId , replyId , forwardFriendIds , forwardFriendId , isFail , isSuccess } = newChat;
+    const { message , friendId ,userId , replyId , forwardFriendIds , forwardChats , isFail , isSuccess } = newChat;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "POST",
             headers : {
                 "Content-type" : "application/json"
             },
-            body : JSON.stringify({ message , friendId , userId , replyId , forwardFriendIds , forwardFriendId })
+            body : JSON.stringify({ message , friendId , userId , replyId , forwardFriendIds , forwardChats })
         });
         const { newChat , newUserIdAndFriendId , newForwardChats } = await response.json();
         newChat && thunkApi.dispatch(addChat(newChat));

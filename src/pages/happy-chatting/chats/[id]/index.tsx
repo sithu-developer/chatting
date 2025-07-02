@@ -28,11 +28,12 @@ import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { copyTexts } from "@/util/general";
+import Image from "next/image";
 
 
 
 const defaultNewChat : NewChat = {
-    message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardFriendId : null
+    message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardChats : []
 }
 
 const ChattingPage = () => {
@@ -170,7 +171,10 @@ const ChattingPage = () => {
                         }} >
                             <ContentCopyRoundedIcon sx={{ transform : "scaleY(-1)" , color : "white" }} />
                         </IconButton>
-                        <IconButton>
+                        <IconButton onClick={() => {
+                            const sortedSelectedChats = selectedChats.sort((a,b) => a.id - b.id );
+                            setForwardItems({ open : true , forwardChats : sortedSelectedChats})
+                        }}>
                             <ShortcutOutlinedIcon sx={{  color : "white" }} />
                         </IconButton>
                         <IconButton onClick={() => {
@@ -198,7 +202,7 @@ const ChattingPage = () => {
                             <ArrowBackRoundedIcon sx={{ color : "white"}} />
                         </IconButton>
                         {currentFriend ? <Box sx={{ width : "45px" , height : "45px" , borderRadius : "30px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center" }} >
-                            <img alt="your friend profile" src={currentFriend.profileUrl ? currentFriend.profileUrl : "/defaultProfile.jpg"} style={{ width : "45px"}} />
+                            <Image alt="your friend profile" src={currentFriend.profileUrl ? currentFriend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "45px" , height : "auto"}} />
                         </Box>
                         :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" }} >
                             <BookmarkBorderRoundedIcon sx={{ fontSize : "30px" , color : "white"}} />
@@ -268,7 +272,12 @@ const ChattingPage = () => {
                                     setOpenFriendProfileComponent({id : 1 , open : true , friendId : forwardFriend.id })
                                 }}> 
                                     <Typography sx={{   lineHeight: 1 , fontSize : "14px" }}>Forwarded from</Typography>
-                                    <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
+                                    <Box sx={{ display : "flex" , alignItems : "center" , gap : "3px"}}>
+                                        <Box sx={{ width : "25px" , height : "25px" , borderRadius : "15px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center" }}>
+                                            <Image alt="profile photo" src={forwardFriend.profileUrl ? forwardFriend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "25px" , height : "auto"}} />
+                                        </Box>
+                                        <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
+                                    </Box>
                                 </Box>}
                                 <Box sx={{ display : "flex" , flexDirection : "column"  }}>
                                     {(replyChat && replyUser) && (
@@ -302,7 +311,7 @@ const ChattingPage = () => {
                 <div ref={lastRef} />
                 <MessageMenu chatMenu={chatMenu} setChatMenu={setChatMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} setEditedChat={setEditedChat} setConfirmationItems={setConfirmationItems} setForwardItems={setForwardItems} />
                 <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedChats={setSelectedChats}  />
-                <ForwardMessage forwardItems={forwardItems} setForwardItems={setForwardItems} />
+                <ForwardMessage forwardItems={forwardItems} setForwardItems={setForwardItems} setSelectedChats={setSelectedChats} />
             </Box>
             
             <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >

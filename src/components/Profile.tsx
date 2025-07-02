@@ -8,6 +8,7 @@ import EditProfileInfo from "./EditProfileInfo";
 import { useState } from "react";
 import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -40,7 +41,7 @@ const Profile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) =>
             <Box sx={{ bgcolor : "primary.main"  }}>
                 <Box sx={{ position : "relative"}}>
                     <Box sx={{ width : "330px" , height : "300px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center"}}>
-                        <img src={friend ? (friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg") : (user.profileUrl ? user.profileUrl : "/defaultProfile.jpg")} alt="profile photo" style={{ width : "330px"}} />
+                        <Image src={friend ? (friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg") : (user.profileUrl ? user.profileUrl : "/defaultProfile.jpg")} alt="profile photo" width={1000} height={1000} style={{ width : "330px" , height : "auto"}} />
                     </Box>
                     <Box sx={{ position : "absolute" , top : "8px" , right : "5px" , display : "flex" , alignItems : "center" , gap : "5px"}} >
                         {!friend && <IconButton>

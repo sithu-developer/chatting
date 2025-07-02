@@ -19,9 +19,7 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
             const deletedIds = confirmationItems.chatsToDelete.map(item => item.id);
             dispatch(deleteChat({ deletedIds  , isSuccess : () => {
                 setConfirmationItems({ open : false , chatsToDelete : undefined });
-                if(setSelectedChats) {
-                    setSelectedChats([]);
-                }
+                setSelectedChats([]);
             } }))
        } 
     }

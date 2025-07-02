@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { FriendAndChatAndRelationType } from "@/types/user";
 import { useRouter } from "next/router";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import Image from "next/image";
 
 
 const ChatsPage = () => {
@@ -105,7 +106,7 @@ const ChatsPage = () => {
                     >
                         <Box sx={{ position : "relative"}}>
                             {item.friend.id !== user.id ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                <img alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} style={{ width : "55px"}} />
+                                <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
                             </Box>
                             :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
                                 <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />

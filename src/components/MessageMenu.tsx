@@ -90,7 +90,7 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
         </MenuItem>
         <MenuItem onClick={() => {
             setChatMenu({anchorEl : null , chat : null});
-            setForwardItems({ open : true , forwardChat : chatMenu.chat as Chats})
+            setForwardItems({ open : true , forwardChats : [chatMenu.chat as Chats]})
         }}>
            <ShortcutOutlinedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Forward</Typography>

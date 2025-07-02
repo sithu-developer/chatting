@@ -13,14 +13,16 @@ import { createChat } from "@/store/slices/chatsSlice";
 import { changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+import Image from "next/image";
 
 
 interface Props {
     forwardItems : ForwardItemsType;
     setForwardItems : (value : ForwardItemsType) => void;
+    setSelectedChats : (value : Chats[]) => void;
 }
 
-const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
+const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } : Props ) => {
     const [ searchOpen , setSearchOpen ] = useState<boolean>(false);
     const [ searchValue , setSearchValue ] = useState<string>("");
     const [ selectedFriends , setSelectedFriends ] = useState<User[]>([]);
@@ -67,21 +69,21 @@ const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
 
     const handleForwardMessage = () => {
         const forwardFriendIds = selectedFriends.map(item => item.id);
-        const forwardFriendId = (userIdAndFriendIds.find(item => item.id === (forwardItems.forwardChat as Chats).userAndFriendRelationId) as UserIdAndFriendId).userId;
-        if(forwardItems.forwardChat) {
-            dispatch(createChat({ message : forwardItems.forwardChat.message , forwardFriendIds , forwardFriendId , friendId : forwardFriendIds[0] , userId : user.id , replyId : null , isSuccess : () => {
+        if(forwardItems.forwardChats && forwardItems.forwardChats.length) {
+            dispatch(createChat({ message : "Forward Chat" , forwardFriendIds , forwardChats : forwardItems.forwardChats , friendId : forwardFriendIds[0] , userId : user.id , replyId : null , isSuccess : () => {
                 dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message forward" , severity : Severity.success }));
-                setForwardItems({ open : false , forwardChat : undefined });
+                setForwardItems({ open : false , forwardChats : undefined });
                 setSearchOpen(false);
                 setSearchValue("");
                 setSelectedFriends([]);
+                setSelectedChats([]);
             } }))
         }
     }
     
     return (
         <Dialog open={forwardItems.open} onClose={() => {
-            setForwardItems({ open : false , forwardChat : undefined });
+            setForwardItems({ open : false , forwardChats : undefined });
             setSearchOpen(false);
             setSearchValue("");
             setSelectedFriends([]);
@@ -114,7 +116,7 @@ const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
                         }} sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , cursor : "pointer" , ":hover" : { bgcolor : "#3b4044" }}} >
                             <Box sx={{ position : "relative"}}>
                                 {item.friend.id !== user.id ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                    <img alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} style={{ width : "55px"}} />
+                                    <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "55px" , height : "auto"}} />
                                 </Box>
                                 :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
                                     <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />
@@ -148,7 +150,7 @@ const ForwardMessage = ( { forwardItems , setForwardItems } : Props ) => {
             <DialogActions sx={{ bgcolor : "primary.main" , display : "flex" , gap : "5px" }} >
                 <IconButton  sx={{ bgcolor : "secondary.main" , ":hover" : { bgcolor : "secondary.dark" }}}
                     onClick={() => {
-                        setForwardItems({ open : false , forwardChat : undefined });
+                        setForwardItems({ open : false , forwardChats : undefined });
                         setSearchOpen(false);
                         setSearchValue("");
                         setSelectedFriends([]);

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import { DeletedChats, NewChat, UpdatedChat } from "@/types/chats";
 import { prisma } from "@/util/prisma";
+import { UserIdAndFriendId } from "@prisma/client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,15 +15,23 @@ export default async function handler(
 
   const method = req.method;
   if(method === "POST") {
-    const { message , friendId , userId , replyId , forwardFriendId , forwardFriendIds } = req.body as NewChat;
-    const isValid = message && friendId && userId && replyId !== undefined && forwardFriendId !== undefined && forwardFriendIds !== undefined;
+    const { message , friendId , userId , replyId , forwardChats , forwardFriendIds } = req.body as NewChat;
+    const isValid = message && friendId && userId && replyId !== undefined && forwardChats !== undefined && forwardFriendIds !== undefined;
     if(!isValid) return res.status(400).send("Bad request");
-    if(forwardFriendId) {
-      const userIdAndFriendIds = await prisma.userIdAndFriendId.findMany({ where : { AND : { userId , friendId : { in : forwardFriendIds }} }})
+    if(forwardChats.length) {
+      const forwardUserIdAndFriendIds = await prisma.userIdAndFriendId.findMany({ where : { AND : { userId , friendId : { in : forwardFriendIds }} }})
+      const userIdAndFriendIds = await prisma.userIdAndFriendId.findMany({ where : { OR : [ { userId } , { friendId : userId } ] }});
+
       const newForwardChats = await prisma.$transaction(
-        userIdAndFriendIds.map(item => prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : item.id , forwardFriendId }}))
+        forwardUserIdAndFriendIds.flatMap(item => 
+          forwardChats.map(chat => {
+            const forwardFriendId = (userIdAndFriendIds.find(userIdAndFriendId => userIdAndFriendId.id === chat.userAndFriendRelationId) as UserIdAndFriendId).userId;
+            return prisma.chats.create({ data : { message : chat.message , seen : false , userAndFriendRelationId : item.id , forwardFriendId }})
+          })
+        )
       )
-      return res.status(200).send({newForwardChats})
+      return res.status(200).send({newForwardChats});
+      
     } else {
       const exitUserIdAndFriendId = await prisma.userIdAndFriendId.findFirst({ where : { AND : { userId , friendId }}});
       if(exitUserIdAndFriendId) {
