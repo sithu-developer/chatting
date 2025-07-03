@@ -9,7 +9,6 @@ import { ChatMenuType, ConfirmationItemsType, ForwardItemsType, NewChat } from "
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import DoNotDisturbOffOutlinedIcon from '@mui/icons-material/DoNotDisturbOffOutlined';
 import { updateChat } from "@/store/slices/chatsSlice";
 import { changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
@@ -96,7 +95,10 @@ const MessageMenu = ({ chatMenu , setChatMenu , setReplyChat , setNewChat , newC
            <Typography>Forward</Typography>
         </MenuItem>
         {chatMenu.chat.isPin ? <MenuItem onClick={handleUnpin} >
-            <DoNotDisturbOffOutlinedIcon  sx={{  mr : "15px" , color : "GrayText" }} />
+            <Box sx={{ position : "relative" , mr : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center"}}>
+                <PushPinOutlinedIcon sx={{ transform : "rotate(45deg)" , color : "GrayText" }}  />
+                <Box sx={{ position : "absolute" , mb : "4px" , ml : "4px" , bgcolor : "GrayText" , width : "1.5px" , height : "22px" ,  transform : "rotate(-45deg)" }} />
+            </Box>
            <Typography>Unpin</Typography>
         </MenuItem>
         :<MenuItem onClick={() => {

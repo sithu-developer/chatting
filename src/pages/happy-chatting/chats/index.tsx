@@ -1,13 +1,17 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Typography } from "@mui/material";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
 import { FriendAndChatAndRelationType } from "@/types/user";
 import { useRouter } from "next/router";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import Image from "next/image";
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import { updateIsPinChats } from "@/store/slices/userIdAndFriendIdSlice";
 
 
 const ChatsPage = () => {
@@ -19,6 +23,8 @@ const ChatsPage = () => {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const [ selectedFriends , setSelectedFriends ] = useState<User[]>([]);
     const router = useRouter();
+    const dispatch = useAppDispatch();
+    const [ isAllSelectedChatsPin , setIsAllSelectedChatsPin  ] = useState<boolean>(false);
 
     useEffect(() => {
         if(user && friends.length && chats.length && userIdAndFriendIds.length ) {
@@ -42,10 +48,12 @@ const ChatsPage = () => {
                 const savedLastMessage = chats.findLast(chat => chat.userAndFriendRelationId === savedChatRelation.id) as Chats;
                 lastChatsAndRelatedFriendsAndRelation.push({ chat : savedLastMessage , friend : user , userIdAndFriendId : savedChatRelation });
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
-                setFriendsAndChatsAndRelation(sortedItems);
+                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
+                setFriendsAndChatsAndRelation(pinFristItems);
             } else {
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
-                setFriendsAndChatsAndRelation(sortedItems);
+                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
+                setFriendsAndChatsAndRelation(pinFristItems);
             }
         }
     } , [ user , friends , chats , userIdAndFriendIds ])
@@ -61,6 +69,17 @@ const ChatsPage = () => {
         } , 800)
     }
 
+    useEffect(() => {
+        if(selectedFriends.length) {
+            const selectedFriendIds = selectedFriends.map(item => item.id);
+            const selectedUserIdAndFriendIds = userIdAndFriendIds.filter(item => item.userId === user.id && selectedFriendIds.includes(item.friendId))
+            const isAllSelectedChatsPin  = selectedUserIdAndFriendIds.every(item => item.isPinChat === true)
+            setIsAllSelectedChatsPin(isAllSelectedChatsPin);
+        } else {
+            setIsAllSelectedChatsPin(false);
+        }
+    } , [selectedFriends])
+
     const handleMouseUp = () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -68,8 +87,39 @@ const ChatsPage = () => {
       }
     };
 
+    const handlePinChats = () => {
+        const selectedFriendIds = selectedFriends.map(item => item.id);
+        const selectedUserIdAndFriendIds = userIdAndFriendIds.filter(item => item.userId === user.id && selectedFriendIds.includes(item.friendId))
+        const selectedRelationIds = selectedUserIdAndFriendIds.map(item => item.id)
+        dispatch(updateIsPinChats({ selectedRelationIds , allPinValue : !isAllSelectedChatsPin , isSuccess : () => {
+            setSelectedFriends([]);
+            setIsAllSelectedChatsPin(false);
+        } }))
+    }
+
     return (
-        <Box sx={{ bgcolor : "primary.main" , height : "95vh"}}>
+        <Box sx={{ bgcolor : "primary.main" , height : "95vh" , position : "relative"}}>
+            {selectedFriends.length ? <Box sx={{ bgcolor :  "secondary.main" , position : "absolute" , width : "100vw" , height : "60px" , top : "-60px" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , px : "15px"}} >
+                <Box sx={{ display : "flex" , alignItems : "center" , gap : "20px"}} >
+                    <IconButton>
+                        <CloseRoundedIcon sx={{ color : "white"}} />
+                    </IconButton>
+                    <Typography sx={{ color : "white" }} >{selectedFriends.length}</Typography>
+                </Box>
+                <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px"}} >
+                    <IconButton onClick={handlePinChats} >
+                        {isAllSelectedChatsPin ? <Box sx={{ position : "relative" , display : "flex" , justifyContent : "center" , alignItems : "center"}}>
+                            <PushPinOutlinedIcon sx={{ transform : "rotate(45deg)" , color : "white" }}  />
+                            <Box sx={{ position : "absolute" , mb : "4px" , ml : "4px" , bgcolor : "white" , width : "1.5px" , height : "22px" ,  transform : "rotate(-45deg)" }} />
+                        </Box>
+                        :<PushPinOutlinedIcon sx={{ transform : "rotate(45deg)" , color : "white" }} />}
+                    </IconButton>
+                    <IconButton>
+                        <DeleteOutlineRoundedIcon sx={{ color : "white" }} />
+                    </IconButton>
+                </Box>
+            </Box>
+            : <span></span> }
             {friendsAndChatsAndRelation.map(item => {
                 const createdTime = new Date(item.chat.createdAt);
                 const exit = selectedFriends.find(friend => friend.id === item.friend.id );
