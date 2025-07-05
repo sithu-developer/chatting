@@ -1,4 +1,4 @@
-import { Chats } from "@prisma/client";
+import { Chats, UserIdAndFriendId } from "@prisma/client";
 import { SuccessOrFailType } from "./user";
 
 export interface NewChat extends SuccessOrFailType {
@@ -15,7 +15,8 @@ export interface UpdatedChat extends SuccessOrFailType , Chats {};
 export interface ConfirmationItemsType {
     open : boolean,
     chatsToDelete ?: Chats[],
-    chatToPin    ?: Chats
+    chatToPin    ?: Chats,
+    relationsToDelete ?: UserIdAndFriendId[]
 } 
 
 export interface DeletedChats extends SuccessOrFailType {

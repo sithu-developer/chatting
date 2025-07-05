@@ -1,7 +1,8 @@
-import { UpdateIsPinChatsItems } from "@/types/userIdAndFriendId";
+import { DeletedRelations, UpdateIsPinChatsItems } from "@/types/userIdAndFriendId";
 import { envValues } from "@/util/envValues";
 import { UserIdAndFriendId } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { removeChats } from "./chatsSlice";
 
 interface UserIdAndFriendIdInitialState {
     userIdAndFriendIds : UserIdAndFriendId[],
@@ -33,6 +34,27 @@ export const updateIsPinChats = createAsyncThunk("UserIdAndFriendIdSlice/updateI
     }
 })
 
+export const deleteRelations = createAsyncThunk("UserIdAndFriendIdSlice/deleteRelations" , async( deleteItems : DeletedRelations , thunkApi ) => {
+    const { deletedRelationIds , isFail , isSuccess } = deleteItems;
+    try {
+        const response = await fetch(`${envValues.apiUrl}/userIdAndFriendId` , {
+            method : "DELETE",
+            headers : {
+                "content-type" : "application/json"
+            },
+            body : JSON.stringify({ deletedRelationIds })
+        });
+        const { deletedChats , deletedUserIdAndFriendIds } = await response.json();
+        thunkApi.dispatch(removeChats(deletedChats));
+        thunkApi.dispatch(removeUserIdAndFriendIds(deletedUserIdAndFriendIds))
+        if(isSuccess) {
+            isSuccess();
+        }
+    } catch(err) {
+        console.log(err)
+    }
+})
+
 const userIdAndFriendIdSlice = createSlice({
     name : "UserIdAndFriendIdSlice" ,
     initialState ,
@@ -43,8 +65,9 @@ const userIdAndFriendIdSlice = createSlice({
         addUserIdAndFriendId : ( state , action : PayloadAction<UserIdAndFriendId> ) => {
             state.userIdAndFriendIds = [...state.userIdAndFriendIds , action.payload ];
         },
-        removeUserIdAndFriendId : ( state , action : PayloadAction<UserIdAndFriendId>) => {
-            state.userIdAndFriendIds = state.userIdAndFriendIds.filter(item => item.id !== action.payload.id);
+        removeUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId[]>) => {
+            const relationIds = action.payload.map(item => item.id)
+            state.userIdAndFriendIds = state.userIdAndFriendIds.filter(item => !relationIds.includes(item.id));
         },
         updateUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId[]> ) => {
             const updatedIds = action.payload.map(item => item.id);
@@ -54,6 +77,6 @@ const userIdAndFriendIdSlice = createSlice({
     }
 })
 
-export const { setUserIdAndFriendIds , addUserIdAndFriendId , removeUserIdAndFriendId , updateUserIdAndFriendIds} = userIdAndFriendIdSlice.actions;
+export const { setUserIdAndFriendIds , addUserIdAndFriendId , removeUserIdAndFriendIds , updateUserIdAndFriendIds} = userIdAndFriendIdSlice.actions;
 
 export default userIdAndFriendIdSlice.reducer;

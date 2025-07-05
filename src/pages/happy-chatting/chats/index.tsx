@@ -12,6 +12,8 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { updateIsPinChats } from "@/store/slices/userIdAndFriendIdSlice";
+import Confirmation from "@/components/Confirmation";
+import { ConfirmationItemsType } from "@/types/chats";
 
 
 const ChatsPage = () => {
@@ -25,6 +27,8 @@ const ChatsPage = () => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const [ isAllSelectedChatsPin , setIsAllSelectedChatsPin  ] = useState<boolean>(false);
+    const [ confirmationItems , setConfirmationItems ] = useState<ConfirmationItemsType>( {open : false} );
+    
 
     useEffect(() => {
         if(user && friends.length && chats.length && userIdAndFriendIds.length ) {
@@ -101,7 +105,7 @@ const ChatsPage = () => {
         <Box sx={{ bgcolor : "primary.main" , height : "95vh" , position : "relative"}}>
             {selectedFriends.length ? <Box sx={{ bgcolor :  "secondary.main" , position : "absolute" , width : "100vw" , height : "60px" , top : "-60px" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , px : "15px"}} >
                 <Box sx={{ display : "flex" , alignItems : "center" , gap : "20px"}} >
-                    <IconButton>
+                    <IconButton onClick={() => setSelectedFriends([])} >
                         <CloseRoundedIcon sx={{ color : "white"}} />
                     </IconButton>
                     <Typography sx={{ color : "white" }} >{selectedFriends.length}</Typography>
@@ -114,7 +118,11 @@ const ChatsPage = () => {
                         </Box>
                         :<PushPinOutlinedIcon sx={{ transform : "rotate(45deg)" , color : "white" }} />}
                     </IconButton>
-                    <IconButton>
+                    <IconButton onClick={() => {
+                        const selectedFriendIds = selectedFriends.map(item => item.id);
+                        const selectedUserIdAndFriendIds = userIdAndFriendIds.filter(item => item.userId === user.id && selectedFriendIds.includes(item.friendId))
+                        setConfirmationItems({ open : true , relationsToDelete : selectedUserIdAndFriendIds })
+                    }} >
                         <DeleteOutlineRoundedIcon sx={{ color : "white" }} />
                     </IconButton>
                 </Box>
@@ -186,6 +194,7 @@ const ChatsPage = () => {
                     </Box>
                 )
             })}
+            <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedFriends={setSelectedFriends} />
         </Box>
     )
 }

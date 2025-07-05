@@ -2,7 +2,7 @@ import { DeletedChats, NewChat, UpdatedChat } from "@/types/chats";
 import { envValues } from "@/util/envValues";
 import { Chats } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { addUserIdAndFriendId, removeUserIdAndFriendId } from "./userIdAndFriendIdSlice";
+import { addUserIdAndFriendId , removeUserIdAndFriendIds } from "./userIdAndFriendIdSlice";
 
 interface ChatsInitialState {
     chats : Chats[],
@@ -64,9 +64,9 @@ export const deleteChat = createAsyncThunk("chatsSlice/deleteChat" , async( dele
             body : JSON.stringify({ deletedIds })
         });
         const { deletedChats , deletedUserIdAndFriendId } = await response.json();
-        thunkApi.dispatch(removeChat(deletedChats));
+        thunkApi.dispatch(removeChats(deletedChats));
         if(deletedUserIdAndFriendId)  {
-            thunkApi.dispatch(removeUserIdAndFriendId(deletedUserIdAndFriendId));
+            thunkApi.dispatch(removeUserIdAndFriendIds( [ deletedUserIdAndFriendId ] ));
         }
         isSuccess && isSuccess();
     } catch(err) {
@@ -87,7 +87,7 @@ const chatSlice = createSlice({
         replaceChat : ( state , action : PayloadAction<Chats> ) => {
             state.chats = state.chats.map(chat => chat.id === action.payload.id ? action.payload : chat);
         },
-        removeChat : ( state , action : PayloadAction<Chats[]> ) => {
+        removeChats : ( state , action : PayloadAction<Chats[]> ) => {
             const deletedIds = action.payload.map(item => item.id);
             state.chats = state.chats.filter(chat => !deletedIds.includes(chat.id) );
         },
@@ -97,6 +97,6 @@ const chatSlice = createSlice({
     }
 });
 
-export const { setChats , addChat , replaceChat , removeChat , addForwardChats } = chatSlice.actions;
+export const { setChats , addChat , replaceChat , removeChats , addForwardChats } = chatSlice.actions;
 
 export default chatSlice.reducer;
