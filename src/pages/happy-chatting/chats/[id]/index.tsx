@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat, updateChat } from "@/store/slices/chatsSlice";
 import { Chats, UserIdAndFriendId } from "@prisma/client";
-import { ChatMenuType,  ConfirmationItemsType,  ForwardItemsType,  NewChat } from "@/types/chats";
+import { MessageMenuType,  ConfirmationItemsType,  ForwardItemsType,  NewChat } from "@/types/chats";
 import MessageMenu from "@/components/MessageMenu";
 import ReplyOrEdit from "@/components/ReplyOrEdit";
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
@@ -29,6 +29,9 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { copyTexts } from "@/util/general";
 import Image from "next/image";
+import KeyboardReturnRoundedIcon from '@mui/icons-material/KeyboardReturnRounded';
+import ChatMenu from "@/components/ChatMenu";
+import SearchList from "@/components/SearchList";
 
 
 
@@ -39,7 +42,7 @@ const defaultNewChat : NewChat = {
 const ChattingPage = () => {
     const [ newChat , setNewChat ] = useState<NewChat>(defaultNewChat);
     const [ currentChats , setCurrentChats ] = useState<Chats[]>([]);
-    const [ chatMenu , setChatMenu ] = useState<ChatMenuType>( {chat : null , anchorEl : null });
+    const [ messageMenu , setMessageMenu ] = useState<MessageMenuType>( {chat : null , anchorEl : null });
     const [ replyChat , setReplyChat ] = useState<Chats | null>(null);
     const [ editedChat , setEditedChat ] = useState<Chats | null>(null);
     const [ confirmationItems , setConfirmationItems ] = useState<ConfirmationItemsType>( {open : false} );
@@ -52,13 +55,16 @@ const ChattingPage = () => {
     const [ openFriendProfileComponent , setOpenFriendProfileComponent ] = useState<OpenSideBarComponent>({id : 1 , open : false});
     const [ selectedChats , setSelectedChats ] = useState<Chats[]>([]);
     const [ heightOfInput , setHeightOfInput ] = useState<number>(48);
+    const [ chatMenuOpen , setChatMenuOpen ] = useState<boolean>(false);
+    const [ searchListOpen , setSearchListOpen ]  = useState<boolean>(false);
 
     const router = useRouter();
     const query = router.query;
     const friendId = Number(query.id);
     const currentFriend = friends.find(item => item.id === friendId);
     const dispatch = useAppDispatch();
-    const userAndFriendRelationIdFromUser = userIdAndFriendIds.find(item => item.userId === user?.id && item.friendId === friendId)?.id as number;
+    const currentRelation = userIdAndFriendIds.find(item => item.userId === user?.id && item.friendId === friendId) as UserIdAndFriendId ;
+    const userAndFriendRelationIdFromUser = currentRelation?.id as number;
 
     const lastRef = useRef< HTMLDivElement | null >(null);
     const inputRef = useRef<HTMLInputElement | null >(null);
@@ -107,7 +113,7 @@ const ChattingPage = () => {
 
     const handleCreateChat = () => {
         const trimmedMessage = newChat.message.trim().replace(/^\n+|\n+$/g, '');
-        if(trimmedMessage) 
+        if(trimmedMessage)
         dispatch(createChat({...newChat , message : trimmedMessage , isSuccess : () => {
             setNewChat(defaultNewChat);
             setReplyChat(null);
@@ -213,7 +219,7 @@ const ChattingPage = () => {
                         </Box>
                         :<Typography  sx={{ color : "white"}}>Saved Messages</Typography>}
                     </Box>
-                    <IconButton>
+                    <IconButton onClick={() => setChatMenuOpen(true)} >
                         <MoreVertRoundedIcon sx={{ color : "white"}} />
                     </IconButton>
                 </Box>
@@ -254,7 +260,7 @@ const ChattingPage = () => {
                                     setSelectedChats([...selectedChats , item ]);
                                 }
                             } else {
-                                setChatMenu({ chat : item , anchorEl : event.currentTarget})
+                                setMessageMenu({ chat : item , anchorEl : event.currentTarget})
                             }
                         }}
 
@@ -265,7 +271,6 @@ const ChattingPage = () => {
                         onMouseUp={handleMouseUp}
 
                         >   
-
                             <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" }}>
                                 {forwardFriend && <Box sx={{ mb : "2px" , color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.primary" : "rgb(6, 188, 76)" }} onClick={(e) => {
                                     e.stopPropagation();
@@ -309,19 +314,39 @@ const ChattingPage = () => {
                 )})
                 : <Box></Box>}
                 <div ref={lastRef} />
-                <MessageMenu chatMenu={chatMenu} setChatMenu={setChatMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} setEditedChat={setEditedChat} setConfirmationItems={setConfirmationItems} setForwardItems={setForwardItems} />
+                <MessageMenu messageMenu={messageMenu} setMessageMenu={setMessageMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} setEditedChat={setEditedChat} setConfirmationItems={setConfirmationItems} setForwardItems={setForwardItems} />
                 <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedChats={setSelectedChats}  />
                 <ForwardMessage forwardItems={forwardItems} setForwardItems={setForwardItems} setSelectedChats={setSelectedChats} />
+                <ChatMenu chatMenuOpen={chatMenuOpen} setChatMenuOpen={setChatMenuOpen} setConfirmationItems={setConfirmationItems} relationToDelete={currentRelation} setSearchListOpen={setSearchListOpen} />
+                <SearchList searchListOpen={searchListOpen} setSearchListOpen={setSearchListOpen} />
             </Box>
             
-            <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >
+            {selectedChats.length ? <Box sx={{ bgcolor : "secondary.main" ,  display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" , px : "5px" , py : "3px" }}>
+                {selectedChats.length === 1 ? <IconButton onClick={() => {
+                    setReplyChat(selectedChats[0]);
+                    setNewChat({...newChat , replyId : selectedChats[0].id });
+                    setSelectedChats([]);
+                }}>
+                    <KeyboardReturnRoundedIcon sx={{ transform : "scaleY(-1)", color : "white" }} />
+                    <Typography sx={{ color : "white" , ml : "5px"}} >Reply</Typography>
+                </IconButton>
+                : <span></span> }
+                <IconButton onClick={() => {
+                    const sortedSelectedChats = selectedChats.sort((a,b) => a.id - b.id );
+                    setForwardItems({ open : true , forwardChats : sortedSelectedChats})
+                }}>
+                    <Typography sx={{ color : "white" }} >Forward</Typography>
+                    <ShortcutOutlinedIcon sx={{ color : "white", ml : "5px" }} />
+                </IconButton>
+            </Box>
+            :<Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >
                 {replyChat && <ReplyOrEdit chat={replyChat} setChat={setReplyChat}  setNewChat={setNewChat} newChat={newChat} />}
                 {editedChat && <ReplyOrEdit chat={editedChat} setChat={setEditedChat} />}
                 <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , py : "3px" }} >
                     <IconButton sx={{ alignSelf : "flex-end"}} >
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
-                    <TextField multiline variant="standard" ref={inputRef} sx={{ flexGrow : 1 , maxHeight : "150px" , overflowY : "auto" }} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => {
+                    <TextField multiline variant="standard" color="secondary" ref={inputRef} sx={{ flexGrow : 1 , maxHeight : "150px" , overflowY : "auto" }} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => {
                         editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
                         setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
                     }} />
@@ -340,7 +365,7 @@ const ChattingPage = () => {
                         </IconButton>
                     </Box>}
                 </Box>
-            </Box>
+            </Box>}
         </Box>
     )
 }

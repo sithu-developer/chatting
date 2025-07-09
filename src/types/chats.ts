@@ -23,7 +23,7 @@ export interface DeletedChats extends SuccessOrFailType {
     deletedIds : number[],
 };
 
-export interface ChatMenuType {
+export interface MessageMenuType {
     chat : Chats | null,
     anchorEl : null | HTMLElement,
 }
