@@ -128,72 +128,74 @@ const ChatsPage = () => {
                 </Box>
             </Box>
             : <span></span> }
-            {friendsAndChatsAndRelation.map(item => {
-                const createdTime = new Date(item.chat.createdAt);
-                const exit = selectedFriends.find(friend => friend.id === item.friend.id );
+            <Box sx={{ height : "calc(100vh - 56px)" , overflowY : "auto"}}>
+                {friendsAndChatsAndRelation.map(item => {
+                    const createdTime = new Date(item.chat.createdAt);
+                    const exit = selectedFriends.find(friend => friend.id === item.friend.id );
 
-                return (
-                    <Box key={item.friend.id}
+                    return (
+                        <Box key={item.friend.id}
 
-                    onContextMenu={(e) => {
-                        e.preventDefault();
-                        if(!exit) {
-                            setSelectedFriends([...selectedFriends , item.friend ]);
-                        }
-                    }} 
-
-                    onClick={() => {
-                        if(selectedFriends.length) {
-                            if(exit) {
-                                const friendsAfterRemove  = selectedFriends.filter(friend => friend.id !== item.friend.id);
-                                setSelectedFriends(friendsAfterRemove);
-                            } else {
+                        onContextMenu={(e) => {
+                            e.preventDefault();
+                            if(!exit) {
                                 setSelectedFriends([...selectedFriends , item.friend ]);
                             }
-                        } else {
-                            router.push(`./chats/${item.friend.id}`)
-                        }
-                    }}
+                        }} 
 
-                    onTouchStart={() => { handleMouseDown( exit , item ) }}
-                    onMouseDown={() => { handleMouseDown( exit , item ) }}
-                    onTouchEnd={handleMouseUp} 
-                    onMouseUp={handleMouseUp}
+                        onClick={() => {
+                            if(selectedFriends.length) {
+                                if(exit) {
+                                    const friendsAfterRemove  = selectedFriends.filter(friend => friend.id !== item.friend.id);
+                                    setSelectedFriends(friendsAfterRemove);
+                                } else {
+                                    setSelectedFriends([...selectedFriends , item.friend ]);
+                                }
+                            } else {
+                                router.push(`./chats/${item.friend.id}`)
+                            }
+                        }}
 
-                    sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , ":hover" : { bgcolor : "#3b4044" }}} 
-                    >
-                        <Box sx={{ position : "relative"}}>
-                            {item.friend.id !== user.id ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
+                        onTouchStart={() => { handleMouseDown( exit , item ) }}
+                        onMouseDown={() => { handleMouseDown( exit , item ) }}
+                        onTouchEnd={handleMouseUp} 
+                        onMouseUp={handleMouseUp}
+
+                        sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , ":hover" : { bgcolor : "#3b4044" }}} 
+                        >
+                            <Box sx={{ position : "relative"}}>
+                                {item.friend.id !== user.id ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
+                                    <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
+                                </Box>
+                                :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
+                                    <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />
+                                </Box>}
+                                {exit && <Box  sx={{ position : "absolute" , bottom : "1px" , right : "1px" , bgcolor : "white" , width : "15px" , height : "15px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" }}>
+                                    <CheckCircleRoundedIcon color="success" />
+                                </Box>}
                             </Box>
-                            :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
-                                <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />
-                            </Box>}
-                            {exit && <Box  sx={{ position : "absolute" , bottom : "1px" , right : "1px" , bgcolor : "white" , width : "15px" , height : "15px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" }}>
-                                <CheckCircleRoundedIcon color="success" />
-                            </Box>}
+                            <Box sx={{ display : "flex" , flexDirection : "column" , flexGrow : 1 , gap : "15px" , userSelect : "none" }} >
+                                <span></span>
+                                <Box>
+                                    <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
+                                        {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
+                                        :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
+                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                    </Box>
+                                    <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
+                                        <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
+                                        {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
+                                            <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
+                                        </Box>:
+                                        <span></span>}
+                                    </Box>
+                                </Box>
+                                <Divider />
+                            </Box> 
                         </Box>
-                        <Box sx={{ display : "flex" , flexDirection : "column" , flexGrow : 1 , gap : "15px" , userSelect : "none" }} >
-                            <span></span>
-                            <Box>
-                                <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                    {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
-                                    :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
-                                    <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
-                                </Box>
-                                <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                    <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
-                                    {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
-                                        <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
-                                    </Box>:
-                                    <span></span>}
-                                </Box>
-                            </Box>
-                            <Divider />
-                        </Box> 
-                    </Box>
-                )
-            })}
+                    )
+                })}
+            </Box>
             <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedFriends={setSelectedFriends} />
         </Box>
     )

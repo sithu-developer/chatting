@@ -109,7 +109,7 @@ const ChattingPage = () => {
         }
     } , [heightOfInput])
 
-    if(!user || !friendId) return null;
+    if(!user || !friendId || (!currentFriend && friendId !== user.id)) return null;
 
     const handleCreateChat = () => {
         const trimmedMessage = newChat.message.trim().replace(/^\n+|\n+$/g, '');
@@ -318,7 +318,7 @@ const ChattingPage = () => {
                 <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedChats={setSelectedChats}  />
                 <ForwardMessage forwardItems={forwardItems} setForwardItems={setForwardItems} setSelectedChats={setSelectedChats} />
                 <ChatMenu chatMenuOpen={chatMenuOpen} setChatMenuOpen={setChatMenuOpen} setConfirmationItems={setConfirmationItems} relationToDelete={currentRelation} setSearchListOpen={setSearchListOpen} />
-                <SearchList searchListOpen={searchListOpen} setSearchListOpen={setSearchListOpen} />
+                <SearchList searchListOpen={searchListOpen} setSearchListOpen={setSearchListOpen} currentFriend={currentFriend} messageRef={messageRef} />
             </Box>
             
             {selectedChats.length ? <Box sx={{ bgcolor : "secondary.main" ,  display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" , px : "5px" , py : "3px" }}>
