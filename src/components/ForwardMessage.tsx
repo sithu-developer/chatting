@@ -59,11 +59,11 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
                 const savedLastMessage = chats.findLast(chat => chat.userAndFriendRelationId === savedChatRelation.id) as Chats;
                 lastChatsAndRelatedFriendsAndRelation.push({ chat : savedLastMessage , friend : user , userIdAndFriendId : savedChatRelation });
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
-                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
+                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat === true) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
                 setFriendsAndChatsAndRelation(pinFristItems);
             } else {
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
-                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
+                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat === true) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
                 setFriendsAndChatsAndRelation(pinFristItems);
             }
         }

@@ -30,7 +30,7 @@ export default async function handler(
           })
         )
       )
-      return res.status(200).send({newForwardChats});
+      return res.status(200).json({newForwardChats});
       
     } else {
       const exitUserIdAndFriendId = await prisma.userIdAndFriendId.findFirst({ where : { AND : { userId , friendId }}});
@@ -39,8 +39,15 @@ export default async function handler(
           return res.status(200).json({ newChat })
       } else {
           const newUserIdAndFriendId = await prisma.userIdAndFriendId.create({ data : { userId , friendId }});
-          const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId }});
-          return res.status(200).json({ newChat , newUserIdAndFriendId });
+          if(userId !== friendId) {
+            const newUserIdAndFriendIdForFriend = await prisma.userIdAndFriendId.create({ data : { userId : friendId , friendId : userId }})
+            const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId }});
+            return res.status(200).json({ newChat , newRelations : [newUserIdAndFriendId , newUserIdAndFriendIdForFriend] });
+          } else {
+            const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId }});
+            return res.status(200).json({ newChat , newRelations : [ newUserIdAndFriendId ] });
+          }
+
       }
     }
   } else if ( method === "PUT") {
@@ -62,12 +69,18 @@ export default async function handler(
     const exit = await prisma.chats.findMany({ where : { id : { in : deletedIds } }});
     if(!exit.length) return res.status(400).send("Bad request");
     await prisma.chats.deleteMany({ where : { id : { in : deletedIds } }});
-    const otherChats = await prisma.chats.findMany({ where : { userAndFriendRelationId : exit[0].userAndFriendRelationId }});
+    const relation = await prisma.userIdAndFriendId.findFirst({ where : { id : exit[0].userAndFriendRelationId }}) as UserIdAndFriendId;
+    const secondRelation = await prisma.userIdAndFriendId.findFirst({ where : { userId : relation.friendId , friendId : relation.userId }}) as UserIdAndFriendId;
+    const relationIds = [ relation.id , secondRelation.id ];
+    const nonDuplicatedRelationIds = [...new Set(relationIds)];
+    const otherChats = await prisma.chats.findMany({ where : { userAndFriendRelationId : { in : nonDuplicatedRelationIds } }});
     if(otherChats.length) {
       return res.status(200).json( { deletedChats : exit })
     } else {
-      const deletedUserIdAndFriendId = await prisma.userIdAndFriendId.delete({ where : { id : exit[0].userAndFriendRelationId }});
-      return res.status(200).json({ deletedChats : exit , deletedUserIdAndFriendId });
+      const deletedUserIdAndFriendIds = await prisma.$transaction(
+        nonDuplicatedRelationIds.map(item => prisma.userIdAndFriendId.delete({ where : { id : item }}))
+      )
+      return res.status(200).json({ deletedChats : exit , deletedUserIdAndFriendIds });
     }
   }
 }

@@ -63,7 +63,8 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
             </Box>
             <List sx={{ bgcolor : "primary.main" , height : "calc(100vh - 69px)" , overflowY : "auto"}}>
                 {searchChats.sort((a , b) => b.id - a.id).map(chat => {
-                    const currentRelation = userIdAndFriendIds.find(item => item.id === chat.userAndFriendRelationId) as UserIdAndFriendId;
+                    const currentRelation = userIdAndFriendIds.find(item => item.id === chat.userAndFriendRelationId);
+                if(!currentRelation) return null;
                     const friendOfMessage = friends.find(item => item.id === currentRelation.userId);
                     const createdTime = new Date(chat.createdAt);
                     const updatedTime = new Date(chat.updatedAt);

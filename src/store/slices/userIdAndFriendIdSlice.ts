@@ -62,8 +62,8 @@ const userIdAndFriendIdSlice = createSlice({
         setUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId[]> ) => {
             state.userIdAndFriendIds = action.payload;
         },
-        addUserIdAndFriendId : ( state , action : PayloadAction<UserIdAndFriendId> ) => {
-            state.userIdAndFriendIds = [...state.userIdAndFriendIds , action.payload ];
+        addUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId[]> ) => {
+            state.userIdAndFriendIds = [...state.userIdAndFriendIds , ...action.payload ];
         },
         removeUserIdAndFriendIds : ( state , action : PayloadAction<UserIdAndFriendId[]>) => {
             const relationIds = action.payload.map(item => item.id)
@@ -77,6 +77,6 @@ const userIdAndFriendIdSlice = createSlice({
     }
 })
 
-export const { setUserIdAndFriendIds , addUserIdAndFriendId , removeUserIdAndFriendIds , updateUserIdAndFriendIds} = userIdAndFriendIdSlice.actions;
+export const { setUserIdAndFriendIds , addUserIdAndFriendIds , removeUserIdAndFriendIds , updateUserIdAndFriendIds} = userIdAndFriendIdSlice.actions;
 
 export default userIdAndFriendIdSlice.reducer;

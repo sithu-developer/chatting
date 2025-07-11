@@ -14,6 +14,9 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { updateIsPinChats } from "@/store/slices/userIdAndFriendIdSlice";
 import Confirmation from "@/components/Confirmation";
 import { ConfirmationItemsType } from "@/types/chats";
+import SearchForAll from "@/components/SearchForAll";
+import SearchIcon from '@mui/icons-material/Search';
+
 
 
 const ChatsPage = () => {
@@ -28,6 +31,7 @@ const ChatsPage = () => {
     const dispatch = useAppDispatch();
     const [ isAllSelectedChatsPin , setIsAllSelectedChatsPin  ] = useState<boolean>(false);
     const [ confirmationItems , setConfirmationItems ] = useState<ConfirmationItemsType>( {open : false} );
+    const [ searchForAllOpen , setSearchForAllOpen ] = useState<boolean>(false);
     
 
     useEffect(() => {
@@ -36,14 +40,14 @@ const ChatsPage = () => {
             const relationIdsOfUserIds = userIdAndFriendIds.map(item => item.userId);
             const repeatedYourFriendIds = [...relationIdsOfFriendIds , ...relationIdsOfUserIds].filter(item => item !== user.id);
             
-            const yourFriendIds = [...new Set(repeatedYourFriendIds) , ];
+            const yourFriendIds = [...new Set(repeatedYourFriendIds) ];
             const yourFriends = friends.filter(item => yourFriendIds.includes(item.id));
 
             const lastChatsAndRelatedFriendsAndRelation : FriendAndChatAndRelationType[] = yourFriendIds.map(friendId => {
                 const currentFriendRelationIds =  userIdAndFriendIds.filter(userIdAndFriendId =>( userIdAndFriendId.friendId === friendId || userIdAndFriendId.userId === friendId)).map(item => item.id)
                 const currentFriendLastChat = chats.findLast(chat => currentFriendRelationIds.includes(chat.userAndFriendRelationId)) as Chats;
                 const relatedFriend = yourFriends.find(friend => friend.id === friendId) as User;
-                const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend.id) as UserIdAndFriendId;
+                const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend.id) as UserIdAndFriendId ;
                 return {friend : relatedFriend , chat : currentFriendLastChat , userIdAndFriendId };
             });
 
@@ -52,11 +56,11 @@ const ChatsPage = () => {
                 const savedLastMessage = chats.findLast(chat => chat.userAndFriendRelationId === savedChatRelation.id) as Chats;
                 lastChatsAndRelatedFriendsAndRelation.push({ chat : savedLastMessage , friend : user , userIdAndFriendId : savedChatRelation });
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
-                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
+                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat === true) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
                 setFriendsAndChatsAndRelation(pinFristItems);
             } else {
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
-                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
+                const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat === true) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
                 setFriendsAndChatsAndRelation(pinFristItems);
             }
         }
@@ -120,14 +124,17 @@ const ChatsPage = () => {
                     </IconButton>
                     <IconButton onClick={() => {
                         const selectedFriendIds = selectedFriends.map(item => item.id);
-                        const selectedUserIdAndFriendIds = userIdAndFriendIds.filter(item => item.userId === user.id && selectedFriendIds.includes(item.friendId))
-                        setConfirmationItems({ open : true , relationsToDelete : selectedUserIdAndFriendIds })
+                        const relationsToDelete = userIdAndFriendIds.filter(item => (item.userId === user.id && selectedFriendIds.includes(item.friendId)) || (selectedFriendIds.includes(item.userId) && item.friendId === user.id) )
+                        setConfirmationItems({ open : true , relationsToDelete })
                     }} >
                         <DeleteOutlineRoundedIcon sx={{ color : "white" }} />
                     </IconButton>
                 </Box>
             </Box>
             : <span></span> }
+            {<IconButton color="inherit" sx={{ position : "absolute" , top : "-47px" , right : "20px"}} onClick={() => setSearchForAllOpen(true)} >
+                <SearchIcon sx={{ color : "white"}}  />
+            </IconButton>}
             <Box sx={{ height : "calc(100vh - 56px)" , overflowY : "auto"}}>
                 {friendsAndChatsAndRelation.map(item => {
                     const createdTime = new Date(item.chat.createdAt);
@@ -197,10 +204,9 @@ const ChatsPage = () => {
                 })}
             </Box>
             <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedFriends={setSelectedFriends} />
+            <SearchForAll searchForAllOpen={searchForAllOpen} setSearchForAllOpen={setSearchForAllOpen} />
         </Box>
     )
 }
-
-// here
 
 export default ChatsPage;

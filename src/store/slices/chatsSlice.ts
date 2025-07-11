@@ -2,7 +2,7 @@ import { DeletedChats, NewChat, UpdatedChat } from "@/types/chats";
 import { envValues } from "@/util/envValues";
 import { Chats } from "@prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { addUserIdAndFriendId , removeUserIdAndFriendIds } from "./userIdAndFriendIdSlice";
+import { addUserIdAndFriendIds , removeUserIdAndFriendIds } from "./userIdAndFriendIdSlice";
 
 interface ChatsInitialState {
     chats : Chats[],
@@ -24,9 +24,11 @@ export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( new
             },
             body : JSON.stringify({ message , friendId , userId , replyId , forwardFriendIds , forwardChats })
         });
-        const { newChat , newUserIdAndFriendId , newForwardChats } = await response.json();
+        const { newChat , newRelations , newForwardChats } = await response.json();
         newChat && thunkApi.dispatch(addChat(newChat));
-        newUserIdAndFriendId && thunkApi.dispatch(addUserIdAndFriendId(newUserIdAndFriendId));
+        if(newRelations) {
+            thunkApi.dispatch(addUserIdAndFriendIds(newRelations));
+        }
         newForwardChats && thunkApi.dispatch(addForwardChats(newForwardChats))
         isSuccess && isSuccess();
     } catch (err) {
@@ -63,10 +65,10 @@ export const deleteChat = createAsyncThunk("chatsSlice/deleteChat" , async( dele
             },
             body : JSON.stringify({ deletedIds })
         });
-        const { deletedChats , deletedUserIdAndFriendId } = await response.json();
+        const { deletedChats , deletedUserIdAndFriendIds } = await response.json();
         thunkApi.dispatch(removeChats(deletedChats));
-        if(deletedUserIdAndFriendId)  {
-            thunkApi.dispatch(removeUserIdAndFriendIds( [ deletedUserIdAndFriendId ] ));
+        if(deletedUserIdAndFriendIds)  {
+            thunkApi.dispatch(removeUserIdAndFriendIds(deletedUserIdAndFriendIds));
         }
         isSuccess && isSuccess();
     } catch(err) {
