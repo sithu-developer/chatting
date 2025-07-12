@@ -106,7 +106,7 @@ const ChatsPage = () => {
     }
 
     return (
-        <Box sx={{ bgcolor : "primary.main" , height : "95vh" , position : "relative"}}>
+        <Box sx={{ bgcolor : "primary.main" , height : "calc(100vh - 70px)" , position : "relative" }}>
             {selectedFriends.length ? <Box sx={{ bgcolor :  "secondary.main" , position : "absolute" , width : "100vw" , height : "60px" , top : "-60px" , display : "flex" , justifyContent : "space-between" , alignItems : "center" , px : "15px"}} >
                 <Box sx={{ display : "flex" , alignItems : "center" , gap : "20px"}} >
                     <IconButton onClick={() => setSelectedFriends([])} >
@@ -132,10 +132,10 @@ const ChatsPage = () => {
                 </Box>
             </Box>
             : <span></span> }
-            {<IconButton color="inherit" sx={{ position : "absolute" , top : "-47px" , right : "20px"}} onClick={() => setSearchForAllOpen(true)} >
+            {!selectedFriends.length ? <IconButton color="inherit" sx={{ position : "absolute" , top : "-52px" , right : "10px"}} onClick={() => setSearchForAllOpen(true)} >
                 <SearchIcon sx={{ color : "white"}}  />
-            </IconButton>}
-            <Box sx={{ height : "calc(100vh - 56px)" , overflowY : "auto"}}>
+            </IconButton> : undefined}
+            <Box sx={{ height : "calc(100vh - 70px)" , overflowY : "auto"}}>
                 {friendsAndChatsAndRelation.map(item => {
                     const createdTime = new Date(item.chat.createdAt);
                     const exit = selectedFriends.find(friend => friend.id === item.friend.id );

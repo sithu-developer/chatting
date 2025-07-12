@@ -62,7 +62,7 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
                 <TextField autoFocus variant="standard" placeholder="Search" color="secondary" onChange={(event) => setSearchValue(event.target.value.trim()) } />
             </Box>
             <List sx={{ bgcolor : "primary.main" , height : "calc(100vh - 69px)" , overflowY : "auto"}}>
-                {searchChats.sort((a , b) => b.id - a.id).map(chat => {
+                {searchChats.length ? searchChats.sort((a , b) => b.id - a.id).map(chat => {
                     const currentRelation = userIdAndFriendIds.find(item => item.id === chat.userAndFriendRelationId);
                 if(!currentRelation) return null;
                     const friendOfMessage = friends.find(item => item.id === currentRelation.userId);
@@ -88,18 +88,20 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
                         </Box>
                         <Box sx={{ flexGrow : 1}}>
                             <Typography sx={{ fontWeight : "900"}} >{friendOfMessage ? (friendOfMessage.firstName + " " + friendOfMessage.lastName) : "You"}</Typography>
-                            {searchValue ? <Box sx={{ display : "flex"}}>
-                              <Typography sx={{ color : "GrayText", whiteSpace : "pre"}} >{chat.message.substring(0 , chat.message.toLowerCase().indexOf(searchValue.toLowerCase()))}</Typography>
-                              <Typography color="info" sx={{ whiteSpace : "pre"}} >{chat.message.substring( chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) ,chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length )}</Typography>
-                              <Typography sx={{ color : "GrayText" , whiteSpace : "pre"}} >{chat.message.substring(chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length)}</Typography>
-                            </Box>
-                            :<Typography sx={{ color : "GrayText"}}>{chat.message}</Typography>}
+                            {searchValue ? 
+                            <Typography sx={{ overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap" }}>  
+                                <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(0 , chat.message.toLowerCase().indexOf(searchValue.toLowerCase()))}</Box>
+                                <Box component="span" sx={{ color : "info.main"}} >{chat.message.substring( chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) ,chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length )}</Box>
+                                <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length)}</Box>
+                            </Typography>
+                            :<Typography sx={{ color : "GrayText" , overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap"}}>{chat.message}</Typography>}
                         </Box>
                         <Typography sx={{ fontSize : "12px" ,  color : "GrayText" }} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
                       </ListItemButton>
                        <Divider variant="middle" />
                     </Box>
-                )})}
+                )})
+                :<Typography sx={{ width : "100vw" , textAlign : "center" , fontSize : "22px"}}>No Result</Typography>}
             </List>
         </Dialog>
     )

@@ -15,7 +15,7 @@ const TopBar = ( { open , setOpen } : Props ) => {
     return (
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="static">
-            <Toolbar sx={{ bgcolor : "secondary.main"}}>
+            <Toolbar sx={{ bgcolor : "secondary.main" ,  p : "10px"}}>
               {!isLogin && <IconButton
                 size="large"
                 edge="start"
