@@ -61,6 +61,7 @@ const ChattingPage = () => {
     const router = useRouter();
     const query = router.query;
     const friendId = Number(query.id);
+    const searchedChatId = Number(query.searchedChatId);
     const currentFriend = friends.find(item => item.id === friendId);
     const dispatch = useAppDispatch();
     const currentRelation = userIdAndFriendIds.find(item => item.userId === user?.id && item.friendId === friendId) as UserIdAndFriendId ;
@@ -70,6 +71,7 @@ const ChattingPage = () => {
     const inputRef = useRef<HTMLInputElement | null >(null);
     const messageRef = useRef<{ [ key : number ] : HTMLDivElement | null }>({});
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const hadRunOneTimeForSearchChat = useRef<boolean>(false);
 
     useEffect(() => {
         if(friendId && user && currentFriend ) {
@@ -103,6 +105,20 @@ const ChattingPage = () => {
         }
     } , [lastRef.current , replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
         
+    useEffect(() => {
+        if( !hadRunOneTimeForSearchChat.current && searchedChatId && currentChats.length) {
+            const searchedChat = messageRef.current[searchedChatId];
+            if(searchedChat) {
+                hadRunOneTimeForSearchChat.current = true;
+                searchedChat.scrollIntoView({behavior : "instant" , block : "center"})
+                searchedChat.style.backgroundColor = "rgba(206, 212, 224, 0.15)";
+                setTimeout(() => {
+                    searchedChat.style.backgroundColor = "";
+                } , 1000)
+            }
+        }
+    } , [searchedChatId && currentChats.length ])
+
     useEffect(() => {
         if(lastRef.current) {
             lastRef.current.scrollIntoView({ behavior : 'smooth'})

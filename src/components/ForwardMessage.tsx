@@ -73,7 +73,7 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
         const forwardFriendIds = selectedFriends.map(item => item.id);
         if(forwardItems.forwardChats && forwardItems.forwardChats.length) {
             dispatch(createChat({ message : "Forward Chat" , forwardFriendIds , forwardChats : forwardItems.forwardChats , friendId : forwardFriendIds[0] , userId : user.id , replyId : null , isSuccess : () => {
-                dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message forward" , severity : Severity.success }));
+                dispatch(changeSnackBar({isSnackBarOpen : true , message : (forwardItems.forwardChats && forwardItems.forwardChats.length > 1) ? "Messages forwarded" : "Message forwarded" , severity : Severity.success }));
                 setForwardItems({ open : false , forwardChats : undefined });
                 setSearchOpen(false);
                 setSearchValue("");

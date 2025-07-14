@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+import { useRouter } from 'next/router';
 
 
 interface Props {
@@ -23,6 +24,7 @@ const SearchForAll = ( { searchForAllOpen , setSearchForAllOpen } : Props ) => {
     const user = useAppSelector(store => store.userSlice.user);
     const chats = useAppSelector(store => store.chatsSlice.chats);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
+    const router = useRouter();
 
     useEffect(() => {
         if(friends.length && user && chats.length && userIdAndFriendIds.length) {
@@ -102,7 +104,7 @@ const SearchForAll = ( { searchForAllOpen , setSearchForAllOpen } : Props ) => {
                     const friend = friends.find(item => item.id === friendId);
                     const startIndex = chat.message.toLowerCase().indexOf(searchString.toLowerCase());
                     return (
-                        <Box key={chat.id} sx={{ px : "10px" , pt : "5px" , display : "flex" , flexDirection : "column" , gap : "5px" }} >
+                        <Box key={chat.id} onClick={() => router.push({ pathname : `/happy-chatting/chats/${friendId}` , query : { searchedChatId : chat.id } })} sx={{ px : "10px" , pt : "5px" , display : "flex" , flexDirection : "column" , gap : "5px" , cursor : "pointer" , ":hover" : { bgcolor : "#324352ff" } }} >
                             <Box sx={{ display : "flex" , gap : "10px"}}>
                                 {friend ? <Box sx={{ width : "55px" , height : "55px" , display : "flex" , justifyContent : "center" , alignItems : "center" , borderRadius : "30px" , overflow : "hidden" }} >
                                     <Image alt="friend profile" src={friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "55px" , height : "auto" }} />

@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import { deleteRelations } from "@/store/slices/userIdAndFriendIdSlice";
+import { changeSnackBar } from "@/store/slices/generalSlice";
+import { Severity } from "@/types/general";
 
 
 interface Props {
@@ -59,6 +61,7 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
         if(confirmationItems.chatToPin) {
             dispatch(updateChat({...confirmationItems.chatToPin , isPin : true , isSuccess : () => {
                 setConfirmationItems({ open : false , chatToPin : undefined })
+                dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message pinned." , severity : Severity.success}))
             } }));
         }
     }

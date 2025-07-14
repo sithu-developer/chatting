@@ -31,7 +31,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
     const router = useRouter();
 
     return (
-        <Dialog open={ openSideBarComponent.id === 3 && openSideBarComponent.open } onClose={() => {
+        <Dialog open={ openSideBarComponent.id === 2 && openSideBarComponent.open } onClose={() => {
             setOpenSideBarComponent({ ...openSideBarComponent , open : false});
             setSearchOpen(false);
             setSearchValue("");

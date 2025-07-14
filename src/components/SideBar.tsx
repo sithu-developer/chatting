@@ -1,17 +1,16 @@
 import { useAppSelector } from "@/store/hooks";
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Profile from "./Profile";
 import { useState } from "react";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
-import NewGroup from "./NewGroup";
 import NewFriends from "./NewFriends";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import Setting from "./Setting";
 
 interface Props {
     open : boolean,
@@ -61,7 +60,7 @@ const SideBar = ({ open , setOpen } : Props) => {
                             <ListItem  disablePadding>
                               <ListItemButton onClick={() => {  
                                 setOpen(false);
-                                if(item.id === 4) {
+                                if(item.id === 3) {
                                   router.push(`/happy-chatting/chats/${user.id}`)
                                 } else {
                                   setOpenSideBarComponent({ id : item.id , open : true});
@@ -93,9 +92,8 @@ const SideBar = ({ open , setOpen } : Props) => {
                     </Box>
                 </Box>
             </Drawer>
-            
+            <Setting openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
             <Profile openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
-            <NewGroup openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
             <NewFriends openSideBarComponent={openSideBarComponent} setOpenSideBarComponent={setOpenSideBarComponent} />
         </Box>
     )
@@ -117,21 +115,16 @@ const sliderComponents : SliderComponents[] = [
     },
     {
         id : 2,
-        icon : PeopleAltOutlinedIcon,
-        name : "New Group",
-    },
-    {
-        id : 3,
         icon : PersonOutlineOutlinedIcon,
         name : "Friends",
     },
     {
-        id : 4,
+        id : 3,
         icon : BookmarkBorderOutlinedIcon,
         name : "Saved Messages",
     },
     {
-        id : 5,
+        id : 4,
         icon : SettingsOutlinedIcon ,
         name : "Settings",
     }
