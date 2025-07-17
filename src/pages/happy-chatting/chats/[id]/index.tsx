@@ -27,7 +27,7 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { copyTexts } from "@/util/general";
+import { copyTexts, timeCalcFunctionForMessage } from "@/util/general";
 import Image from "next/image";
 import KeyboardReturnRoundedIcon from '@mui/icons-material/KeyboardReturnRounded';
 import ChatMenu from "@/components/ChatMenu";
@@ -245,8 +245,6 @@ const ChattingPage = () => {
             </Box>}
             <Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" , overflowY: 'auto', bgcolor : "primary.main" , height : "100vh" , width : "100vw" , pt :(pinChats.length ? "112px" : "72px") , pb : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 49 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + "px") }} >
                 {currentChats.length ? currentChats.map(item => {
-                    const createdTime = new Date(item.createdAt);
-                    const updatedTime = new Date(item.updatedAt);
                     const userIdAndFriendIdOfChat = userIdAndFriendIds.find(element => element.id === item.userAndFriendRelationId) as UserIdAndFriendId;
                     const replyChat = chats.find(chat => chat.id === item.replyId);
                     const replyUserId = userIdAndFriendIds.find(userIdAndFriendId => replyChat && (userIdAndFriendId.id === replyChat.userAndFriendRelationId))?.userId;
@@ -318,9 +316,9 @@ const ChattingPage = () => {
                                     </Box>)}
                                     <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
                                         <Typography sx={{ color : "text.primary" , flexGrow : 1 , whiteSpace : "pre-line" , mr : (item.message.includes("\n") ? "20px" : "0") }} >{item.message}</Typography>
-                                        <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , width : (item.message.includes("\n") ? "100%" : "auto") , flexGrow : 1 }}>
-                                            {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px" }} />}
-                                            <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                        <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "10px" , width : (item.message.includes("\n") ? "100%" : "auto") , flexGrow : 1 }}>
+                                            {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "11px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px" }} />}
+                                            <Typography sx={{ fontSize : "11px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{timeCalcFunctionForMessage(item)}</Typography>
                                         </Box>
                                     </Box>
                                 </Box>

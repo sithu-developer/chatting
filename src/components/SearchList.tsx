@@ -4,6 +4,7 @@ import { RefObject, useEffect, useState } from "react";
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import { useAppSelector } from "@/store/hooks";
 import Image from "next/image";
+import { timeCalcFunction } from "@/util/general";
 
 interface Props {
     searchListOpen : boolean
@@ -66,8 +67,6 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
                     const currentRelation = userIdAndFriendIds.find(item => item.id === chat.userAndFriendRelationId);
                 if(!currentRelation) return null;
                     const friendOfMessage = friends.find(item => item.id === currentRelation.userId);
-                    const createdTime = new Date(chat.createdAt);
-                    const updatedTime = new Date(chat.updatedAt);
                 return (
                     <Box key={chat.id}>
                       <ListItemButton onClick={() => {
@@ -96,7 +95,7 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
                             </Typography>
                             :<Typography sx={{ color : "GrayText" , overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap"}}>{chat.message}</Typography>}
                         </Box>
-                        <Typography sx={{ fontSize : "12px" ,  color : "GrayText" }} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                        <Typography sx={{ fontSize : "12px" ,  color : "GrayText" }} >{timeCalcFunction(chat)}</Typography>
                       </ListItemButton>
                        <Divider variant="middle" />
                     </Box>

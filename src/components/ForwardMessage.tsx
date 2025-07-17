@@ -14,6 +14,7 @@ import { changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import Image from "next/image";
+import { timeCalcFunction } from "@/util/general";
 
 
 interface Props {
@@ -105,7 +106,6 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
             </Box>
             <Box sx={{ bgcolor : "primary.main" , minWidth : "300px" , maxHeight : "70vh" }} >
                 {filteredFriendsAndChats.map(item => {
-                    const createdTime = new Date(item.chat.createdAt);
                     const exit = selectedFriends.find(friend => friend.id === item.friend.id );
                     return (
                         <Box key={item.friend.id} onClick={() => {
@@ -133,7 +133,7 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
                                         {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
                                         :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
-                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{timeCalcFunction(item.chat)}</Typography>
                                     </Box>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
                                         <Typography sx={{ color : "GrayText" , maxWidth : "40vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>

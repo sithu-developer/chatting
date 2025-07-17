@@ -16,6 +16,7 @@ import Confirmation from "@/components/Confirmation";
 import { ConfirmationItemsType } from "@/types/chats";
 import SearchForAll from "@/components/SearchForAll";
 import SearchIcon from '@mui/icons-material/Search';
+import { timeCalcFunction } from "@/util/general";
 
 
 
@@ -137,8 +138,9 @@ const ChatsPage = () => {
             </IconButton> : undefined}
             <Box sx={{ height : "calc(100vh - 70px)" , overflowY : "auto"}}>
                 {friendsAndChatsAndRelation.map(item => {
-                    const createdTime = new Date(item.chat.createdAt);
                     const exit = selectedFriends.find(friend => friend.id === item.friend.id );
+                    
+                    
 
                     return (
                         <Box key={item.friend.id}
@@ -187,7 +189,7 @@ const ChatsPage = () => {
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
                                         {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
                                         :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
-                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{(createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{timeCalcFunction(item.chat)}</Typography>
                                     </Box>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
                                         <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>

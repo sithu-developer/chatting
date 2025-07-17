@@ -4,6 +4,7 @@ import { Chats, UserIdAndFriendId } from "@prisma/client";
 import { RefObject, useEffect, useRef } from "react";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import { timeCalcFunctionForMessage } from "@/util/general";
 
 
 interface Props {
@@ -33,8 +34,6 @@ const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } :
             </DialogTitle>
             <Box sx={{ bgcolor : "primary.main" , p : "30px 10px" , maxHeight : "70vh" , minWidth : "300px" , overflowY : "auto"}}>
                 {pinChats.map(item => {
-                    const createdTime = new Date(item.createdAt);
-                    const updatedTime = new Date(item.updatedAt);
                     const userIdAndFriendIdOfChat = userIdAndFriendIds.find(element => element.id === item.userAndFriendRelationId) as UserIdAndFriendId;
                     const replyChat = chats.find(chat => chat.id === item.replyId);
                     const replyUserId = userIdAndFriendIds.find(userIdAndFriendId => replyChat && (userIdAndFriendId.id === replyChat.userAndFriendRelationId))?.userId;
@@ -78,8 +77,8 @@ const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } :
                                 </Box>)}
                                 <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
                                     <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>
-                                    <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "11px" , flexGrow : 1 }}>
-                                        <Typography sx={{ fontSize : "12px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{(createdTime.getTime() === updatedTime.getTime() ? "" : "edited " ) + (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )}</Typography>
+                                    <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "10px" , flexGrow : 1 }}>
+                                        <Typography sx={{ fontSize : "11px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{timeCalcFunctionForMessage(item)}</Typography>
                                     </Box>
                                 </Box>
                             </Box>

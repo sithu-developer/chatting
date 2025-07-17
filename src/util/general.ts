@@ -34,3 +34,46 @@ export const copyTexts = ( { currentFriend , selectedChats , userIdAndFriendIds 
         navigator.clipboard.writeText(selectedChats.sort((a , b) => a.id - b.id).map(selectedChat => selectedChat.message).join("\n\n"))
     }
 }
+
+export const timeCalcFunction = ( currentChat : Chats) => {
+    const months = [ "Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" ];
+    const days = [ "Sun" , "Mon" , "Tue" , "Wed" , "Thu" , "Fri" , "Sat" ];
+
+    const nowTime = new Date();
+    const createdTime = new Date(currentChat.createdAt);
+
+    if(createdTime.getFullYear() !== nowTime.getFullYear()) {
+        return (createdTime.getDate() + "." + createdTime.getMonth() + "." + createdTime.getFullYear() );
+    }else if( (createdTime.getDate() === nowTime.getDate()) && (createdTime.getMonth() === nowTime.getMonth() ) ){
+        return (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" )
+    } else if( (createdTime.getMonth() === nowTime.getMonth()) && (nowTime.getDate() - nowTime.getDate() < 7) ) {
+        return days[createdTime.getDay()];
+    } else {
+        return (months[createdTime.getMonth()] + " " + createdTime.getDate());
+    }
+}
+
+export const timeCalcFunctionForMessage = ( currentChat : Chats) => {
+    const months = [ "Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" ];
+    const days = [ "Sun" , "Mon" , "Tue" , "Wed" , "Thu" , "Fri" , "Sat" ];
+
+    const nowTime = new Date();
+    const createdTime = new Date(currentChat.createdAt);
+    const updatedTime = new Date(currentChat.updatedAt)
+
+    let returnedDateString = (createdTime.getTime() === updatedTime.getTime() ? "" : "edited " );
+
+    if(createdTime.getFullYear() !== nowTime.getFullYear()) {
+        returnedDateString += (createdTime.getDate() + "." + createdTime.getMonth() + "." + createdTime.getFullYear() + " at " );
+    } else if( (createdTime.getDate() === nowTime.getDate()) && (createdTime.getMonth() === nowTime.getMonth() ) ){
+        returnedDateString += "";
+    } else if( (createdTime.getMonth() === nowTime.getMonth()) && (nowTime.getDate() - nowTime.getDate() === 1) ) {
+        returnedDateString += "yesterday at ";
+    } else {
+        returnedDateString += (months[createdTime.getMonth()] + " " + createdTime.getDate() + " at ");
+    }
+
+    returnedDateString += (createdTime.getHours() <= 12 ? (createdTime.getHours() === 0 ? 12 : createdTime.getHours()) :  (createdTime.getHours() - 12) ) + ":" + createdTime.getMinutes() + (createdTime.getHours() <= 12 ? " AM" : " PM" );
+
+    return returnedDateString;
+}
