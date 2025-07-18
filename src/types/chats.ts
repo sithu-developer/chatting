@@ -10,7 +10,12 @@ export interface NewChat extends SuccessOrFailType {
     forwardChats : Chats[]
 }
 
-export interface UpdatedChat extends SuccessOrFailType , Chats {};
+export interface UpdatedChat extends SuccessOrFailType {
+    id : number;
+    message : string;
+    isPin : boolean;
+    seenChatsIds ?: number[]
+};
 
 export interface ConfirmationItemsType {
     open : boolean,

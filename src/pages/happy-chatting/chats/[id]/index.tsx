@@ -6,7 +6,7 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import SentimentSatisfiedOutlinedIcon from '@mui/icons-material/SentimentSatisfiedOutlined';
 import AttachmentOutlinedIcon from '@mui/icons-material/AttachmentOutlined';
 import KeyboardVoiceOutlinedIcon from '@mui/icons-material/KeyboardVoiceOutlined';
-import { useEffect, useRef, useState } from "react";
+import { useEffect , useRef, useState } from "react";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat, updateChat } from "@/store/slices/chatsSlice";
 import { Chats, UserIdAndFriendId } from "@prisma/client";
@@ -32,8 +32,7 @@ import Image from "next/image";
 import KeyboardReturnRoundedIcon from '@mui/icons-material/KeyboardReturnRounded';
 import ChatMenu from "@/components/ChatMenu";
 import SearchList from "@/components/SearchList";
-
-
+import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardChats : []
@@ -78,7 +77,7 @@ const ChattingPage = () => {
             setNewChat({ ...newChat , friendId , userId : user.id });
             const currentUserAndFriendRelationIds = userIdAndFriendIds.filter(item => (item.userId === user.id && item.friendId === currentFriend.id) || (item.userId === currentFriend.id && item.friendId === user.id )).map(item => item.id);
             const currChats = chats.filter(item => currentUserAndFriendRelationIds.includes(item.userAndFriendRelationId));
-            setCurrentChats(currChats);
+            setCurrentChats(currChats.sort((a , b) => a.id - b.id));
             const pinChats = currChats.filter(chat => chat.isPin === true);
             setPinChats(pinChats);
         } else if(user && friendId && friendId === user.id) {
@@ -86,7 +85,7 @@ const ChattingPage = () => {
             const userAndFriendRelationIdForSavedChat = userIdAndFriendIds.find(item =>  item.userId === user.id && item.friendId === user.id);
             if(userAndFriendRelationIdForSavedChat) {
                 const currChats = chats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdForSavedChat.id );
-                setCurrentChats(currChats);
+                setCurrentChats(currChats.sort((a , b) => a.id - b.id));
                 const pinChats = currChats.filter(chat => chat.isPin === true);
                 setPinChats(pinChats);
             }
@@ -124,6 +123,16 @@ const ChattingPage = () => {
             lastRef.current.scrollIntoView({ behavior : 'smooth'})
         }
     } , [heightOfInput])
+
+    useEffect(() => {
+        if(currentChats.length && user && userAndFriendRelationIdFromUser && friendId !== user.id) {
+            const seenChatsIds = currentChats.filter(item => (item.userAndFriendRelationId !== userAndFriendRelationIdFromUser) && !item.seen).map(item => item.id);
+            if(seenChatsIds.length) {
+                dispatch(updateChat({ id : 0 , message : "" , isPin : false , seenChatsIds }))
+            }
+        }
+        
+    } , [currentChats.length , user , userAndFriendRelationIdFromUser])
 
     if(!user || !friendId || (!currentFriend && friendId !== user.id)) return null;
 
@@ -263,26 +272,26 @@ const ChattingPage = () => {
                         :<span></span>}
                         <Box ref={(el : HTMLDivElement | null) => { messageRef.current[item.id] = el}} 
 
-                        sx={{ display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , flexGrow : 1 , px : "5px" , py : "1.5px" , cursor : "pointer" }} 
-                        
-                        onClick={(event) => {
-                            if(selectedChats.length) {
-                                if(exit) {
-                                    const chatsAfterRemove  = selectedChats.filter(selectedChat => selectedChat.id !== item.id);
-                                    setSelectedChats(chatsAfterRemove);
+                            sx={{ display : "flex" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , flexGrow : 1 , px : "5px" , py : "1.5px" , cursor : "pointer" }} 
+                            
+                            onClick={(event) => {
+                                if(selectedChats.length) {
+                                    if(exit) {
+                                        const chatsAfterRemove  = selectedChats.filter(selectedChat => selectedChat.id !== item.id);
+                                        setSelectedChats(chatsAfterRemove);
+                                    } else {
+                                        setSelectedChats([...selectedChats , item ]);
+                                    }
                                 } else {
-                                    setSelectedChats([...selectedChats , item ]);
+                                    setMessageMenu({ chat : item , anchorEl : event.currentTarget})
                                 }
-                            } else {
-                                setMessageMenu({ chat : item , anchorEl : event.currentTarget})
-                            }
-                        }}
+                            }}
 
-                        onContextMenu={(e) => e.preventDefault()}
-                        onTouchStart={() =>  handleMouseDown( exit , item ) }
-                        onMouseDown={() =>  handleMouseDown( exit , item )}
-                        onTouchEnd={handleMouseUp}
-                        onMouseUp={handleMouseUp}
+                            onContextMenu={(e) => e.preventDefault()}
+                            onTouchStart={() =>  handleMouseDown( exit , item ) }
+                            onMouseDown={() =>  handleMouseDown( exit , item )}
+                            onTouchEnd={handleMouseUp}
+                            onMouseUp={handleMouseUp}
 
                         >   
                             <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" }}>
@@ -314,11 +323,12 @@ const ChattingPage = () => {
                                         <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
                                         <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
                                     </Box>)}
-                                    <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
+                                    <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 , pb : "1px" }}>
                                         <Typography sx={{ color : "text.primary" , flexGrow : 1 , whiteSpace : "pre-line" , mr : (item.message.includes("\n") ? "20px" : "0") }} >{item.message}</Typography>
                                         <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "10px" , width : (item.message.includes("\n") ? "100%" : "auto") , flexGrow : 1 }}>
-                                            {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "11px" , transform : "rotate(45deg)" , color : "text.secondary" , mt : "4px" }} />}
-                                            <Typography sx={{ fontSize : "11px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{timeCalcFunctionForMessage(item)}</Typography>
+                                            {item.isPin && <PushPinRoundedIcon sx={{ fontSize : "12px" , transform : "rotate(45deg)" , color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText" , mt : "6px" }} />}
+                                            <Typography sx={{ fontSize : "11px" , mt : "3px" ,  color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" : "GrayText"}} >{timeCalcFunctionForMessage(item)}</Typography>
+                                            {userIdAndFriendIdOfChat.userId === user.id && (item.seen ? <DoneAllRoundedIcon sx={{ fontSize : "15px" , color : "text.secondary" , mt : "3px" }}  /> : <DoneRoundedIcon sx={{ fontSize : "15px" , color : "text.secondary" , mt : "3px" }} />)}
                                         </Box>
                                     </Box>
                                 </Box>

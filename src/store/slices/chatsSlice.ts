@@ -37,18 +37,25 @@ export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( new
 })
 
 export const updateChat = createAsyncThunk("chatsSlice/updateChat" , async( editedChat : UpdatedChat , thunkApi ) => {
-    const { id , message , isPin , isFail , isSuccess } = editedChat;
+    const { id , message , isPin , seenChatsIds , isFail , isSuccess } = editedChat;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "PUT" ,
             headers : {
                 "Content-type" : "application/json"
             },
-            body : JSON.stringify({ id , message , isPin })
+            body : JSON.stringify({ id , message , isPin , seenChatsIds })
         });
-        const { chat } = await response.json();
-        thunkApi.dispatch(replaceChat(chat));
-        isSuccess && isSuccess();
+        const { chat , seenChats } = await response.json();
+        if(isSuccess) {
+            isSuccess();
+        }
+        if(chat) {
+            thunkApi.dispatch(replaceChat(chat));
+        }
+        if(seenChats.length) {
+            thunkApi.dispatch(replaceSeenChats(seenChats))
+        }
     } catch(err) {
         isFail && isFail();
     }
@@ -95,10 +102,15 @@ const chatSlice = createSlice({
         },
         addForwardChats : ( state , action : PayloadAction<Chats[]>) => {
             state.chats = [...state.chats , ...action.payload ];
+        },
+        replaceSeenChats : ( state , action : PayloadAction<Chats[]>) => {
+            const seenChatsIds = action.payload.map(item => item.id);
+            const oldChats = state.chats.filter(item => !seenChatsIds.includes(item.id) )
+            state.chats = [...oldChats , ...action.payload];
         }
     }
 });
 
-export const { setChats , addChat , replaceChat , removeChats , addForwardChats } = chatSlice.actions;
+export const { setChats , addChat , replaceChat , removeChats , addForwardChats , replaceSeenChats } = chatSlice.actions;
 
 export default chatSlice.reducer;
