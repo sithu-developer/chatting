@@ -175,12 +175,16 @@ const ChatsPage = () => {
                             sx={{ height : "80px" , display : "flex" , alignItems : "center" , p : "5px" , px : "10px" ,  gap : "10px" , cursor : "pointer" , ":hover" : { bgcolor : "#3b4044" }}} 
                         >
                             <Box sx={{ position : "relative"}}>
-                                {item.friend.id !== user.id ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
+                                {item.friend.id !== user.id ? 
+                                <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
                                     <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
                                 </Box>
                                 :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
                                     <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />
                                 </Box>}
+                                {item.friend.isOnline && item.friend.id !== user.id ? 
+                                <Box sx={{ bgcolor : "info.main" , height : "12px" , width : "12px" , borderRadius : "12px" , position : "absolute" , bottom : "3px" , right : "1px" , border : "2px solid #101821"}} />
+                                :undefined}
                                 {exit && <Box  sx={{ position : "absolute" , bottom : "1px" , right : "1px" , bgcolor : "white" , width : "15px" , height : "15px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" }}>
                                     <CheckCircleRoundedIcon color="success" />
                                 </Box>}
@@ -204,7 +208,7 @@ const ChatsPage = () => {
                                             {!unseenMessageCount || item.friend.id === user.id ? 
                                             undefined
                                             :<Box sx={{ bgcolor : "info.main" , height : "20px" , minWidth : "20px" , px : "5px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" }} >
-                                                <Typography sx={{ color : "white"}}>{unseenMessageCount}</Typography>
+                                                <Typography sx={{ color : "white" , fontSize : "14px"}}>{unseenMessageCount}</Typography>
                                             </Box>}
                                             {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
                                                 <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />

@@ -81,16 +81,27 @@ const SearchForAll = ( { searchForAllOpen , setSearchForAllOpen } : Props ) => {
                 <Typography sx={{ color : "GrayText" , fontWeight: "900" , fontSize : "15px" }}>Chats</Typography>
             </Box>
             <Box sx={{bgcolor : "secondary.main" , display : "flex" , gap : "20px" , p : "8px 10px" , width : "100vw" , overflowX : "auto" }}>
-                {friendsAndChatsAndRelation.length ? friendsAndChatsAndRelation.map(item => (
+                {friendsAndChatsAndRelation.length ? friendsAndChatsAndRelation.map(item => {
+                    const friendRelation = userIdAndFriendIds.find(relation => (relation.userId === item.userIdAndFriendId.friendId) && (relation.friendId === item.userIdAndFriendId.userId));
+                    const unseenMessageCount = chats.filter(chat => (chat.userAndFriendRelationId === friendRelation?.id) && !chat.seen).length;
+                return (
                     <Link href={`./chats/${item.friend.id}`} key={item.friend.id} style={{ textDecoration : "none"}}>
-                        <Box sx={{ display : "flex" , flexDirection : "column" , alignItems : "center"}}>
+                        <Box sx={{ display : "flex" , flexDirection : "column" , alignItems : "center" , position : "relative"}}>
                             <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
                                 <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
                             </Box>
+                            {unseenMessageCount ? 
+                            <Box sx={{ bgcolor : "info.main" , height : "20px" , minWidth : "20px" , px : "5px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" , position : "absolute" , right : "-7px" }} >
+                                <Typography sx={{ color : "white" , fontSize : "12px"}}>{unseenMessageCount}</Typography>
+                            </Box>
+                            :undefined}
+                            {item.friend.isOnline ? 
+                            <Box sx={{ bgcolor : "info.main" , height : "12px" , width : "12px" , borderRadius : "12px" , position : "absolute" , bottom : "22px" , right : "3px" , border : "2px solid #1D2D41"}} />
+                            :undefined}
                             <Typography sx={{ fontSize : "13px" , maxWidth : "60px" , overflow : "hidden" , textOverflow : "ellipsis" , textWrap : "nowrap" , color : "white" }}>{item.friend.firstName + " " + item.friend.lastName}</Typography>
                         </Box>
                     </Link>
-                ))
+                )})
                 :<Typography sx={{ flexGrow : 1 , textAlign : "center" , p : "20px" , fontSize : "23px" }}>No Result</Typography>}
             </Box>
             <Box sx={{ bgcolor : "secondary.dark" , width : "100vw" , p : "3px 10px"}}>

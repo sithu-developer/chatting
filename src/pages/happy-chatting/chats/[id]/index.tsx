@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Box, IconButton, TextField, Typography } from "@mui/material";
+import { Box, IconButton, Slide, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
@@ -27,12 +27,14 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { copyTexts, timeCalcFunctionForMessage } from "@/util/general";
+import { copyTexts, emojiList, timeCalcFunctionForMessage } from "@/util/general";
 import Image from "next/image";
 import KeyboardReturnRoundedIcon from '@mui/icons-material/KeyboardReturnRounded';
 import ChatMenu from "@/components/ChatMenu";
 import SearchList from "@/components/SearchList";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
+import KeyboardOutlinedIcon from '@mui/icons-material/KeyboardOutlined';
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardChats : []
@@ -56,6 +58,7 @@ const ChattingPage = () => {
     const [ heightOfInput , setHeightOfInput ] = useState<number>(48);
     const [ chatMenuOpen , setChatMenuOpen ] = useState<boolean>(false);
     const [ searchListOpen , setSearchListOpen ]  = useState<boolean>(false);
+    const [ emojiOpen , setEmojiOpen ] = useState<boolean>(false);
 
     const router = useRouter();
     const query = router.query;
@@ -367,9 +370,12 @@ const ChattingPage = () => {
                 {replyChat && <ReplyOrEdit chat={replyChat} setChat={setReplyChat}  setNewChat={setNewChat} newChat={newChat} />}
                 {editedChat && <ReplyOrEdit chat={editedChat} setChat={setEditedChat} />}
                 <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , py : "3px" }} >
-                    <IconButton sx={{ alignSelf : "flex-end"}} >
+                    {!emojiOpen ? <IconButton sx={{ alignSelf : "flex-end"}} onClick={() => setEmojiOpen(true)} >
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
                     </IconButton>
+                    :<IconButton sx={{ alignSelf : "flex-end"}} onClick={() => setEmojiOpen(false)} >
+                        <KeyboardOutlinedIcon sx={{ color : "GrayText"}}  />
+                    </IconButton>}
                     <TextField multiline variant="standard" color="secondary" ref={inputRef} sx={{ flexGrow : 1 , maxHeight : "150px" , overflowY : "auto" }} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => {
                         editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
                         setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
@@ -390,6 +396,36 @@ const ChattingPage = () => {
                     </Box>}
                 </Box>
             </Box>}
+            {emojiOpen ? <Slide direction="up" in={emojiOpen}>
+                <Box sx={{ width : "100vw" , p : "10px" , bgcolor : "secondary.main" ,  position : "absolute" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 49 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + "px")}} >
+                    <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , px : "5px"}}>
+                        <Typography sx={{ color : "white" }} >Emoji</Typography>
+                        <IconButton onClick={() => {
+                            editedChat ? setEditedChat({...editedChat , message : [...editedChat.message].slice(0 , -1).join("") }) :  setNewChat({...newChat , message : [...newChat.message].slice(0 , -1).join("")});
+                            if (inputRef.current) {
+                                const scrollHeight = inputRef.current.scrollHeight;
+                                setHeightOfInput(scrollHeight === 32 ? 16 + scrollHeight : 9 + scrollHeight);
+                            }
+                        }}>
+                            <BackspaceOutlinedIcon sx={{ color : "GrayText"}} />
+                        </IconButton>
+                    </Box>
+                    <Box sx={{ display : "flex" , flexWrap : "wrap" , height : "180px" , overflow : "auto" }}>
+                        {emojiList.map(item => (
+                            <IconButton key={item} onClick={() => {
+                                editedChat ? setEditedChat({...editedChat , message : editedChat.message + item }) :  setNewChat({...newChat , message : newChat.message + item});
+                                if (inputRef.current) {
+                                  const scrollHeight = inputRef.current.scrollHeight;
+                                  setHeightOfInput(scrollHeight === 32 ? 16 + scrollHeight : 9 + scrollHeight);
+                                }
+                            }} sx={{ borderRadius : "5px" , width : "33px" , height : "33px" , color: "inherit" }} >
+                                <Typography sx={{ fontSize : "23px"}} >{item}</Typography>
+                            </IconButton>
+                        ))}
+                    </Box>
+                </Box>
+            </Slide>
+            :undefined}
         </Box>
     )
 }
