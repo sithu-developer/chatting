@@ -39,14 +39,14 @@ export const createUser = createAsyncThunk("userSlice/createUser" , async( user 
 })
 
 export const updateUser = createAsyncThunk("userSlice/updateUser" , async( updatedUser : UpdatedUserType , thunkApi ) => {
-    const { id , firstName , lastName , bio , day , month , year , isOnline , isSuccess , isFail } = updatedUser;
+    const { id , firstName , lastName , bio , day , month , year , isOnline , profileUrl  , isSuccess , isFail } = updatedUser;
     try {
         const response = await fetch( `${envValues.apiUrl}/user` , {
             method : "PUT" ,
             headers : {
                 "content-type" : "application/json"
             },
-            body : JSON.stringify({ id , firstName , lastName , bio , day , month , year , isOnline })
+            body : JSON.stringify({ id , firstName , lastName , bio , day , month , year , isOnline , profileUrl })
         });
         const { user } = await response.json();
         thunkApi.dispatch(setUser(user));

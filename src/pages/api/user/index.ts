@@ -31,12 +31,12 @@ export default async function handler(
                 return res.status(200).json({ user , friends , userIdAndFriendIds : [] , chats : [] });
             }
         } else if ( method === "PUT") {
-            const { id , firstName , lastName , bio , day , month , year , isOnline } = req.body as User;
+            const { id , firstName , lastName , bio , day , month , year , isOnline , profileUrl } = req.body as User;
             const isValid = id && ( firstName || lastName ) && (bio !== undefined) && day && month && year && isOnline !== undefined;
             if(!isValid) return res.status(400).send("Bad request");
             const exit = await prisma.user.findUnique({ where : { id } });
             if(!exit) return res.status(400).send("Bad request");
-            const user = await prisma.user.update({ where : { id } , data : { firstName , lastName , bio , day , month , year , isOnline }});
+            const user = await prisma.user.update({ where : { id } , data : { firstName , lastName , bio , day , month , year , isOnline , profileUrl : (profileUrl ? profileUrl : null)}});
             return res.status(200).json({ user });
         }
         

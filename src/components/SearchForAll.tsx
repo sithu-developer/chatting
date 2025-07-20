@@ -88,7 +88,7 @@ const SearchForAll = ( { searchForAllOpen , setSearchForAllOpen } : Props ) => {
                     <Link href={`./chats/${item.friend.id}`} key={item.friend.id} style={{ textDecoration : "none"}}>
                         <Box sx={{ display : "flex" , flexDirection : "column" , alignItems : "center" , position : "relative"}}>
                             <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
+                                <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto" , minHeight : "55px"}} />
                             </Box>
                             {unseenMessageCount ? 
                             <Box sx={{ bgcolor : "info.main" , height : "20px" , minWidth : "20px" , px : "5px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" , position : "absolute" , right : "-7px" }} >
@@ -118,7 +118,7 @@ const SearchForAll = ( { searchForAllOpen , setSearchForAllOpen } : Props ) => {
                         <Box key={chat.id} onClick={() => router.push({ pathname : `/happy-chatting/chats/${friendId}` , query : { searchedChatId : chat.id } })} sx={{ px : "10px" , pt : "5px" , display : "flex" , flexDirection : "column" , gap : "5px" , cursor : "pointer" , ":hover" : { bgcolor : "#324352ff" } }} >
                             <Box sx={{ display : "flex" , gap : "10px"}}>
                                 {friend ? <Box sx={{ width : "55px" , height : "55px" , display : "flex" , justifyContent : "center" , alignItems : "center" , borderRadius : "30px" , overflow : "hidden" }} >
-                                    <Image alt="friend profile" src={friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "55px" , height : "auto" }} />
+                                    <Image alt="friend profile" src={friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "55px" , height : "auto" , minHeight : "55px" }} />
                                 </Box>
                                 :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
                                     <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />

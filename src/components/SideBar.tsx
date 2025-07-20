@@ -33,7 +33,7 @@ const SideBar = ({ open , setOpen } : Props) => {
                           setOpen(false);
                           setOpenSideBarComponent({ id : 1 , open : true});
                         }}>
-                          <Image src={user.profileUrl ? user.profileUrl : "/defaultProfile.jpg"} alt="profile photo" width={500} height={500} style={{ width : "80px" , height : "auto"}}/>
+                          <Image src={user.profileUrl ? user.profileUrl : "/defaultProfile.jpg"} alt="profile photo" width={500} height={500} style={{ width : "80px" , height : "auto" , minHeight : "80px"}}/>
                         </Box>
                         <Box>
                             <Typography fontWeight={600} sx={{ fontSize : "17px" }} >{ user.firstName + " " + user.lastName }</Typography>

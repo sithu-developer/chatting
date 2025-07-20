@@ -63,7 +63,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                             router.push(`/happy-chatting/chats/${item.id}`)
                         }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                <Image alt="profile photo" src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto"}} />
+                                <Image alt="profile photo" src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto" , minHeight : "45px"}} />
                             </Box>
                             <Box sx={{ display : "flex"  , flexGrow : 1 }} >
                                 <Typography>{item.firstName} {item.lastName}</Typography>
@@ -87,7 +87,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                             router.push(`/happy-chatting/chats/${item.id}`)
                         }} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , px : "10px" , py : "5px" , ":hover" : { bgcolor : "#3b4044"} , cursor : "pointer" }} >
                             <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                <Image alt="profile photo" src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto"}} />
+                                <Image alt="profile photo" src={item.profileUrl ? item.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto" , minHeight : "45px"}} />
                             </Box>
                             <Box sx={{ display : "flex" , flexGrow : 1 , justifyContent : "space-between" }} >
                                 <Typography>{item.firstName} {item.lastName}</Typography>

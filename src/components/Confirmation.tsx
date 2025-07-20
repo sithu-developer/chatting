@@ -77,7 +77,7 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
                 {confirmationItems.chatsToDelete && <Typography sx={{ fontSize : 21}} >Delete {confirmationItems.chatsToDelete.length > 1 ? confirmationItems.chatsToDelete.length + " messages" : "message" } </Typography>}
                 {confirmationItems.relationsToDelete && <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px"}}>
                     {firstFriend ? <Box sx={{ width : "45px" , height : "45px" , borderRadius : "30px" , display : "flex" , justifyContent : "center" , alignItems : "center" , overflow : "hidden" }}>
-                        <Image alt="friend profile" src={firstFriend.profileUrl ? firstFriend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto"}} ></Image> 
+                        <Image alt="friend profile" src={firstFriend.profileUrl ? firstFriend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "45px" , height : "auto" , minHeight : "45px"}} ></Image> 
                     </Box>
                     : undefined}
                     {(confirmationItems.relationsToDelete.length === 1 && confirmationItems.relationsToDelete[0].friendId === user.id) ? <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" ,  width : "45px" , height : "45px" , borderRadius : "30px" }} >

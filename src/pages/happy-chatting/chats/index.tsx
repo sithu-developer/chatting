@@ -177,7 +177,7 @@ const ChatsPage = () => {
                             <Box sx={{ position : "relative"}}>
                                 {item.friend.id !== user.id ? 
                                 <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" }} >
-                                    <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
+                                    <Image alt="friend photo" src={item.friend.profileUrl ? item.friend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "55px" , height : "auto" , minHeight : "55px"}} />
                                 </Box>
                                 :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" }} >
                                     <BookmarkBorderRoundedIcon sx={{ fontSize : "35px" , color : "white"}} />

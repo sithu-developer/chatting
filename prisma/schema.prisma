@@ -43,6 +43,7 @@ model Chats {
   id                      Int                  @id @default(autoincrement())
   userAndFriendRelationId Int
   message                 String
+  imageMessageUrl         String?
   seen                    Boolean
   replyId                 Int?
   isPin                   Boolean              @default(false)

@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Box, IconButton, Slide, TextField, Typography } from "@mui/material";
+import { Box, Chip, IconButton, Slide, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
@@ -27,7 +27,7 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import ShortcutOutlinedIcon from '@mui/icons-material/ShortcutOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { copyTexts, emojiList, timeCalcFunctionForMessage } from "@/util/general";
+import { copyTexts, emojiList, timeCalcFunctionForMessage, VisuallyHiddenInput } from "@/util/general";
 import Image from "next/image";
 import KeyboardReturnRoundedIcon from '@mui/icons-material/KeyboardReturnRounded';
 import ChatMenu from "@/components/ChatMenu";
@@ -59,6 +59,8 @@ const ChattingPage = () => {
     const [ chatMenuOpen , setChatMenuOpen ] = useState<boolean>(false);
     const [ searchListOpen , setSearchListOpen ]  = useState<boolean>(false);
     const [ emojiOpen , setEmojiOpen ] = useState<boolean>(false);
+    const [ selectedFiles , setSelectedFiles ] = useState<FileList | null>(null);
+    console.log(selectedFiles)
 
     const router = useRouter();
     const query = router.query;
@@ -100,12 +102,9 @@ const ChattingPage = () => {
             lastRef.current.scrollIntoView({ behavior: 'instant' });
         }
         if( inputRef.current) {
-            const inputTag = inputRef.current.querySelector('input');
-            if(inputTag) {
-                inputTag.focus();
-            }
+            inputRef.current.focus();
         }
-    } , [lastRef.current , replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
+    } , [lastRef.current , inputRef.current , replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
         
     useEffect(() => {
         if( !hadRunOneTimeForSearchChat.current && searchedChatId && currentChats.length) {
@@ -236,7 +235,7 @@ const ChattingPage = () => {
                             <ArrowBackRoundedIcon sx={{ color : "white"}} />
                         </IconButton>
                         {currentFriend ? <Box sx={{ width : "45px" , height : "45px" , borderRadius : "30px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center" }} >
-                            <Image alt="your friend profile" src={currentFriend.profileUrl ? currentFriend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "45px" , height : "auto"}} />
+                            <Image alt="your friend profile" src={currentFriend.profileUrl ? currentFriend.profileUrl : "/defaultProfile.jpg"} width={300} height={300} style={{ width : "45px" , height : "auto" , minHeight : "45px"}} />
                         </Box>
                         :<Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "45px" , width : "45px" , borderRadius : "30px" }} >
                             <BookmarkBorderRoundedIcon sx={{ fontSize : "30px" , color : "white"}} />
@@ -305,7 +304,7 @@ const ChattingPage = () => {
                                     <Typography sx={{   lineHeight: 1 , fontSize : "14px" }}>Forwarded from</Typography>
                                     <Box sx={{ display : "flex" , alignItems : "center" , gap : "3px"}}>
                                         <Box sx={{ width : "25px" , height : "25px" , borderRadius : "15px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center" }}>
-                                            <Image alt="profile photo" src={forwardFriend.profileUrl ? forwardFriend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "25px" , height : "auto"}} />
+                                            <Image alt="profile photo" src={forwardFriend.profileUrl ? forwardFriend.profileUrl : "/defaultProfile.jpg"} width={200} height={200} style={{ width : "25px" , height : "auto" , minHeight : "25px"}} />
                                         </Box>
                                         <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
                                     </Box>
@@ -323,9 +322,17 @@ const ChattingPage = () => {
                                             } , 2000)
                                         }
                                     }} sx={{ bgcolor : "rgba(255, 255, 255, 0.15)"  , borderRadius : "4px" , borderLeft : (userIdAndFriendIdOfChat.userId === user.id) ? "4px solid white" :( replyUser.id === user.id ) ? "4px solid rgb(6, 188, 76)" :  "4px solid rgb(171, 109, 233)" , px : "5px" }}>
-                                        <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
-                                        <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
+                                        <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
+                                            {replyChat.imageMessageUrl ? <Image alt="message photo" src={replyChat.imageMessageUrl} width={200} height={200} style={{ width : "30px" , height : "30px" , borderRadius : "5px"}} /> 
+                                            : undefined}
+                                            <Box>
+                                                <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
+                                                <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
+                                            </Box>
+                                        </Box>
                                     </Box>)}
+                                    {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto" , borderRadius : "5px"}}  /> 
+                                    :undefined}
                                     <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 , pb : "1px" }}>
                                         <Typography sx={{ color : "text.primary" , flexGrow : 1 , whiteSpace : "pre-line" , mr : (item.message.includes("\n") ? "20px" : "0") }} >{item.message}</Typography>
                                         <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "10px" , width : (item.message.includes("\n") ? "100%" : "auto") , flexGrow : 1 }}>
@@ -380,14 +387,21 @@ const ChattingPage = () => {
                         editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
                         setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
                     }} />
-                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat?.message.trim().replace(/^\n+|\n+$/g, '') ) ? (editedChat?.message ? <IconButton onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end"}} > 
+                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat) ? (editedChat ? <IconButton disabled={!editedChat.message.trim().replace(/^\n+|\n+$/g, '')} onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end"}} > 
                         <DoneRoundedIcon sx={{color : "text.primary" }} />
                     </IconButton>
                     : <IconButton onClick={handleCreateChat} sx={{  alignSelf : "flex-end" }} > 
                         <SendRoundedIcon sx={{color : "info.main" }} />
                     </IconButton> )
                     :<Box sx={{ display : "flex" , alignSelf : "flex-end"}} >
-                        <IconButton>
+                        <IconButton component="label" role={undefined} >
+                            <VisuallyHiddenInput
+                              type="file"
+                              onChange={(event) => {
+                                 setSelectedFiles(event.target.files)
+                                event.target.value = "";
+                              }}
+                            />
                             <AttachmentOutlinedIcon sx={{ transform : "rotate(135deg)" , color : "GrayText"}} />
                         </IconButton>
                         <IconButton>
@@ -396,6 +410,8 @@ const ChattingPage = () => {
                     </Box>}
                 </Box>
             </Box>}
+            {selectedFiles && selectedFiles[0].name ? <Chip label={selectedFiles[0].name} sx={{ position : "absolute" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 49 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + "px")}} />
+            :undefined}
             {emojiOpen ? <Slide direction="up" in={emojiOpen}>
                 <Box sx={{ width : "100vw" , p : "10px" , bgcolor : "secondary.main" ,  position : "absolute" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 49 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + "px")}} >
                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , px : "5px"}}>

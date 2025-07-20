@@ -83,7 +83,7 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
                         }}
                        >
                         <Box sx={{ bgcolor : "info.main" , display : "flex" , justifyContent : "center" , alignItems : "center" , height : "55px" , width : "55px" , borderRadius : "30px" , overflow : "hidden" , mr : "15px" }} >
-                            <Image alt="friend photo" src={friendOfMessage ? (friendOfMessage.profileUrl ? friendOfMessage.profileUrl : "/defaultProfile.jpg" ) : (user.profileUrl ? user.profileUrl : "/defaultProfile.jpg")} width={300} height={300} style={{ width : "55px" , height : "auto"}} />
+                            <Image alt="friend photo" src={friendOfMessage ? (friendOfMessage.profileUrl ? friendOfMessage.profileUrl : "/defaultProfile.jpg" ) : (user.profileUrl ? user.profileUrl : "/defaultProfile.jpg")} width={300} height={300} style={{ width : "55px" , height : "auto" , minHeight : "55px"}} />
                         </Box>
                         <Box sx={{ flexGrow : 1}}>
                             <Typography sx={{ fontWeight : "900"}} >{friendOfMessage ? (friendOfMessage.firstName + " " + friendOfMessage.lastName) : "You"}</Typography>

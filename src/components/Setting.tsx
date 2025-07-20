@@ -3,7 +3,7 @@ import { Box, Dialog, Divider, IconButton, ListItemButton, Typography } from "@m
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { signOut } from "next-auth/react";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 interface Props {
     openSideBarComponent : OpenSideBarComponent,
@@ -12,6 +12,7 @@ interface Props {
 
 const Setting = ({ openSideBarComponent , setOpenSideBarComponent} : Props) => {
     const user = useAppSelector(store => store.userSlice.user);
+    const dispatch = useAppDispatch();
 
     if(!user) return null;
     return (
@@ -34,7 +35,9 @@ const Setting = ({ openSideBarComponent , setOpenSideBarComponent} : Props) => {
                     <Typography sx={{ fontSize : "13px" , color : "GrayText" }}>email</Typography>
                 </Box>
                 <Divider variant="middle" />
-                <ListItemButton sx={{ display : "flex" , gap : "10px" , alignItems : "center"}} onClick={() => signOut({callbackUrl : "/"})}>
+                <ListItemButton sx={{ display : "flex" , gap : "10px" , alignItems : "center"}} onClick={() => {
+                    signOut({callbackUrl : "/"});
+                }}>
                     <IconButton>
                         <LogoutIcon sx={{ color : "GrayText"}} />
                     </IconButton>

@@ -1,6 +1,6 @@
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
-import { Box, Dialog, Divider, Fab, IconButton, styled, Typography } from "@mui/material"
+import { Box, Dialog, Divider, Fab, IconButton, Typography } from "@mui/material"
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddAPhotoOutlinedIcon from '@mui/icons-material/AddAPhotoOutlined';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
@@ -9,18 +9,11 @@ import { useState } from "react";
 import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
 import { useRouter } from "next/router";
 import Image from "next/image";
-
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
+import { updateUser } from "@/store/slices/userSlice";
+import { changeSnackBar } from "@/store/slices/generalSlice";
+import { Severity } from "@/types/general";
+import { uploadToBlob } from "@/util/upload";
+import { VisuallyHiddenInput } from "@/util/general";
 
 interface Props {
     openSideBarComponent : OpenSideBarComponent,
@@ -33,15 +26,26 @@ const Profile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) =>
     const [ editInfoOpen , setEditInfoOpen ] = useState<boolean>(false);
     const months = [ "Jan" , "Fab" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" ];
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     if(!user) return null;
+
+    const handleChangeProfilePhoto = async(files : FileList | null) => {
+        const url = await uploadToBlob(files);
+        if(url) {
+            dispatch(updateUser({...user , profileUrl : url , isSuccess : () => {
+                dispatch(changeSnackBar({message : "Profile photo successfully changed" , isSnackBarOpen : true , severity : Severity.success}))
+            } }));
+        }
+    }
+    
 
     return (
         <Dialog  open={openSideBarComponent.id===1 && openSideBarComponent.open} onClose={() => setOpenSideBarComponent({ id : 0 , friendId : undefined , open : false }) } >
             <Box sx={{ bgcolor : "primary.main"  }}>
                 <Box sx={{ position : "relative"}}>
                     <Box sx={{ width : "330px" , height : "300px" , overflow : "hidden" , display : "flex" , justifyContent : "center" , alignItems : "center"}}>
-                        <Image src={friend ? (friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg") : (user.profileUrl ? user.profileUrl : "/defaultProfile.jpg")} alt="profile photo" width={1000} height={1000} style={{ width : "330px" , height : "auto"}} />
+                        <Image src={friend ? (friend.profileUrl ? friend.profileUrl : "/defaultProfile.jpg") : (user.profileUrl ? user.profileUrl : "/defaultProfile.jpg")} alt="profile photo" width={1000} height={1000} style={{ maxWidth : "330px" , height : "auto" , minHeight : "300px"}} />
                     </Box>
                     <Box sx={{ position : "absolute" , top : "8px" , right : "5px" , display : "flex" , alignItems : "center" , gap : "5px"}} >
                         {!friend && <IconButton>
@@ -75,7 +79,10 @@ const Profile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) =>
                         <Box sx={{ mt : "5px"}}>
                             <VisuallyHiddenInput
                               type="file"
-                              onChange={(event) => console.log(event.target.files)}
+                              onChange={(event) => {
+                                handleChangeProfilePhoto(event.target.files)
+                                event.target.value = "";
+                              }}
                             />
                             <AddAPhotoOutlinedIcon sx={{ color : "white"}} />
                         </Box>
