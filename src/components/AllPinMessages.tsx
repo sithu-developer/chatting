@@ -5,6 +5,7 @@ import { RefObject, useEffect, useRef } from "react";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { timeCalcFunctionForMessage } from "@/util/general";
+import Image from "next/image";
 
 
 interface Props {
@@ -58,7 +59,7 @@ const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } :
                         </IconButton>
                         <Box sx={{  bgcolor : (userIdAndFriendIdOfChat.userId === user.id) ? "#5f1f9e" : "secondary.main" , borderRadius : (userIdAndFriendIdOfChat.userId === user.id) ? "10px 10px 0px 10px" : "10px 10px 10px 0px" , maxWidth : "85%" , p : "6px" , display : "flex" , flexDirection : "column" , gap : "3px" }}>
                             <Typography sx={{ fontWeight : "bold" , color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.primary" : "rgb(201, 151, 251)" }}>{friend ? friend.firstName + " " + friend.lastName : user.firstName + " " + user.lastName}</Typography>
-                            <Box sx={{ display : "flex" , flexDirection : "column" }}>
+                            <Box sx={{ display : "flex" , flexDirection : "column" , gap : "5px" }}>
                                 { (replyChat && replyUser) && (
                                 <Box onClick={(e) => {
                                     e.stopPropagation();
@@ -72,9 +73,20 @@ const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } :
                                         } , 2000)
                                     }
                                 }} sx={{ bgcolor : "rgba(255, 255, 255, 0.15)"  , borderRadius : "4px" , borderLeft : (userIdAndFriendIdOfChat.userId === user.id) ? "4px solid white" :( replyUser.id === user.id ) ? "4px solid rgb(6, 188, 76)" :  "4px solid rgb(171, 109, 233)" , px : "5px" }}>
-                                    <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
-                                    <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
+                                    <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
+                                        {replyChat.imageMessageUrl ? 
+                                        <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , overflow : "hidden" , width : "40px" , height : "40px" , borderRadius : "5px"}}>
+                                            <Image alt="message photo" src={replyChat.imageMessageUrl} width={200} height={200} style={{ width : "40px" , height : "auto"}} /> 
+                                        </Box>
+                                        : undefined}
+                                        <Box>
+                                            <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
+                                            <Typography sx={{ color : "text.secondary"}}>{replyChat.message ? replyChat.message : "Photo"}</Typography>
+                                        </Box>
+                                    </Box>
                                 </Box>)}
+                                {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto" , borderRadius : "5px"}}  /> 
+                                :undefined}
                                 <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
                                     <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>
                                     <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "10px" , flexGrow : 1 }}>

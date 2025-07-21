@@ -203,7 +203,16 @@ const ChatsPage = () => {
                                         </Box>
                                     </Box>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                        <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
+                                        <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
+                                            {item.chat.imageMessageUrl ? 
+                                            <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , overflow : "hidden" , width : "30px" , height : "30px" , borderRadius : "5px"}}>
+                                                <Image alt="message photo" src={item.chat.imageMessageUrl} width={200} height={200} style={{ width : "30px" , height : "auto"}} /> 
+                                            </Box>
+                                            :undefined}
+                                            {item.chat.message ? 
+                                            <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
+                                            :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >Photo</Typography>}
+                                        </Box>
                                         <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
                                             {!unseenMessageCount || item.friend.id === user.id ? 
                                             undefined

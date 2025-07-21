@@ -15,14 +15,14 @@ const initialState : ChatsInitialState = {
 }
 
 export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( newChat : NewChat , thunkApi ) => {
-    const { message , friendId ,userId , replyId , forwardFriendIds , forwardChats , isFail , isSuccess } = newChat;
+    const { message , friendId ,userId , replyId , forwardFriendIds , forwardChats , imageMessageUrl , isFail , isSuccess } = newChat;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "POST",
             headers : {
                 "Content-type" : "application/json"
             },
-            body : JSON.stringify({ message , friendId , userId , replyId , forwardFriendIds , forwardChats })
+            body : JSON.stringify({ message , friendId , userId , replyId , forwardFriendIds , forwardChats , imageMessageUrl })
         });
         const { newChat , newRelations , newForwardChats } = await response.json();
         newChat && thunkApi.dispatch(addChat(newChat));
@@ -37,14 +37,14 @@ export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( new
 })
 
 export const updateChat = createAsyncThunk("chatsSlice/updateChat" , async( editedChat : UpdatedChat , thunkApi ) => {
-    const { id , message , isPin , seenChatsIds , isFail , isSuccess } = editedChat;
+    const { id , message , isPin , seenChatsIds , imageMessageUrl , isFail , isSuccess } = editedChat;
     try {
         const response = await fetch(`${envValues.apiUrl}/chats` , {
             method : "PUT" ,
             headers : {
                 "Content-type" : "application/json"
             },
-            body : JSON.stringify({ id , message , isPin , seenChatsIds })
+            body : JSON.stringify({ id , message , isPin , seenChatsIds , imageMessageUrl })
         });
         const { chat , seenChats } = await response.json();
         if(isSuccess) {

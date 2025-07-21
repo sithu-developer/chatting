@@ -35,6 +35,7 @@ import SearchList from "@/components/SearchList";
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 import KeyboardOutlinedIcon from '@mui/icons-material/KeyboardOutlined';
+import { uploadToBlob } from "@/util/upload";
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardChats : []
@@ -59,9 +60,8 @@ const ChattingPage = () => {
     const [ chatMenuOpen , setChatMenuOpen ] = useState<boolean>(false);
     const [ searchListOpen , setSearchListOpen ]  = useState<boolean>(false);
     const [ emojiOpen , setEmojiOpen ] = useState<boolean>(false);
-    const [ selectedFiles , setSelectedFiles ] = useState<FileList | null>(null);
-    console.log(selectedFiles)
-
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    
     const router = useRouter();
     const query = router.query;
     const friendId = Number(query.id);
@@ -138,26 +138,44 @@ const ChattingPage = () => {
 
     if(!user || !friendId || (!currentFriend && friendId !== user.id)) return null;
 
-    const handleCreateChat = () => {
+    const handleCreateChat = async() => {
         const trimmedMessage = newChat.message.trim().replace(/^\n+|\n+$/g, '');
-        if(trimmedMessage)
-        dispatch(createChat({...newChat , message : trimmedMessage , isSuccess : () => {
-            setNewChat(defaultNewChat);
-            setReplyChat(null);
-            setHeightOfInput(48);
-        }}))
+        if(selectedFile) {
+            const imageMessageUrl = await uploadToBlob(selectedFile);
+            dispatch(createChat({...newChat , message : trimmedMessage , imageMessageUrl , isSuccess : () => {
+                setNewChat(defaultNewChat);
+                setReplyChat(null);
+                setHeightOfInput(48);
+                setSelectedFile(null)
+            }}))
+        } else {
+            if(trimmedMessage)
+            dispatch(createChat({...newChat , message : trimmedMessage , isSuccess : () => {
+                setNewChat(defaultNewChat);
+                setReplyChat(null);
+                setHeightOfInput(48);
+            }}))
+        }
     }
 
-    const handleUpdateChat = () => {
+    const handleUpdateChat = async() => {
         if(editedChat) {
-            const oldChat = currentChats.find(chat => chat.id === editedChat.id);
-            editedChat.message = editedChat.message.trim().replace(/^\n+|\n+$/g, '');
-            if(oldChat && editedChat.message !== oldChat.message ) {
-                dispatch(updateChat({...editedChat , isSuccess : () => {
+            const newMessage = editedChat.message.trim().replace(/^\n+|\n+$/g, '');
+            if(selectedFile) {
+                const imageMessageUrl = await uploadToBlob(selectedFile);
+                dispatch(updateChat({...editedChat , message : newMessage , imageMessageUrl , isSuccess : () => {
                     setEditedChat(null);
-                }})) 
+                    setSelectedFile(null);
+                }}))
             } else {
-                setEditedChat(null);
+                const oldChat = currentChats.find(chat => chat.id === editedChat.id);
+                if(oldChat && newMessage !== oldChat.message ) {
+                    dispatch(updateChat({...editedChat , message : newMessage , imageMessageUrl : oldChat.imageMessageUrl , isSuccess : () => {
+                        setEditedChat(null);
+                    }}))
+                } else {
+                    setEditedChat(null);
+                }
             }
         }
     }
@@ -309,7 +327,7 @@ const ChattingPage = () => {
                                         <Typography sx={{  lineHeight: 1 , fontWeight : "bold" , fontSize : "15px" }}>{forwardFriend.firstName + " " + forwardFriend.lastName}</Typography>
                                     </Box>
                                 </Box>}
-                                <Box sx={{ display : "flex" , flexDirection : "column"  }}>
+                                <Box sx={{ display : "flex" , flexDirection : "column" , gap : "5px" }}>
                                     {(replyChat && replyUser) && (
                                     <Box onClick={(e) => {
                                         e.stopPropagation();
@@ -323,11 +341,14 @@ const ChattingPage = () => {
                                         }
                                     }} sx={{ bgcolor : "rgba(255, 255, 255, 0.15)"  , borderRadius : "4px" , borderLeft : (userIdAndFriendIdOfChat.userId === user.id) ? "4px solid white" :( replyUser.id === user.id ) ? "4px solid rgb(6, 188, 76)" :  "4px solid rgb(171, 109, 233)" , px : "5px" }}>
                                         <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
-                                            {replyChat.imageMessageUrl ? <Image alt="message photo" src={replyChat.imageMessageUrl} width={200} height={200} style={{ width : "30px" , height : "30px" , borderRadius : "5px"}} /> 
+                                            {replyChat.imageMessageUrl ? 
+                                            <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , overflow : "hidden" , width : "40px" , height : "40px" , borderRadius : "5px"}}>
+                                                <Image alt="message photo" src={replyChat.imageMessageUrl} width={200} height={200} style={{ width : "40px" , height : "auto"}} /> 
+                                            </Box>
                                             : undefined}
                                             <Box>
                                                 <Typography sx={{ color : (userIdAndFriendIdOfChat.userId === user.id) ? "text.secondary" :( replyUser.id === user.id ) ? "rgb(6, 188, 76)" : "rgb(171, 109, 233)" , fontWeight : "bold"}} >{replyUser.firstName + " " + replyUser.lastName}</Typography>
-                                                <Typography sx={{ color : "text.secondary"}}>{replyChat.message}</Typography>
+                                                <Typography sx={{ color : "text.secondary"}}>{replyChat.message ? replyChat.message : "Photo"}</Typography>
                                             </Box>
                                         </Box>
                                     </Box>)}
@@ -348,8 +369,8 @@ const ChattingPage = () => {
                 )})
                 : <Box></Box>}
                 <div ref={lastRef} />
-                <MessageMenu messageMenu={messageMenu} setMessageMenu={setMessageMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} setEditedChat={setEditedChat} setConfirmationItems={setConfirmationItems} setForwardItems={setForwardItems} />
-                <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedChats={setSelectedChats}  />
+                <MessageMenu messageMenu={messageMenu} setMessageMenu={setMessageMenu} setReplyChat={setReplyChat} setNewChat={setNewChat} newChat={newChat} setEditedChat={setEditedChat} setConfirmationItems={setConfirmationItems} setForwardItems={setForwardItems} setSelectedFile={setSelectedFile} />
+                <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedChats={setSelectedChats} editedChat={editedChat} newChat={newChat} replyChat={replyChat} setEditedChat={setEditedChat} setNewChat={setNewChat} setReplyChat={setReplyChat}  />
                 <ForwardMessage forwardItems={forwardItems} setForwardItems={setForwardItems} setSelectedChats={setSelectedChats} />
                 <ChatMenu chatMenuOpen={chatMenuOpen} setChatMenuOpen={setChatMenuOpen} setConfirmationItems={setConfirmationItems} relationToDelete={currentRelation} setSearchListOpen={setSearchListOpen} />
                 <SearchList searchListOpen={searchListOpen} setSearchListOpen={setSearchListOpen} currentFriend={currentFriend} messageRef={messageRef} />
@@ -375,7 +396,7 @@ const ChattingPage = () => {
             </Box>
             :<Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >
                 {replyChat && <ReplyOrEdit chat={replyChat} setChat={setReplyChat}  setNewChat={setNewChat} newChat={newChat} />}
-                {editedChat && <ReplyOrEdit chat={editedChat} setChat={setEditedChat} />}
+                {editedChat && <ReplyOrEdit chat={editedChat} setChat={setEditedChat} setSelectedFile={setSelectedFile} />}
                 <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , py : "3px" }} >
                     {!emojiOpen ? <IconButton sx={{ alignSelf : "flex-end"}} onClick={() => setEmojiOpen(true)} >
                         <SentimentSatisfiedOutlinedIcon sx={{ color : "GrayText"}} />
@@ -387,7 +408,7 @@ const ChattingPage = () => {
                         editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
                         setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
                     }} />
-                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat) ? (editedChat ? <IconButton disabled={!editedChat.message.trim().replace(/^\n+|\n+$/g, '')} onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end"}} > 
+                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat || selectedFile) ? (editedChat ? <IconButton disabled={!editedChat.message.trim().replace(/^\n+|\n+$/g, '') && !editedChat.imageMessageUrl} onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end"}} > 
                         <DoneRoundedIcon sx={{color : "text.primary" }} />
                     </IconButton>
                     : <IconButton onClick={handleCreateChat} sx={{  alignSelf : "flex-end" }} > 
@@ -398,7 +419,10 @@ const ChattingPage = () => {
                             <VisuallyHiddenInput
                               type="file"
                               onChange={(event) => {
-                                 setSelectedFiles(event.target.files)
+                                const file = event.target.files?.[0];
+                                if(file) {
+                                    setSelectedFile(file);
+                                }
                                 event.target.value = "";
                               }}
                             />
@@ -410,7 +434,7 @@ const ChattingPage = () => {
                     </Box>}
                 </Box>
             </Box>}
-            {selectedFiles && selectedFiles[0].name ? <Chip label={selectedFiles[0].name} sx={{ position : "absolute" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 49 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + "px")}} />
+            {selectedFile ? <Chip label={selectedFile.name} onDelete={() => setSelectedFile(null)} variant="outlined" sx={{ position : "absolute" , bgcolor : "primary.light" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 59 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + 10 +  "px")}} />
             :undefined}
             {emojiOpen ? <Slide direction="up" in={emojiOpen}>
                 <Box sx={{ width : "100vw" , p : "10px" , bgcolor : "secondary.main" ,  position : "absolute" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 49 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + "px")}} >

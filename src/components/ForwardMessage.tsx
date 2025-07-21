@@ -15,7 +15,8 @@ import { Severity } from "@/types/general";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import Image from "next/image";
 import { timeCalcFunction } from "@/util/general";
-
+import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
+import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 
 interface Props {
     forwardItems : ForwardItemsType;
@@ -107,6 +108,9 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
             <Box sx={{ bgcolor : "primary.main" , minWidth : "300px" , maxHeight : "70vh" }} >
                 {filteredFriendsAndChats.map(item => {
                     const exit = selectedFriends.find(friend => friend.id === item.friend.id );
+                    const friendRelation = userIdAndFriendIds.find(relation => (relation.userId === item.userIdAndFriendId.friendId) && (relation.friendId === item.userIdAndFriendId.userId));
+                    const unseenMessageCount = chats.filter(chat => (chat.userAndFriendRelationId === friendRelation?.id) && !chat.seen).length;
+                    
                     return (
                         <Box key={item.friend.id} onClick={() => {
                             if(exit) {
@@ -133,14 +137,35 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
                                         {item.friend.id !== user.id ? <Typography sx={{ color : "text.primary" }} >{item.friend.firstName + " " + item.friend.lastName}</Typography>
                                         :<Typography sx={{ color : "text.primary" }}>Saved Messages</Typography>}
-                                        <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{timeCalcFunction(item.chat)}</Typography>
+                                        <Box sx={{ display : "flex" , gap : "3px" , alignItems : "center"}}>
+                                            {item.userIdAndFriendId.id !== item.chat.userAndFriendRelationId || item.friend.id === user.id ? 
+                                            undefined
+                                            : (item.chat.seen ? <DoneAllRoundedIcon sx={{ fontSize : "18px" , color : "info.main" }} /> : <DoneRoundedIcon sx={{ fontSize : "18px" , color : "info.main" }} />)}
+                                            <Typography sx={{ color : "GrayText" , fontSize : "13px"}} >{timeCalcFunction(item.chat)}</Typography>
+                                        </Box>
                                     </Box>
                                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" }} >
-                                        <Typography sx={{ color : "GrayText" , maxWidth : "40vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
-                                        {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
-                                            <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
-                                        </Box>:
-                                        <span></span>}
+                                        <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
+                                            {item.chat.imageMessageUrl ? 
+                                            <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , overflow : "hidden" , width : "30px" , height : "30px" , borderRadius : "5px"}}>
+                                                <Image alt="message photo" src={item.chat.imageMessageUrl} width={200} height={200} style={{ width : "30px" , height : "auto"}} /> 
+                                            </Box>
+                                            :undefined}
+                                            {item.chat.message ? 
+                                            <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
+                                            :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >Photo</Typography>}
+                                        </Box>
+                                        <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
+                                            {!unseenMessageCount || item.friend.id === user.id ? 
+                                            undefined
+                                            :<Box sx={{ bgcolor : "info.main" , height : "20px" , minWidth : "20px" , px : "5px" , borderRadius : "15px" , display : "flex" , justifyContent : "center" , alignItems : "center" }} >
+                                                <Typography sx={{ color : "white" , fontSize : "14px"}}>{unseenMessageCount}</Typography>
+                                            </Box>}
+                                            {item.userIdAndFriendId.isPinChat ? <Box sx={{ border : "1px solid gray" , width : "22px" , height : "22px" , borderRadius : "22px" , display : "flex" , justifyContent : "center" , alignItems : "center"}} >
+                                                <PushPinRoundedIcon sx={{ color : "GrayText" , fontSize : "14px" , rotate : "revert" , transform : "rotate(45deg)" }} />
+                                            </Box>:
+                                            <span></span>}
+                                        </Box>
                                     </Box>
                                 </Box>
                                 <Divider />

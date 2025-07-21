@@ -31,11 +31,14 @@ const Profile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) =>
     if(!user) return null;
 
     const handleChangeProfilePhoto = async(files : FileList | null) => {
-        const url = await uploadToBlob(files);
-        if(url) {
-            dispatch(updateUser({...user , profileUrl : url , isSuccess : () => {
-                dispatch(changeSnackBar({message : "Profile photo successfully changed" , isSnackBarOpen : true , severity : Severity.success}))
-            } }));
+        const file = files?.[0];
+        if(file) {
+            const url = await uploadToBlob(file);
+            if(url) {
+                dispatch(updateUser({...user , profileUrl : url , isSuccess : () => {
+                    dispatch(changeSnackBar({message : "Profile photo successfully changed" , isSnackBarOpen : true , severity : Severity.success}))
+                } }));
+            }
         }
     }
     

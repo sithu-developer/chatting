@@ -15,8 +15,8 @@ export default async function handler(
 
   const method = req.method;
   if(method === "POST") {
-    const { message , friendId , userId , replyId , forwardChats , forwardFriendIds } = req.body as NewChat;
-    const isValid = message && friendId && userId && replyId !== undefined && forwardChats !== undefined && forwardFriendIds !== undefined;
+    const { message , friendId , userId , replyId , forwardChats , forwardFriendIds , imageMessageUrl } = req.body as NewChat;
+    const isValid = message !== undefined && friendId && userId && replyId !== undefined && forwardChats !== undefined && forwardFriendIds !== undefined;
     if(!isValid) return res.status(400).send("Bad request");
     if(forwardChats.length) {
       const forwardUserIdAndFriendIds = await prisma.userIdAndFriendId.findMany({ where : { AND : { userId , friendId : { in : forwardFriendIds }} }})
@@ -26,7 +26,7 @@ export default async function handler(
         forwardUserIdAndFriendIds.flatMap(item => 
           forwardChats.map(chat => {
             const forwardFriendId = (userIdAndFriendIds.find(userIdAndFriendId => userIdAndFriendId.id === chat.userAndFriendRelationId) as UserIdAndFriendId).userId;
-            return prisma.chats.create({ data : { message : chat.message , seen : false , userAndFriendRelationId : item.id , forwardFriendId }})
+            return prisma.chats.create({ data : { message : chat.message , seen : false , userAndFriendRelationId : item.id , forwardFriendId , imageMessageUrl : chat.imageMessageUrl }})
           })
         )
       )
@@ -35,22 +35,22 @@ export default async function handler(
     } else {
       const exitUserIdAndFriendId = await prisma.userIdAndFriendId.findFirst({ where : { AND : { userId , friendId }}});
       if(exitUserIdAndFriendId) {
-          const newChat = await prisma.chats.create({ data : { message , seen : (userId === friendId ? true : false) , userAndFriendRelationId : exitUserIdAndFriendId.id , replyId }})
+          const newChat = await prisma.chats.create({ data : { message , seen : (userId === friendId ? true : false) , userAndFriendRelationId : exitUserIdAndFriendId.id , replyId , imageMessageUrl }})
           return res.status(200).json({ newChat })
       } else {
           const newUserIdAndFriendId = await prisma.userIdAndFriendId.create({ data : { userId , friendId }});
           if(userId !== friendId) {
             const newUserIdAndFriendIdForFriend = await prisma.userIdAndFriendId.create({ data : { userId : friendId , friendId : userId }})
-            const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId }});
+            const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId , imageMessageUrl }});
             return res.status(200).json({ newChat , newRelations : [newUserIdAndFriendId , newUserIdAndFriendIdForFriend] });
           } else {
-            const newChat = await prisma.chats.create({ data : { message , seen : true , userAndFriendRelationId : newUserIdAndFriendId.id , replyId }});
+            const newChat = await prisma.chats.create({ data : { message , seen : true , userAndFriendRelationId : newUserIdAndFriendId.id , replyId , imageMessageUrl }});
             return res.status(200).json({ newChat , newRelations : [ newUserIdAndFriendId ] });
           }
       }
     }
   } else if ( method === "PUT") {
-    const { id , message , isPin , seenChatsIds } = req.body as UpdatedChat;
+    const { id , message , isPin , seenChatsIds , imageMessageUrl } = req.body as UpdatedChat;
     if(seenChatsIds) {
         if(!seenChatsIds.length) return res.status(400).send("Bad request");
         const seenChats = await prisma.$transaction(
@@ -58,15 +58,15 @@ export default async function handler(
         );
         return res.status(200).json({ seenChats });
     } else {
-        const isValid = id && message && isPin !== undefined;
+        const isValid = id && message !== undefined && isPin !== undefined;
         if(!isValid) return res.status(400).send("Bad request");
         const exit = await prisma.chats.findUnique({ where : { id }});
         if(!exit) return res.status(400).send("Bad request");
-        if(exit.message === message ) {
+        if(exit.message === message && !imageMessageUrl ) {
           const chat = await prisma.chats.update({ where : { id } , data : { isPin , updatedAt : exit.updatedAt }});
           return res.status(200).json({ chat });
         } else {
-          const chat = await prisma.chats.update({ where : { id } , data : { message }});
+          const chat = await prisma.chats.update({ where : { id } , data : { message , imageMessageUrl }});
           return res.status(200).json({ chat });
         }
     }

@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { deleteChat, updateChat } from "@/store/slices/chatsSlice";
-import { ConfirmationItemsType } from "@/types/chats";
+import { ConfirmationItemsType, NewChat } from "@/types/chats";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { Chats, User } from "@prisma/client";
 import Image from "next/image";
@@ -16,9 +16,15 @@ interface Props {
     setConfirmationItems : (value : ConfirmationItemsType) => void,
     setSelectedChats ?: (value : Chats[]) => void;
     setSelectedFriends ?: (value : User[]) => void;
+    setReplyChat ?: (value : Chats | null) => void;
+    setNewChat ?: (value : NewChat) => void;
+    setEditedChat ?: (value : Chats | null ) => void;
+    newChat ?: NewChat;
+    replyChat ?: Chats | null;
+    editedChat ?: Chats | null;
 }
 
-const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedChats , setSelectedFriends } : Props ) => {
+const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedChats , setSelectedFriends , setEditedChat , setNewChat , setReplyChat , newChat , editedChat , replyChat } : Props ) => {
     const dispatch = useAppDispatch();
     const friends = useAppSelector(store => store.userSlice.friends);
     const user = useAppSelector(store => store.userSlice.user);
@@ -40,6 +46,16 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
                 if(setSelectedChats) {
                     setSelectedChats([]);
                 }
+                // close reply chat or edit chat , if there is include in deletedChats and are opened
+                if(setReplyChat && replyChat && deletedIds.includes(replyChat.id)) {
+                    setReplyChat(null);
+                }
+                if(setNewChat && newChat && newChat.replyId && deletedIds.includes(newChat.replyId)){
+                    setNewChat({...newChat , replyId : null });
+                }
+                if(setEditedChat && editedChat && deletedIds.includes(editedChat.id)) {
+                    setEditedChat(null);
+                }
             } }))
        } 
     }
@@ -59,7 +75,7 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
 
     const handlePinMessage = () => {
         if(confirmationItems.chatToPin) {
-            dispatch(updateChat({...confirmationItems.chatToPin , isPin : true , isSuccess : () => {
+            dispatch(updateChat({...confirmationItems.chatToPin , imageMessageUrl : undefined , isPin : true , isSuccess : () => {
                 setConfirmationItems({ open : false , chatToPin : undefined })
                 dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message pinned." , severity : Severity.success}))
             } }));

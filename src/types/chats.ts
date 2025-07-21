@@ -3,6 +3,7 @@ import { SuccessOrFailType } from "./user";
 
 export interface NewChat extends SuccessOrFailType {
     message : string,
+    imageMessageUrl ?: string
     userId : number,
     friendId : number,
     replyId : number | null;
@@ -13,6 +14,7 @@ export interface NewChat extends SuccessOrFailType {
 export interface UpdatedChat extends SuccessOrFailType {
     id : number;
     message : string;
+    imageMessageUrl ?: string | null;
     isPin : boolean;
     seenChatsIds ?: number[]
 };

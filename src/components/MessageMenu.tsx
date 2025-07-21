@@ -22,9 +22,10 @@ interface Props {
     setEditedChat : (value : Chats | null ) => void;
     setConfirmationItems : (value : ConfirmationItemsType ) => void;
     setForwardItems : (value : ForwardItemsType) => void;
+    setSelectedFile : (value : File | null) => void;
 }
 
-const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat , newChat , setEditedChat , setConfirmationItems , setForwardItems } : Props) => {
+const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat , newChat , setEditedChat , setConfirmationItems , setForwardItems , setSelectedFile } : Props) => {
     const open = Boolean(messageMenu.anchorEl);
     const user = useAppSelector(store => store.userSlice.user) as User;
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
@@ -76,6 +77,7 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
             setReplyChat(messageMenu.chat) 
             setMessageMenu({anchorEl : null , chat : null});
             setNewChat({...newChat , replyId : (messageMenu.chat as Chats).id });
+            setEditedChat(null); // close edit chat if it is opened
         }}>
            <KeyboardReturnRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Reply</Typography>
@@ -89,7 +91,7 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
         </MenuItem>
         <MenuItem onClick={() => {
             setMessageMenu({anchorEl : null , chat : null});
-            setForwardItems({ open : true , forwardChats : [messageMenu.chat as Chats]})
+            setForwardItems({ open : true , forwardChats : [messageMenu.chat as Chats]});
         }}>
            <ShortcutOutlinedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Forward</Typography>
@@ -110,14 +112,18 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
         </MenuItem>}
         {(user.id === userIdAndFriendIdOfChat.userId) && <MenuItem onClick={() => {
             setMessageMenu({anchorEl : null , chat : null});
-            setEditedChat(messageMenu.chat as Chats)
+            setEditedChat(messageMenu.chat as Chats);
+            // close the selectedImage and reply chat , if there are opened
+            setSelectedFile(null)
+            setReplyChat(null)
+            setNewChat({...newChat , replyId : null });
         }}>
            <EditOutlinedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Edit</Typography>
         </MenuItem>}
         <MenuItem onClick={() => {
             setMessageMenu({anchorEl : null , chat : null});
-            setConfirmationItems({ open : true , chatsToDelete : [(messageMenu.chat as Chats)] });
+            setConfirmationItems({ open : true , chatsToDelete : [(messageMenu.chat as Chats)] });            
         }} >
            <DeleteOutlineRoundedIcon sx={{  mr : "15px" , color : "GrayText" }} />
            <Typography>Delete</Typography>

@@ -3,6 +3,7 @@ import { Chats } from "@prisma/client";
 import { RefObject, useEffect, useRef, useState } from "react";
 import FormatAlignRightOutlinedIcon from '@mui/icons-material/FormatAlignRightOutlined';
 import AllPinMessages from "./AllPinMessages";
+import Image from "next/image";
 
 interface Props {
     pinChats : Chats[];
@@ -38,9 +39,16 @@ const PinMessages = ({ pinChats , messageRef } : Props ) => {
                             } , 1000)
                         }
                     }} >
-                        <Box>
-                            <Typography color="info" sx={{ fontSize : "14px" , userSelect : "none" }} >Pinned Message {pinChats.indexOf(item) + 1}#</Typography>
-                            <Typography sx={{ color : "GrayText" , fontSize : "14px" , userSelect : "none"}} >{item.message}</Typography>
+                        <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px"}}>
+                            {item.imageMessageUrl ? 
+                            <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , overflow : "hidden" , width : "35px" , height : "35px" , borderRadius : "5px"}}>
+                                <Image alt="message photo" src={item.imageMessageUrl} width={200} height={200} style={{ width : "35px" , height : "auto"}} /> 
+                            </Box>
+                            :undefined}
+                            <Box>
+                                <Typography color="info" sx={{ fontSize : "14px" , userSelect : "none" }} >Pinned Message {pinChats.indexOf(item) + 1}#</Typography>
+                                <Typography sx={{ color : "GrayText" , fontSize : "14px" , userSelect : "none"}} >{item.message ? item.message : "Photo"}</Typography>
+                            </Box>
                         </Box>
                         <IconButton onClick={(e) => {
                             e.stopPropagation();

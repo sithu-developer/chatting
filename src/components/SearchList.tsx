@@ -87,13 +87,23 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
                         </Box>
                         <Box sx={{ flexGrow : 1}}>
                             <Typography sx={{ fontWeight : "900"}} >{friendOfMessage ? (friendOfMessage.firstName + " " + friendOfMessage.lastName) : "You"}</Typography>
-                            {searchValue ? 
-                            <Typography sx={{ overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap" }}>  
-                                <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(0 , chat.message.toLowerCase().indexOf(searchValue.toLowerCase()))}</Box>
-                                <Box component="span" sx={{ color : "info.main"}} >{chat.message.substring( chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) ,chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length )}</Box>
-                                <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length)}</Box>
-                            </Typography>
-                            :<Typography sx={{ color : "GrayText" , overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap"}}>{chat.message}</Typography>}
+                           
+                            <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
+                                {chat.imageMessageUrl ? 
+                                <Box sx={{ display : "flex" , justifyContent : "center" , alignItems : "center" , overflow : "hidden" , width : "30px" , height : "30px" , borderRadius : "5px"}}>
+                                    <Image alt="message photo" src={chat.imageMessageUrl} width={200} height={200} style={{ width : "30px" , height : "auto"}} /> 
+                                </Box>
+                                :undefined}
+                                {chat.message ? 
+                                (searchValue ? 
+                                <Typography sx={{ overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap" }}>  
+                                    <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(0 , chat.message.toLowerCase().indexOf(searchValue.toLowerCase()))}</Box>
+                                    <Box component="span" sx={{ color : "info.main"}} >{chat.message.substring( chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) ,chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length )}</Box>
+                                    <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length)}</Box>
+                                </Typography>
+                                :<Typography sx={{ color : "GrayText" , overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap"}}>{chat.message}</Typography>)
+                                :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >Photo</Typography>}
+                            </Box>
                         </Box>
                         <Typography sx={{ fontSize : "12px" ,  color : "GrayText" }} >{timeCalcFunction(chat)}</Typography>
                       </ListItemButton>

@@ -20,7 +20,8 @@ export default async function handler(
     const method = req.method;
     if(method === "POST") {
         const filename = req.query.filename;
-        const blob = await put(`chatting/${filename}` , req , {
+        const random = crypto.randomUUID().replace(/-/g, '').slice(0, 8); // Example: "a1f4e7"
+        const blob = await put(`chatting/${random + "-" + filename}` , req , {
             access : "public"
         })
         return res.status(200).json(blob);
