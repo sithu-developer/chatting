@@ -9,3 +9,12 @@ export const uploadToBlob = async(file : File) => {
     const blob = (await response.json()) as PutBlobResult;
     return blob.url;
 }
+
+export const uploadAudioToBlob = async(audioBlob : Blob) => {
+    const response = await fetch(`${envValues.apiUrl}/upload?filename=voice` , {
+        method : "POST",
+        body: audioBlob,
+    });
+    const blob = (await response.json()) as PutBlobResult;
+    return blob.url;
+}

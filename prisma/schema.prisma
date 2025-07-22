@@ -44,6 +44,7 @@ model Chats {
   userAndFriendRelationId Int
   message                 String
   imageMessageUrl         String?
+  voiceMessageUrl         String?
   seen                    Boolean
   replyId                 Int?
   isPin                   Boolean              @default(false)

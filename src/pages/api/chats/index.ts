@@ -15,7 +15,7 @@ export default async function handler(
 
   const method = req.method;
   if(method === "POST") {
-    const { message , friendId , userId , replyId , forwardChats , forwardFriendIds , imageMessageUrl } = req.body as NewChat;
+    const { message , friendId , userId , replyId , forwardChats , forwardFriendIds , imageMessageUrl , voiceMessageUrl } = req.body as NewChat;
     const isValid = message !== undefined && friendId && userId && replyId !== undefined && forwardChats !== undefined && forwardFriendIds !== undefined;
     if(!isValid) return res.status(400).send("Bad request");
     if(forwardChats.length) {
@@ -26,7 +26,7 @@ export default async function handler(
         forwardUserIdAndFriendIds.flatMap(item => 
           forwardChats.map(chat => {
             const forwardFriendId = (userIdAndFriendIds.find(userIdAndFriendId => userIdAndFriendId.id === chat.userAndFriendRelationId) as UserIdAndFriendId).userId;
-            return prisma.chats.create({ data : { message : chat.message , seen : false , userAndFriendRelationId : item.id , forwardFriendId , imageMessageUrl : chat.imageMessageUrl }})
+            return prisma.chats.create({ data : { message : chat.message , seen : false , userAndFriendRelationId : item.id , forwardFriendId , imageMessageUrl : chat.imageMessageUrl , voiceMessageUrl : chat.voiceMessageUrl }})
           })
         )
       )
@@ -35,16 +35,16 @@ export default async function handler(
     } else {
       const exitUserIdAndFriendId = await prisma.userIdAndFriendId.findFirst({ where : { AND : { userId , friendId }}});
       if(exitUserIdAndFriendId) {
-          const newChat = await prisma.chats.create({ data : { message , seen : (userId === friendId ? true : false) , userAndFriendRelationId : exitUserIdAndFriendId.id , replyId , imageMessageUrl }})
+          const newChat = await prisma.chats.create({ data : { message , seen : (userId === friendId ? true : false) , userAndFriendRelationId : exitUserIdAndFriendId.id , replyId , imageMessageUrl , voiceMessageUrl }})
           return res.status(200).json({ newChat })
       } else {
           const newUserIdAndFriendId = await prisma.userIdAndFriendId.create({ data : { userId , friendId }});
           if(userId !== friendId) {
             const newUserIdAndFriendIdForFriend = await prisma.userIdAndFriendId.create({ data : { userId : friendId , friendId : userId }})
-            const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId , imageMessageUrl }});
+            const newChat = await prisma.chats.create({ data : { message , seen : false , userAndFriendRelationId : newUserIdAndFriendId.id , replyId , imageMessageUrl , voiceMessageUrl }});
             return res.status(200).json({ newChat , newRelations : [newUserIdAndFriendId , newUserIdAndFriendIdForFriend] });
           } else {
-            const newChat = await prisma.chats.create({ data : { message , seen : true , userAndFriendRelationId : newUserIdAndFriendId.id , replyId , imageMessageUrl }});
+            const newChat = await prisma.chats.create({ data : { message , seen : true , userAndFriendRelationId : newUserIdAndFriendId.id , replyId , imageMessageUrl , voiceMessageUrl }});
             return res.status(200).json({ newChat , newRelations : [ newUserIdAndFriendId ] });
           }
       }

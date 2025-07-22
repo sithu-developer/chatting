@@ -5,7 +5,6 @@ import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import SentimentSatisfiedOutlinedIcon from '@mui/icons-material/SentimentSatisfiedOutlined';
 import AttachmentOutlinedIcon from '@mui/icons-material/AttachmentOutlined';
-import KeyboardVoiceOutlinedIcon from '@mui/icons-material/KeyboardVoiceOutlined';
 import { useEffect , useRef, useState } from "react";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat, updateChat } from "@/store/slices/chatsSlice";
@@ -36,6 +35,7 @@ import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 import KeyboardOutlinedIcon from '@mui/icons-material/KeyboardOutlined';
 import { uploadToBlob } from "@/util/upload";
+import VoiceRecorder from "@/components/VoiceAudio";
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardChats : []
@@ -354,6 +354,11 @@ const ChattingPage = () => {
                                     </Box>)}
                                     {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto" , borderRadius : "5px"}}  /> 
                                     :undefined}
+                                    {item.voiceMessageUrl ? 
+                                    <Box> {/* here */}
+                                        <audio src={item.voiceMessageUrl} controls >your browser does not support audio</audio>
+                                    </Box>
+                                    :undefined}
                                     <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 , pb : "1px" }}>
                                         <Typography sx={{ color : "text.primary" , flexGrow : 1 , whiteSpace : "pre-line" , mr : (item.message.includes("\n") ? "20px" : "0") }} >{item.message}</Typography>
                                         <Box sx={{ display : "flex" , justifyContent : "flex-end" , gap : "4px" , height : "10px" , width : (item.message.includes("\n") ? "100%" : "auto") , flexGrow : 1 }}>
@@ -428,9 +433,7 @@ const ChattingPage = () => {
                             />
                             <AttachmentOutlinedIcon sx={{ transform : "rotate(135deg)" , color : "GrayText"}} />
                         </IconButton>
-                        <IconButton>
-                            <KeyboardVoiceOutlinedIcon sx={{ color : "GrayText"}} />
-                        </IconButton>
+                        <VoiceRecorder newChat={newChat} />
                     </Box>}
                 </Box>
             </Box>}

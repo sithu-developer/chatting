@@ -19,9 +19,9 @@ export default async function handler(
     if(!session) return res.status(401).send("Unauthorized");
     const method = req.method;
     if(method === "POST") {
-        const filename = req.query.filename;
+        const filename = String(req.query.filename);
         const random = crypto.randomUUID().replace(/-/g, '').slice(0, 8); // Example: "a1f4e7"
-        const blob = await put(`chatting/${random + "-" + filename}` , req , {
+        const blob = await put(`${filename === "voice" ? "voice-message" : "chatting"}/${random + "-" + filename}` , req , {
             access : "public"
         })
         return res.status(200).json(blob);

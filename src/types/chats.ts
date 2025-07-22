@@ -3,7 +3,8 @@ import { SuccessOrFailType } from "./user";
 
 export interface NewChat extends SuccessOrFailType {
     message : string,
-    imageMessageUrl ?: string
+    imageMessageUrl ?: string,
+    voiceMessageUrl ?: string,
     userId : number,
     friendId : number,
     replyId : number | null;
