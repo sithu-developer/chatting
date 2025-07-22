@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateChat } from "@/store/slices/chatsSlice";
 import { changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
+import PhotoOutlinedIcon from '@mui/icons-material/PhotoOutlined';
 
 interface Props {
     messageMenu : MessageMenuType
@@ -43,6 +44,25 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
             dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message unpinned." , severity : Severity.success }))
         } }))
     }
+
+    const handleSaveToGallery = async (chat : Chats) => {
+      try {
+        if(!chat.imageMessageUrl) return null;
+        const response = await fetch(chat.imageMessageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `downloaded-photo-Happy-chatting-${chat.id}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch(err) {
+        console.log("Image saving failed :" , err);
+      }
+    };
     
     return (
         <Menu
@@ -82,13 +102,25 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
            <KeyboardReturnRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Reply</Typography>
         </MenuItem>
-        <MenuItem onClick={() => {
+        {messageMenu.chat.message ? <MenuItem onClick={() => {
             navigator.clipboard.writeText((messageMenu.chat as Chats).message);
             setMessageMenu({anchorEl : null , chat : null});
         }}  >
            <ContentCopyRoundedIcon sx={{ transform : "scaleY(-1)" , mr : "15px" , color : "GrayText" }} />
            <Typography>Copy</Typography>
         </MenuItem>
+        :undefined}
+        {messageMenu.chat.imageMessageUrl ? <MenuItem onClick={async() => {
+            if(messageMenu.chat && messageMenu.chat.imageMessageUrl) {
+                await handleSaveToGallery(messageMenu.chat)
+                setMessageMenu({anchorEl : null , chat : null});
+                dispatch(changeSnackBar({isSnackBarOpen : true , message : "Photo saved to Gallery" , severity : Severity.success}))
+            }
+        }}  >
+           <PhotoOutlinedIcon sx={{ mr : "15px" , color : "GrayText" }} />
+           <Typography>Save to Gallery</Typography>
+        </MenuItem>
+        :undefined}
         <MenuItem onClick={() => {
             setMessageMenu({anchorEl : null , chat : null});
             setForwardItems({ open : true , forwardChats : [messageMenu.chat as Chats]});
