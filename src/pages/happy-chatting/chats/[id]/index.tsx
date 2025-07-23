@@ -36,6 +36,8 @@ import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 import KeyboardOutlinedIcon from '@mui/icons-material/KeyboardOutlined';
 import { uploadToBlob } from "@/util/upload";
 import VoiceRecorder from "@/components/VoiceAudio";
+import AudioWaveform from "@/components/AudioWaveForm";
+import WaveSurfer from "wavesurfer.js";
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardChats : []
@@ -76,6 +78,7 @@ const ChattingPage = () => {
     const messageRef = useRef<{ [ key : number ] : HTMLDivElement | null }>({});
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const hadRunOneTimeForSearchChat = useRef<boolean>(false);
+    const playersRef = useRef<{ wavesurfer: WaveSurfer, setIsPlaying: (val: boolean) => void }[]>([]);
 
     useEffect(() => {
         if(friendId && user && currentFriend ) {
@@ -98,9 +101,11 @@ const ChattingPage = () => {
     } , [ friendId , user , chats ]);
 
     useEffect(() => {
-        if(lastRef.current) {
-            lastRef.current.scrollIntoView({ behavior: 'instant' });
-        }
+        setTimeout(() => {
+            if(lastRef.current) {
+                lastRef.current.scrollIntoView({ behavior: 'instant' });
+            }
+        } , 100)
         if( inputRef.current) {
             inputRef.current.focus();
         }
@@ -235,7 +240,7 @@ const ChattingPage = () => {
                         </IconButton>
                     </Box>
                 </Box>
-                {pinChats.length ? <PinMessages pinChats={pinChats} messageRef={messageRef} />
+                {pinChats.length ? <PinMessages pinChats={pinChats} messageRef={messageRef} playersRef={playersRef} />
                 : <span />}
                 <Profile openSideBarComponent={openFriendProfileComponent} setOpenSideBarComponent={setOpenFriendProfileComponent} />
             </Box>
@@ -268,7 +273,7 @@ const ChattingPage = () => {
                         <MoreVertRoundedIcon sx={{ color : "white"}} />
                     </IconButton>
                 </Box>
-                {pinChats.length ? <PinMessages pinChats={pinChats} messageRef={messageRef} />
+                {pinChats.length ? <PinMessages pinChats={pinChats} messageRef={messageRef} playersRef={playersRef} />
                 : <span />}
                 <Profile openSideBarComponent={openFriendProfileComponent} setOpenSideBarComponent={setOpenFriendProfileComponent} />
             </Box>}
@@ -355,9 +360,7 @@ const ChattingPage = () => {
                                     {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto" , borderRadius : "5px"}}  /> 
                                     :undefined}
                                     {item.voiceMessageUrl ? 
-                                    <Box> {/* here */}
-                                        <audio src={item.voiceMessageUrl} controls >your browser does not support audio</audio>
-                                    </Box>
+                                    <AudioWaveform audioUrl={item.voiceMessageUrl} isFromUser={userIdAndFriendIdOfChat.userId === user.id} playersRef={playersRef} />
                                     :undefined}
                                     <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 , pb : "1px" }}>
                                         <Typography sx={{ color : "text.primary" , flexGrow : 1 , whiteSpace : "pre-line" , mr : (item.message.includes("\n") ? "20px" : "0") }} >{item.message}</Typography>

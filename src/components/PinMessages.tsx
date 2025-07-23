@@ -4,15 +4,17 @@ import { RefObject, useEffect, useRef, useState } from "react";
 import FormatAlignRightOutlinedIcon from '@mui/icons-material/FormatAlignRightOutlined';
 import AllPinMessages from "./AllPinMessages";
 import Image from "next/image";
+import WaveSurfer from "wavesurfer.js";
 
 interface Props {
     pinChats : Chats[];
     messageRef :  RefObject<{
         [key: number]: HTMLDivElement | null;
     }>
+    playersRef : RefObject<{ wavesurfer: WaveSurfer, setIsPlaying: (val: boolean) => void }[]> // for AudioWaveform of Voice message in allPinMessages component
 }
 
-const PinMessages = ({ pinChats , messageRef } : Props ) => {
+const PinMessages = ({ pinChats , messageRef , playersRef } : Props ) => {
     const nextPinMessageRef = useRef<{[key: number]: HTMLDivElement | null}>({});
     const [ allPinOpen , setAllPinOpen ] = useState<boolean>(false);
 
@@ -47,7 +49,7 @@ const PinMessages = ({ pinChats , messageRef } : Props ) => {
                             :undefined}
                             <Box>
                                 <Typography color="info" sx={{ fontSize : "14px" , userSelect : "none" }} >Pinned Message {pinChats.indexOf(item) + 1}#</Typography>
-                                <Typography sx={{ color : "GrayText" , fontSize : "14px" , userSelect : "none"}} >{item.message ? item.message : "Photo"}</Typography>
+                                <Typography sx={{ color : "GrayText" , fontSize : "14px" , userSelect : "none"}} >{item.message ? item.message : (item.imageMessageUrl ? "Photo" : "Voice message")}</Typography>
                             </Box>
                         </Box>
                         <IconButton onClick={(e) => {
@@ -59,7 +61,7 @@ const PinMessages = ({ pinChats , messageRef } : Props ) => {
                     </Box>
                 )
             })}
-            <AllPinMessages  pinChats={pinChats} messageRef={messageRef} allPinOpen={allPinOpen} setAllPinOpen={setAllPinOpen} />
+            <AllPinMessages  pinChats={pinChats} messageRef={messageRef} allPinOpen={allPinOpen} setAllPinOpen={setAllPinOpen} playersRef={playersRef} />
         </Box>
     )
 }

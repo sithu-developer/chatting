@@ -6,6 +6,8 @@ import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { timeCalcFunctionForMessage } from "@/util/general";
 import Image from "next/image";
+import AudioWaveform from "./AudioWaveForm";
+import WaveSurfer from "wavesurfer.js";
 
 
 interface Props {
@@ -15,9 +17,10 @@ interface Props {
     }>
     allPinOpen : boolean;
     setAllPinOpen : (value : boolean) => void;
+    playersRef : RefObject<{ wavesurfer: WaveSurfer, setIsPlaying: (val: boolean) => void }[]>
 }
 
-const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } : Props) => {
+const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen , playersRef } : Props) => {
     const friends = useAppSelector(store => store.userSlice.friends);
     const user = useAppSelector(store => store.userSlice.user);
     const chats = useAppSelector(store => store.chatsSlice.chats);
@@ -42,8 +45,8 @@ const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } :
                     const friend = friends.find(item => item.id === userIdAndFriendIdOfChat.userId);
                     if(userIdAndFriendIdOfChat)
                     return (
-                    <Box key={item.id} sx={{ bgcolor : "primary.main" , display : "flex" , flexDirection : (userIdAndFriendIdOfChat.userId === user.id) ? "row" : "row-reverse" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , alignItems : "center" , gap : "5px" , px : "5px" , py : "1.5px" , cursor : "pointer" }} >
-                        <IconButton sx={{bgcolor : "secondary.main"}} onClick={(e) => {
+                    <Box key={item.id} sx={{ bgcolor : "primary.main" , display : "flex" , flexDirection : (userIdAndFriendIdOfChat.userId === user.id) ? "row" : "row-reverse" , justifyContent : (userIdAndFriendIdOfChat.userId === user.id) ? "flex-end" : "flex-start" , alignItems : "center" , gap : "5px" , px : "5px" , py : "1.5px" , cursor : "pointer"  }} >
+                        <IconButton sx={{bgcolor : "secondary.main", ":hover" : { bgcolor : "#3b4044" }}} onClick={(e) => {
                             e.stopPropagation();
                             setAllPinOpen(false);
                             const messageBox = messageRef.current[item.id];
@@ -86,6 +89,9 @@ const AllPinMessages = ({ pinChats , messageRef , allPinOpen , setAllPinOpen } :
                                     </Box>
                                 </Box>)}
                                 {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto" , borderRadius : "5px"}}  /> 
+                                :undefined}
+                                {item.voiceMessageUrl ? 
+                                <AudioWaveform audioUrl={item.voiceMessageUrl} isFromUser={userIdAndFriendIdOfChat.userId === user.id} playersRef={playersRef} />
                                 :undefined}
                                 <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 }}>
                                     <Typography sx={{ color : "text.primary" , flexGrow : 1 }} >{item.message}</Typography>

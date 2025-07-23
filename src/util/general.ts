@@ -91,6 +91,12 @@ export const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
+export const formatTime = (time : number) => {
+    const min = Math.floor(time/60);
+    const sec = Math.floor(time%60);
+    return min + ":" + sec;
+}
+
 export const emojiList = [
   "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇",
   "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚",
