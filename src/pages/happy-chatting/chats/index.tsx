@@ -1,4 +1,4 @@
-import { Box, Chip, Divider, IconButton, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Typography } from "@mui/material";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -21,6 +21,9 @@ import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 
 
+export const defaultReturnFriend : User = { id : 0 , email : "" , firstName : "" , lastName : "" , bio : null , day : 0 , isOnline : false , month : 0 , profileUrl : "" , year : 0 }
+export const defaultReturnChat : Chats = {id : 0 , message : "" , userAndFriendRelationId : 0 , imageMessageUrl : null , voiceMessageUrl : null , createdAt : new Date() , updatedAt : new Date() , forwardFriendId : null , isPin : false , replyId : null , seen : false}
+export const defaultReturnRelation : UserIdAndFriendId = { id : 0 , friendId : 0 , userId : 0 , isPinChat : false }
 
 const ChatsPage = () => {
     const friends = useAppSelector(store => store.userSlice.friends);
@@ -36,7 +39,6 @@ const ChatsPage = () => {
     const [ confirmationItems , setConfirmationItems ] = useState<ConfirmationItemsType>( {open : false} );
     const [ searchForAllOpen , setSearchForAllOpen ] = useState<boolean>(false);
     
-
     useEffect(() => {
         if(user && friends.length && chats.length && userIdAndFriendIds.length ) {
             const relationIdsOfFriendIds = userIdAndFriendIds.map(item => item.friendId);
@@ -48,15 +50,16 @@ const ChatsPage = () => {
 
             const lastChatsAndRelatedFriendsAndRelation : FriendAndChatAndRelationType[] = yourFriendIds.map(friendId => {
                 const currentFriendRelationIds =  userIdAndFriendIds.filter(userIdAndFriendId =>( userIdAndFriendId.friendId === friendId || userIdAndFriendId.userId === friendId)).map(item => item.id)
-                const currentFriendLastChat = chats.findLast(chat => currentFriendRelationIds.includes(chat.userAndFriendRelationId)) as Chats;
-                const relatedFriend = yourFriends.find(friend => friend.id === friendId) as User;
-                const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend.id) as UserIdAndFriendId ;
-                return {friend : relatedFriend , chat : currentFriendLastChat , userIdAndFriendId };
+                const currentFriendLastChat = chats.findLast(chat => currentFriendRelationIds.includes(chat.userAndFriendRelationId));
+                const relatedFriend = yourFriends.find(friend => friend.id === friendId);
+                const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend?.id);
+                return {friend : (relatedFriend ? relatedFriend : defaultReturnFriend ) , chat : (currentFriendLastChat ? currentFriendLastChat : defaultReturnChat) , userIdAndFriendId : (userIdAndFriendId ? userIdAndFriendId : defaultReturnRelation ) };
             });
 
             const savedChatRelation = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === user.id );
             if(savedChatRelation) {
-                const savedLastMessage = chats.findLast(chat => chat.userAndFriendRelationId === savedChatRelation.id) as Chats;
+                const savedLastMessage = chats.findLast(chat => chat.userAndFriendRelationId === savedChatRelation.id);
+                if(!savedLastMessage) return;
                 lastChatsAndRelatedFriendsAndRelation.push({ chat : savedLastMessage , friend : user , userIdAndFriendId : savedChatRelation });
                 const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);
                 const pinFristItems = [...sortedItems.filter(item => item.userIdAndFriendId.isPinChat === true) , ...sortedItems.filter(item => !item.userIdAndFriendId.isPinChat)];
@@ -81,7 +84,7 @@ const ChatsPage = () => {
     }
 
     useEffect(() => {
-        if(selectedFriends.length) {
+        if(selectedFriends.length && userIdAndFriendIds.length && user) {
             const selectedFriendIds = selectedFriends.map(item => item.id);
             const selectedUserIdAndFriendIds = userIdAndFriendIds.filter(item => item.userId === user.id && selectedFriendIds.includes(item.friendId))
             const isAllSelectedChatsPin  = selectedUserIdAndFriendIds.every(item => item.isPinChat === true)
@@ -89,7 +92,7 @@ const ChatsPage = () => {
         } else {
             setIsAllSelectedChatsPin(false);
         }
-    } , [selectedFriends])
+    } , [selectedFriends , user , userIdAndFriendIds])
 
     const handleMouseUp = () => {
       if (timerRef.current) {

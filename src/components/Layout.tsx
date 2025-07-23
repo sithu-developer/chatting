@@ -27,7 +27,7 @@ const Layout = ( { children } : Props) => {
      const { id } = router.query;
      
      useEffect(() => {
-       if (session && session.user && session.user.email && !user) {
+       if (session && session.user && session.user.email && !user && dispatch && path && router) {
            if(path === "/" || path === "/happy-chatting" || path === "/happy-chatting/login" ) {
                 const email = String(session.user.email);
                 dispatch(createUser({ email , isSuccess : () => {
@@ -40,10 +40,10 @@ const Layout = ( { children } : Props) => {
                 }}));
             }
        }
-     } , [ session ])
+     } , [ session , dispatch , path , router , user])
 
      useEffect(() => {
-        if(user) {
+        if(user && dispatch) {
             const handleOnline = () => {
                 dispatch(updateUser({...user , isOnline : true }))
             };
@@ -58,10 +58,10 @@ const Layout = ( { children } : Props) => {
                 window.removeEventListener("offline" , handleOffline )
             }
         }
-     } , [ user ])  // check isOnline final
+     } , [ user , dispatch ])  // check isOnline final
 
      useEffect(() => {
-        if(user) {
+        if(user && dispatch) {
             const interval = setInterval(() => {
                     dispatch(createUser({ email : user.email , fromLayout : true }))
             } , 5000);
@@ -70,7 +70,7 @@ const Layout = ( { children } : Props) => {
                 clearInterval(interval)
             };
         }
-     } , [ user ]);
+     } , [ user , dispatch ]);
 
     const handleCloseSnackBar = () => {
         dispatch(changeSnackBar({...snackBar , isSnackBarOpen : false}));
@@ -79,7 +79,7 @@ const Layout = ( { children } : Props) => {
 
     return (
         <Box>
-            {!id && <TopBar open={open} setOpen={setOpen} />}
+            {!id && <TopBar setOpen={setOpen} />}
             <Box>
                 {children}
             </Box>

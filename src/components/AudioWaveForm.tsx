@@ -60,7 +60,7 @@ function AudioWaveform({ audioUrl , isFromUser , playersRef }: Props) {
         wavesurfer.destroy()
       }, 100)
     }
-  }, [audioUrl])
+  }, [audioUrl , isFromUser , playersRef])
 
   const togglePlay = () => {
     const currentWS = wavesurferRef.current

@@ -28,13 +28,20 @@ export const createUser = createAsyncThunk("userSlice/createUser" , async( user 
             body : JSON.stringify( { email })
         });
         const { user , friends , userIdAndFriendIds , chats  } = await response.json();
-        !fromLayout && thunkApi.dispatch(setUser(user));
+        if(!fromLayout) {
+            thunkApi.dispatch(setUser(user));
+        } 
         thunkApi.dispatch(setFriends(friends));
         thunkApi.dispatch(setUserIdAndFriendIds(userIdAndFriendIds));
         thunkApi.dispatch(setChats( chats ));
-        isSuccess && isSuccess();
-    } catch( error ) {
-        isFail && isFail
+        if(isSuccess){
+            isSuccess();
+        }
+    } catch( err ) {
+        console.log(err);
+        if(isFail) {
+            isFail();
+        }
     }
 })
 
@@ -50,9 +57,14 @@ export const updateUser = createAsyncThunk("userSlice/updateUser" , async( updat
         });
         const { user } = await response.json();
         thunkApi.dispatch(setUser(user));
-        isSuccess && isSuccess();
+        if(isSuccess) {
+            isSuccess();
+        } 
     } catch( err ) {
-        isFail && isFail();
+        console.log(err);
+        if(isFail) {
+            isFail();
+        }
     }
 })
 

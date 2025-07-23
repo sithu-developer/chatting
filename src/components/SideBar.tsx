@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/store/hooks";
-import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, SvgIconProps, Typography } from "@mui/material";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
@@ -103,7 +103,7 @@ export default SideBar;
 
 interface SliderComponents {
     id : number,
-    icon : any,
+    icon : React.ComponentType<SvgIconProps>,
     name : string,
 }
 

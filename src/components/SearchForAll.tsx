@@ -2,13 +2,14 @@ import { useAppSelector } from '@/store/hooks';
 import { FriendAndChatAndRelationType } from '@/types/user';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import { Box, Dialog, Divider, IconButton, TextField, Typography } from "@mui/material";
-import { Chats, User, UserIdAndFriendId } from '@prisma/client';
+import { Chats } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import { useRouter } from 'next/router';
+import { defaultReturnChat, defaultReturnFriend, defaultReturnRelation } from '@/pages/happy-chatting/chats';
 
 
 interface Props {
@@ -37,11 +38,11 @@ const SearchForAll = ( { searchForAllOpen , setSearchForAllOpen } : Props ) => {
 
             const lastChatsAndRelatedFriendsAndRelation : FriendAndChatAndRelationType[] = yourFriendIds.map(friendId => {
                 const currentFriendRelationIds =  userIdAndFriendIds.filter(userIdAndFriendId =>( userIdAndFriendId.friendId === friendId || userIdAndFriendId.userId === friendId)).map(item => item.id)
-                const currentFriendLastChat = chats.findLast(chat => currentFriendRelationIds.includes(chat.userAndFriendRelationId)) as Chats;
+                const currentFriendLastChat = chats.findLast(chat => currentFriendRelationIds.includes(chat.userAndFriendRelationId));
                 
-                const relatedFriend = yourFriends.find(friend => friend.id === friendId) as User;
-                const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend.id) as UserIdAndFriendId;
-                return {friend : relatedFriend , chat : currentFriendLastChat , userIdAndFriendId };
+                const relatedFriend = yourFriends.find(friend => friend.id === friendId);
+                const userIdAndFriendId = userIdAndFriendIds.find(item => item.userId === user.id && item.friendId === relatedFriend?.id);
+                return {friend : (relatedFriend ? relatedFriend : defaultReturnFriend ) , chat : (currentFriendLastChat ? currentFriendLastChat : defaultReturnChat) , userIdAndFriendId : (userIdAndFriendId ? userIdAndFriendId : defaultReturnRelation ) };
             });
 
             const sortedItems = lastChatsAndRelatedFriendsAndRelation.sort(( a , b ) => b.chat.id - a.chat.id);

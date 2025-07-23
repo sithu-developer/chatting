@@ -81,14 +81,14 @@ const ChattingPage = () => {
     const playersRef = useRef<{ wavesurfer: WaveSurfer, setIsPlaying: (val: boolean) => void }[]>([]);
 
     useEffect(() => {
-        if(friendId && user && currentFriend ) {
+        if(friendId && user && currentFriend && chats.length && userIdAndFriendIds.length) {
             setNewChat({ ...newChat , friendId , userId : user.id });
             const currentUserAndFriendRelationIds = userIdAndFriendIds.filter(item => (item.userId === user.id && item.friendId === currentFriend.id) || (item.userId === currentFriend.id && item.friendId === user.id )).map(item => item.id);
             const currChats = chats.filter(item => currentUserAndFriendRelationIds.includes(item.userAndFriendRelationId));
             setCurrentChats(currChats.sort((a , b) => a.id - b.id));
             const pinChats = currChats.filter(chat => chat.isPin === true);
             setPinChats(pinChats);
-        } else if(user && friendId && friendId === user.id) {
+        } else if(user && friendId && friendId === user.id && chats.length && userIdAndFriendIds.length) {
             setNewChat({ ...newChat , friendId , userId : user.id });
             const userAndFriendRelationIdForSavedChat = userIdAndFriendIds.find(item =>  item.userId === user.id && item.friendId === user.id);
             if(userAndFriendRelationIdForSavedChat) {
@@ -98,7 +98,7 @@ const ChattingPage = () => {
                 setPinChats(pinChats);
             }
         }
-    } , [ friendId , user , chats ]);
+    } , [ friendId , user , chats , currentFriend , userIdAndFriendIds ]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -109,7 +109,7 @@ const ChattingPage = () => {
         if( inputRef.current) {
             inputRef.current.focus();
         }
-    } , [lastRef.current , inputRef.current , replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
+    } , [ replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
         
     useEffect(() => {
         if( !hadRunOneTimeForSearchChat.current && searchedChatId && currentChats.length) {
@@ -123,7 +123,7 @@ const ChattingPage = () => {
                 } , 1000)
             }
         }
-    } , [searchedChatId && currentChats.length ])
+    } , [searchedChatId , currentChats.length ])
 
     useEffect(() => {
         if(lastRef.current) {
@@ -132,14 +132,13 @@ const ChattingPage = () => {
     } , [heightOfInput])
 
     useEffect(() => {
-        if(currentChats.length && user && userAndFriendRelationIdFromUser && friendId !== user.id) {
+        if(currentChats.length && user && userAndFriendRelationIdFromUser && friendId && friendId !== user.id && dispatch) {
             const seenChatsIds = currentChats.filter(item => (item.userAndFriendRelationId !== userAndFriendRelationIdFromUser) && !item.seen).map(item => item.id);
             if(seenChatsIds.length) {
                 dispatch(updateChat({ id : 0 , message : "" , isPin : false , seenChatsIds }))
             }
         }
-        
-    } , [currentChats.length , user , userAndFriendRelationIdFromUser])
+    } , [ user , userAndFriendRelationIdFromUser , currentChats , dispatch , friendId ])
 
     if(!user || !friendId || (!currentFriend && friendId !== user.id)) return null;
 
@@ -413,7 +412,11 @@ const ChattingPage = () => {
                         <KeyboardOutlinedIcon sx={{ color : "GrayText"}}  />
                     </IconButton>}
                     <TextField multiline variant="standard" color="secondary" ref={inputRef} sx={{ flexGrow : 1 , maxHeight : "150px" , overflowY : "auto" }} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => {
-                        editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
+                        if(editedChat) {
+                            setEditedChat({...editedChat , message : event.target.value})
+                        } else {
+                            setNewChat({...newChat , message : event.target.value});
+                        }
                         setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
                     }} />
                     {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat || selectedFile) ? (editedChat ? <IconButton disabled={!editedChat.message.trim().replace(/^\n+|\n+$/g, '') && !(editedChat.imageMessageUrl || editedChat.voiceMessageUrl)} onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end" , ":hover" : { bgcolor : "info.light"}}} > 
@@ -447,7 +450,11 @@ const ChattingPage = () => {
                     <Box sx={{ display : "flex" , justifyContent : "space-between" , alignItems : "center" , px : "5px"}}>
                         <Typography sx={{ color : "white" }} >Emoji</Typography>
                         <IconButton onClick={() => {
-                            editedChat ? setEditedChat({...editedChat , message : [...editedChat.message].slice(0 , -1).join("") }) :  setNewChat({...newChat , message : [...newChat.message].slice(0 , -1).join("")});
+                            if(editedChat) {
+                                setEditedChat({...editedChat , message : [...editedChat.message].slice(0 , -1).join("") })
+                            } else {
+                                setNewChat({...newChat , message : [...newChat.message].slice(0 , -1).join("")})
+                            }
                             if (inputRef.current) {
                                 const scrollHeight = inputRef.current.scrollHeight;
                                 setHeightOfInput(scrollHeight === 32 ? 16 + scrollHeight : 9 + scrollHeight);
@@ -459,7 +466,11 @@ const ChattingPage = () => {
                     <Box sx={{ display : "flex" , flexWrap : "wrap" , height : "180px" , overflow : "auto" }}>
                         {emojiList.map(item => (
                             <IconButton key={item} onClick={() => {
-                                editedChat ? setEditedChat({...editedChat , message : editedChat.message + item }) :  setNewChat({...newChat , message : newChat.message + item});
+                                if(editedChat) {
+                                    setEditedChat({...editedChat , message : editedChat.message + item })
+                                } else {
+                                    setNewChat({...newChat , message : newChat.message + item})
+                                }
                                 if (inputRef.current) {
                                   const scrollHeight = inputRef.current.scrollHeight;
                                   setHeightOfInput(scrollHeight === 32 ? 16 + scrollHeight : 9 + scrollHeight);

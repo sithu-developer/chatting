@@ -1,4 +1,3 @@
-import { useAppSelector } from "@/store/hooks";
 import { styled } from "@mui/material";
 import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 
@@ -56,7 +55,6 @@ export const timeCalcFunction = ( currentChat : Chats) => {
 
 export const timeCalcFunctionForMessage = ( currentChat : Chats) => {
     const months = [ "Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" ];
-    const days = [ "Sun" , "Mon" , "Tue" , "Wed" , "Thu" , "Fri" , "Sat" ];
 
     const nowTime = new Date();
     const createdTime = new Date(currentChat.createdAt);

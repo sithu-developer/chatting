@@ -5,8 +5,10 @@ const HappyChatting = () => {
     const router = useRouter();
 
     useEffect(() => {
-        router.push("/happy-chatting/login");
-    } , []);
+        if(router) {
+            router.push("/happy-chatting/login");
+        }
+    } , [router]);
 
     return (
         <>Happy Chatting</>

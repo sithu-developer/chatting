@@ -1,7 +1,7 @@
 import { Box, Dialog, Divider, IconButton, List, ListItemButton, TextField, Typography } from "@mui/material";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import { RefObject, useEffect, useState } from "react";
-import { Chats, User, UserIdAndFriendId } from "@prisma/client";
+import { Chats, User } from "@prisma/client";
 import { useAppSelector } from "@/store/hooks";
 import Image from "next/image";
 import { timeCalcFunction } from "@/util/general";

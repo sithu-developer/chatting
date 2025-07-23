@@ -25,14 +25,23 @@ export const createChat = createAsyncThunk("chatsSlice/createChat" , async ( new
             body : JSON.stringify({ message , friendId , userId , replyId , forwardFriendIds , forwardChats , imageMessageUrl , voiceMessageUrl })
         });
         const { newChat , newRelations , newForwardChats } = await response.json();
-        newChat && thunkApi.dispatch(addChat(newChat));
+        if(newChat) {
+            thunkApi.dispatch(addChat(newChat));
+        }
         if(newRelations) {
             thunkApi.dispatch(addUserIdAndFriendIds(newRelations));
         }
-        newForwardChats && thunkApi.dispatch(addForwardChats(newForwardChats))
-        isSuccess && isSuccess();
+        if(newForwardChats) {
+            thunkApi.dispatch(addForwardChats(newForwardChats))
+        }
+        if(isSuccess) {
+            isSuccess();
+        }
     } catch (err) {
-        isFail && isFail();
+        console.log(err);
+        if(isFail) {
+            isFail();
+        }
     }
 })
 
@@ -57,7 +66,10 @@ export const updateChat = createAsyncThunk("chatsSlice/updateChat" , async( edit
             thunkApi.dispatch(replaceSeenChats(seenChats))
         }
     } catch(err) {
-        isFail && isFail();
+        console.log(err);
+        if(isFail) {
+            isFail();
+        }
     }
 
 })
@@ -77,9 +89,14 @@ export const deleteChat = createAsyncThunk("chatsSlice/deleteChat" , async( dele
         if(deletedUserIdAndFriendIds)  {
             thunkApi.dispatch(removeUserIdAndFriendIds(deletedUserIdAndFriendIds));
         }
-        isSuccess && isSuccess();
+        if(isSuccess) {
+            isSuccess();
+        }
     } catch(err) {
-        isFail && isFail();
+        console.log(err);
+        if(isFail) {
+            isFail();
+        }
     }
 });
 

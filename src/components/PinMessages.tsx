@@ -23,7 +23,7 @@ const PinMessages = ({ pinChats , messageRef , playersRef } : Props ) => {
         if(firstShowPinChat) {
             firstShowPinChat.scrollIntoView({behavior : "instant"})
         }
-    } , [nextPinMessageRef.current])
+    } , [pinChats.length])
 
     return (
         <Box sx={{display : "flex" , flexDirection : "column-reverse" , gap : "5px" , bgcolor : "secondary.main" , mt : "0.5px" , height : "43px" , overflow : "hidden" }} >

@@ -1,13 +1,12 @@
-import { Box, AppBar, Toolbar, IconButton, Typography, Button } from "@mui/material";
+import { Box, AppBar, Toolbar, IconButton, Typography } from "@mui/material";
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { useRouter } from "next/router";
 
 interface Props {
-  open : boolean,
   setOpen : (value : boolean) => void,
 }
 
-const TopBar = ( { open , setOpen } : Props ) => {
+const TopBar = ( { setOpen } : Props ) => {
     const router = useRouter();
     const path = router.asPath;
     const isLogin = path.includes("/happy-chatting/login")

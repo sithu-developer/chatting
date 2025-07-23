@@ -30,7 +30,10 @@ export const updateIsPinChats = createAsyncThunk("UserIdAndFriendIdSlice/updateI
             isSuccess();
         }
     } catch(err) {
-        console.log(err)
+        console.log(err);
+        if(isFail) {
+            isFail();
+        }
     }
 })
 
@@ -51,7 +54,10 @@ export const deleteRelations = createAsyncThunk("UserIdAndFriendIdSlice/deleteRe
             isSuccess();
         }
     } catch(err) {
-        console.log(err)
+        console.log(err);
+        if(isFail) {
+            isFail();
+        }
     }
 })
 

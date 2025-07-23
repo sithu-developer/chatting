@@ -6,8 +6,8 @@ export interface CreateUserType extends SuccessOrFailType {
 }
 
 export interface SuccessOrFailType {
-    isSuccess ?: (value ?: any) => void;
-    isFail ?: (value ?: any) => void;
+    isSuccess ?: (value ?: unknown) => void;
+    isFail ?: (value ?: unknown) => void;
 }
 
 export interface FriendAndChatAndRelationType {

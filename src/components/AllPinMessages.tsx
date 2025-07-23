@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/store/hooks";
 import { Box, Dialog, DialogTitle, IconButton, Typography } from "@mui/material"
 import { Chats, UserIdAndFriendId } from "@prisma/client";
-import { RefObject, useEffect, useRef } from "react";
+import { RefObject } from "react";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { timeCalcFunctionForMessage } from "@/util/general";
