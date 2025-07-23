@@ -56,9 +56,13 @@ function AudioWaveform({ audioUrl , isFromUser , playersRef }: Props) {
       if (playersRef.current) {
         playersRef.current = playersRef.current.filter((p) => p.wavesurfer !== wavesurfer)
       }
-      setTimeout(() => {
-        wavesurfer.destroy()
-      }, 100)
+      try {  // here
+        if (wavesurfer) {
+          wavesurfer.destroy()
+        }
+      } catch (err) {
+        console.log("Failed to destroy:", err)
+      }
     }
   }, [audioUrl , isFromUser , playersRef])
 

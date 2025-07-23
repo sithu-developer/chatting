@@ -15,8 +15,8 @@ export const theme = createTheme({
         
     } ,
     typography : {
-        //  fontFamily : "system-ui",
-        fontFamily : "cursive",
+         fontFamily : "system-ui",
+        // fontFamily : "cursive",
         // fontFamily : "Itim"
     }
 })

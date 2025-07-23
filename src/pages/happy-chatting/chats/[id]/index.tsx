@@ -79,9 +79,9 @@ const ChattingPage = () => {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const hadRunOneTimeForSearchChat = useRef<boolean>(false);
     const playersRef = useRef<{ wavesurfer: WaveSurfer, setIsPlaying: (val: boolean) => void }[]>([]);
-
+    
     useEffect(() => {
-        if(friendId && user && currentFriend && chats.length && userIdAndFriendIds.length) {
+        if(friendId && user && currentFriend) {
             setNewChat((prev) => ({ ...prev , friendId , userId : user.id }));
             const currentUserAndFriendRelationIds = userIdAndFriendIds.filter(item => (item.userId === user.id && item.friendId === currentFriend.id) || (item.userId === currentFriend.id && item.friendId === user.id )).map(item => item.id);
             const currChats = chats.filter(item => currentUserAndFriendRelationIds.includes(item.userAndFriendRelationId));
