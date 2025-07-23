@@ -82,14 +82,14 @@ const ChattingPage = () => {
 
     useEffect(() => {
         if(friendId && user && currentFriend && chats.length && userIdAndFriendIds.length) {
-            setNewChat({ ...newChat , friendId , userId : user.id });
+            setNewChat((prev) => ({ ...prev , friendId , userId : user.id }));
             const currentUserAndFriendRelationIds = userIdAndFriendIds.filter(item => (item.userId === user.id && item.friendId === currentFriend.id) || (item.userId === currentFriend.id && item.friendId === user.id )).map(item => item.id);
             const currChats = chats.filter(item => currentUserAndFriendRelationIds.includes(item.userAndFriendRelationId));
             setCurrentChats(currChats.sort((a , b) => a.id - b.id));
             const pinChats = currChats.filter(chat => chat.isPin === true);
             setPinChats(pinChats);
         } else if(user && friendId && friendId === user.id && chats.length && userIdAndFriendIds.length) {
-            setNewChat({ ...newChat , friendId , userId : user.id });
+            setNewChat((prev) => ({ ...prev , friendId , userId : user.id }));
             const userAndFriendRelationIdForSavedChat = userIdAndFriendIds.find(item =>  item.userId === user.id && item.friendId === user.id);
             if(userAndFriendRelationIdForSavedChat) {
                 const currChats = chats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdForSavedChat.id );
@@ -100,6 +100,7 @@ const ChattingPage = () => {
         }
     } , [ friendId , user , chats , currentFriend , userIdAndFriendIds ]);
 
+    const userMessagesLength = currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length; //this is for user message dependency
     useEffect(() => {
         setTimeout(() => {
             if(lastRef.current) {
@@ -109,7 +110,7 @@ const ChattingPage = () => {
         if( inputRef.current) {
             inputRef.current.focus();
         }
-    } , [ replyChat , editedChat , currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length ])
+    } , [ replyChat , editedChat , userMessagesLength ])
         
     useEffect(() => {
         if( !hadRunOneTimeForSearchChat.current && searchedChatId && currentChats.length) {
