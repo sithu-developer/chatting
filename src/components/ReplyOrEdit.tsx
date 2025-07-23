@@ -6,7 +6,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import { Chats, User, UserIdAndFriendId } from '@prisma/client';
 import { NewChat } from '@/types/chats';
 import { useAppSelector } from '@/store/hooks';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import ChangeCircleRoundedIcon from '@mui/icons-material/ChangeCircleRounded';
 import { VisuallyHiddenInput } from '@/util/general';
@@ -24,6 +24,7 @@ const ReplyOrEdit = ({ setChat , chat, setNewChat , newChat , setSelectedFile } 
     const friends = useAppSelector(store => store.userSlice.friends);
     const userIdAndFriendIds = useAppSelector(store => store.userIdAndFriendIdSlice.userIdAndFriendIds);
     const [ replyUser , setReplyUser ] = useState<User>()
+    const voiceMessageRef = useRef<string>(chat.message ? chat.message : "Voice message");
 
     useEffect(() => {
         if(user && chat && newChat && userIdAndFriendIds.length && friends.length){
@@ -42,8 +43,8 @@ const ReplyOrEdit = ({ setChat , chat, setNewChat , newChat , setSelectedFile } 
             <TransitionGroup>
                 <Collapse >
                     <Box sx={{ display : "flex" , bgcolor : "secondary.main" , justifyContent : "space-between" , alignItems : "center"  }} >
-                        <Box component="label" role={undefined} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , flexGrow : 1 , pl : "10px" , cursor : (replyUser ? "default" : "pointer") , userSelect : "none"}}>
-                            {!replyUser ? <VisuallyHiddenInput
+                        <Box component="label" role={undefined} sx={{ display : "flex" , gap : "10px" , alignItems : "center" , flexGrow : 1 , pl : "10px" , cursor : (replyUser || chat.voiceMessageUrl ? "default" : "pointer") , userSelect : "none"}}>
+                            {!replyUser && !chat.voiceMessageUrl ? <VisuallyHiddenInput
                               type="file"
                               onChange={(event) => {
                                 const file = event.target.files?.[0];
@@ -64,8 +65,8 @@ const ReplyOrEdit = ({ setChat , chat, setNewChat , newChat , setSelectedFile } 
                                 </Box>
                                 :undefined}
                                 <Box>
-                                    <Typography sx={{ color : "info.main" , fontWeight : "bold"}} >{replyUser ? "Reply to " + replyUser.firstName + " " + replyUser.lastName : (chat.imageMessageUrl ? "Replace Photo" : "Edit Message")}</Typography>
-                                    <Typography sx={{ color : "GrayText" , maxWidth : "70vw" , textWrap : "nowrap" , overflow : "hidden" , textOverflow : "ellipsis"}} >{newChat ? (chat.message ? chat.message : "Photo") : (chat.imageMessageUrl ? "Tap to change" : "Tap to add media")}</Typography>
+                                    <Typography sx={{ color : "info.main" , fontWeight : "bold"}} >{replyUser ? "Reply to " + replyUser.firstName + " " + replyUser.lastName : (chat.imageMessageUrl ? "Replace Photo" : (chat.voiceMessageUrl ? "Edit Caption" : "Edit Message"))}</Typography>
+                                    <Typography sx={{ color : "GrayText" , maxWidth : "70vw" , textWrap : "nowrap" , overflow : "hidden" , textOverflow : "ellipsis"}} >{newChat ? (chat.message ? chat.message : "Photo") : (chat.imageMessageUrl ? "Tap to change" : (chat.voiceMessageUrl ? voiceMessageRef.current : "Tap to add media"))}</Typography>
                                 </Box>
                             </Box>
                         </Box>

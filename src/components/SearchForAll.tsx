@@ -134,12 +134,13 @@ const SearchForAll = ( { searchForAllOpen , setSearchForAllOpen } : Props ) => {
                                         </Box>
                                         :undefined}
                                         {chat.message ? 
-                                        <Typography sx={{ overflow : "hidden" , maxWidth : "70vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap" }}>  
+                                        <Typography sx={{ overflow : "hidden" , maxWidth : "70vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap" }}> 
+                                            <Box component="span" sx={{ color : "GrayText"}} >{chat.voiceMessageUrl ? "🎤 " : ""}</Box>
                                             <Box component="span" sx={{ color : "GrayText"}} >{chat.message.slice(0 , startIndex )}</Box>
                                             <Box component="span" sx={{ color : "info.main"}} >{chat.message.slice( startIndex , startIndex + searchString.length )}</Box>
                                             <Box component="span" sx={{ color : "GrayText"}} >{chat.message.slice( startIndex + searchString.length)}</Box>
                                         </Typography>
-                                        :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >Photo</Typography>}
+                                        :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{chat.imageMessageUrl ? "Photo" : "Voice message"}</Typography>}
                                     </Box>
                                 </Box>
                             </Box>

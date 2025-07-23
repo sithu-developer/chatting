@@ -152,8 +152,8 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
                                             </Box>
                                             :undefined}
                                             {item.chat.message ? 
-                                            <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.message}</Typography>
-                                            :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >Photo</Typography>}
+                                            <Typography sx={{ color : "GrayText" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.voiceMessageUrl ? "🎤 " + item.chat.message : item.chat.message}</Typography>
+                                            :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{item.chat.imageMessageUrl ? "Photo" : "Voice message"}</Typography>}
                                         </Box>
                                         <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}>
                                             {!unseenMessageCount || item.friend.id === user.id ? 

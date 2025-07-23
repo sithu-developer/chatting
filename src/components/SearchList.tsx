@@ -97,12 +97,13 @@ const SearchList = ( { searchListOpen , setSearchListOpen , currentFriend , mess
                                 {chat.message ? 
                                 (searchValue ? 
                                 <Typography sx={{ overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap" }}>  
+                                    <Box component="span" sx={{ color : "GrayText"}} >{chat.voiceMessageUrl ? "🎤 " : ""}</Box>
                                     <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(0 , chat.message.toLowerCase().indexOf(searchValue.toLowerCase()))}</Box>
                                     <Box component="span" sx={{ color : "info.main"}} >{chat.message.substring( chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) ,chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length )}</Box>
                                     <Box component="span" sx={{ color : "GrayText"}} >{chat.message.substring(chat.message.toLowerCase().indexOf(searchValue.toLowerCase()) + searchValue.length)}</Box>
                                 </Typography>
-                                :<Typography sx={{ color : "GrayText" , overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap"}}>{chat.message}</Typography>)
-                                :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >Photo</Typography>}
+                                :<Typography sx={{ color : "GrayText" , overflow : "hidden" , maxWidth : "58vw" , textOverflow : "ellipsis" , whiteSpace : "nowrap"}}>{chat.voiceMessageUrl ? "🎤 " + chat.message : chat.message}</Typography>)
+                                :<Typography sx={{ color : "info.main" , maxWidth : "65vw" , overflow : "hidden" , whiteSpace: 'nowrap', textOverflow : "ellipsis"}} >{chat.imageMessageUrl ? "Photo" : "Voice message"}</Typography>}
                             </Box>
                         </Box>
                         <Typography sx={{ fontSize : "12px" ,  color : "GrayText" }} >{timeCalcFunction(chat)}</Typography>

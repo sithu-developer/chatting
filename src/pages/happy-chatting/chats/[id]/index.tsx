@@ -413,7 +413,7 @@ const ChattingPage = () => {
                         editedChat ? setEditedChat({...editedChat , message : event.target.value}) :  setNewChat({...newChat , message : event.target.value});
                         setHeightOfInput(event.target.scrollHeight === 23 ? 25+(event.target.scrollHeight) :  18+(event.target.scrollHeight))
                     }} />
-                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat || selectedFile) ? (editedChat ? <IconButton disabled={!editedChat.message.trim().replace(/^\n+|\n+$/g, '') && !editedChat.imageMessageUrl} onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end"}} > 
+                    {( newChat.message.trim().replace(/^\n+|\n+$/g, '') || editedChat || selectedFile) ? (editedChat ? <IconButton disabled={!editedChat.message.trim().replace(/^\n+|\n+$/g, '') && !(editedChat.imageMessageUrl || editedChat.voiceMessageUrl)} onClick={handleUpdateChat} sx={{ bgcolor : "info.main" , width : "30px" , height : "30px" , mr : "5px" , mb : "5px" , alignSelf : "flex-end" , ":hover" : { bgcolor : "info.light"}}} > 
                         <DoneRoundedIcon sx={{color : "text.primary" }} />
                     </IconButton>
                     : <IconButton onClick={handleCreateChat} sx={{  alignSelf : "flex-end" }} > 
