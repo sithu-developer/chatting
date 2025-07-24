@@ -40,7 +40,7 @@ const ChatsPage = () => {
     const [ searchForAllOpen , setSearchForAllOpen ] = useState<boolean>(false);
     
     useEffect(() => {
-        if(user && friends.length && chats.length && userIdAndFriendIds.length ) {
+        if(user && chats.length && userIdAndFriendIds.length ) {
             const relationIdsOfFriendIds = userIdAndFriendIds.map(item => item.friendId);
             const relationIdsOfUserIds = userIdAndFriendIds.map(item => item.userId);
             const repeatedYourFriendIds = [...relationIdsOfFriendIds , ...relationIdsOfUserIds].filter(item => item !== user.id);
