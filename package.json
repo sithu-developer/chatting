@@ -17,6 +17,7 @@
     "@prisma/client": "^6.5.0",
     "@reduxjs/toolkit": "^2.6.1",
     "@vercel/blob": "^1.1.1",
+    "@wavesurfer/react": "^1.0.11",
     "dayjs": "^1.11.13",
     "next": "15.2.2",
     "next-auth": "^4.24.11",

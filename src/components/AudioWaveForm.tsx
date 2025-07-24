@@ -1,9 +1,10 @@
 import { Box, IconButton, Typography } from '@mui/material'
-import React, { RefObject, useEffect, useRef, useState } from 'react'
+import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
 import { formatTime } from '@/util/general';
+import { useWavesurfer } from '@wavesurfer/react'
 
 interface Props {
   audioUrl: string
@@ -13,73 +14,68 @@ interface Props {
 
 function AudioWaveform({ audioUrl , isFromUser , playersRef }: Props) {
   const waveformRef = useRef<HTMLDivElement>(null)
-  const wavesurferRef = useRef<WaveSurfer | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [playingTime , setPlayingTime ] = useState<number>(0);
   const [totalTime , setTotalTime ] = useState<number>(0);
 
-  useEffect(() => {
-    if (!waveformRef.current || !audioUrl) return
-
-    const wavesurfer = WaveSurfer.create({
-      container: waveformRef.current,
-      waveColor: (isFromUser ? '#B9D6F2' : "GrayText"),
+  
+    const { wavesurfer } = useWavesurfer({
+      container: waveformRef,
+      waveColor: isFromUser ? '#B9D6F2' : 'GrayText',
       progressColor: '#2979FF',
       height: 30,
       barWidth: 2,
-      barRadius : 3,
+      barRadius: 3,
       normalize: true,
       interact: true,
+      url: audioUrl,
     })
 
-    wavesurferRef.current = wavesurfer;
+  useEffect(() => {
+    if (!wavesurfer) return
 
     if (playersRef.current) {
       playersRef.current.push({ wavesurfer, setIsPlaying })
     }
 
-    wavesurfer.load(audioUrl)
+    const handleFinish = () => setIsPlaying(false)
+    const handlePlay = () => setIsPlaying(true)
+    const handlePause = () => setIsPlaying(false)
+    const handleProcess = (time: number) => setPlayingTime(time)
+    const handleReady = () => setTotalTime(wavesurfer.getDuration())
 
-    wavesurfer.on('finish', () => {
-        setIsPlaying(false);
-    })
-
-    wavesurfer.on('ready', () => {
-      setTotalTime(wavesurfer.getDuration())
-    })
-
-    wavesurfer.on('audioprocess', (time) => {
-      setPlayingTime(time)
-    })
+    wavesurfer.on('finish', handleFinish)
+    wavesurfer.on('play', handlePlay)
+    wavesurfer.on('pause', handlePause)
+    wavesurfer.on('audioprocess', handleProcess)
+    wavesurfer.on('ready', handleReady)
 
     return () => {
       if (playersRef.current) {
-        playersRef.current = playersRef.current.filter((p) => p.wavesurfer !== wavesurfer)
+        playersRef.current = playersRef.current.filter(p => p.wavesurfer !== wavesurfer)
       }
-      try {  // here
-        if (wavesurfer) {
-          wavesurfer.destroy()
-        }
-      } catch (err) {
-        console.log("Failed to destroy:", err)
-      }
+      wavesurfer.un('finish', handleFinish)
+      wavesurfer.un('play', handlePlay)
+      wavesurfer.un('pause', handlePause)
+      wavesurfer.un('audioprocess', handleProcess)
+      wavesurfer.un('ready', handleReady)
     }
-  }, [audioUrl , isFromUser , playersRef])
+  }, [wavesurfer , playersRef])
 
-  const togglePlay = () => {
-    const currentWS = wavesurferRef.current
-    if (!currentWS) return
+  const togglePlay = useCallback(() => {
+    if (!wavesurfer) return
 
-    playersRef.current?.forEach(({ wavesurfer, setIsPlaying }) => {
-      if (wavesurfer !== currentWS) {
-        wavesurfer.stop();
-        setIsPlaying(false);
+    // Stop other players
+    playersRef.current?.forEach(({ wavesurfer: otherWS, setIsPlaying }) => {
+      if (otherWS !== wavesurfer) {
+        otherWS.stop()
+        setIsPlaying(false)
       }
-    });
+    })
 
-    currentWS.playPause()
-    setIsPlaying(currentWS.isPlaying())
-  }
+    wavesurfer.playPause();
+    setIsPlaying(wavesurfer.isPlaying());
+  }, [wavesurfer, playersRef])
 
   return (
     <Box sx={{ display : "flex" , gap : "5px" , alignItems : "center"}}  onClick={(e) => {
