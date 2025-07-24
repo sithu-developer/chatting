@@ -88,7 +88,7 @@ const ChattingPage = () => {
             setCurrentChats(currChats.sort((a , b) => a.id - b.id));
             const pinChats = currChats.filter(chat => chat.isPin === true);
             setPinChats(pinChats);
-        } else if(user && friendId && friendId === user.id && chats.length && userIdAndFriendIds.length) {
+        } else if(user && friendId && friendId === user.id) {
             setNewChat((prev) => ({ ...prev , friendId , userId : user.id }));
             const userAndFriendRelationIdForSavedChat = userIdAndFriendIds.find(item =>  item.userId === user.id && item.friendId === user.id);
             if(userAndFriendRelationIdForSavedChat) {
@@ -205,7 +205,7 @@ const ChattingPage = () => {
 
     return (
         <Box sx={{ height : "100vh" , display : "flex" , flexDirection : "column" , justifyContent : "center" , alignItems : "center"}}>
-            {selectedChats.length ? <Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
+            {selectedChats.length ? <Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px", zIndex : 100 , width : "100vw" }}>
                 <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" }} >
                     <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px"}}>
                         <IconButton onClick={() => setSelectedChats([])}>
@@ -244,7 +244,7 @@ const ChattingPage = () => {
                 : <span />}
                 <Profile openSideBarComponent={openFriendProfileComponent} setOpenSideBarComponent={setOpenFriendProfileComponent} />
             </Box>
-            :<Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px" , width : "100vw" }}>
+            :<Box sx={{ backgroundAttachment : "fixed", position : "fixed" , top : "0px", zIndex : 100 , width : "100vw" }}>
                 <Box sx={{ bgcolor : "secondary.main" , p : "10px" , display : "flex" , alignItems : "center" , justifyContent : "space-between" }} >
                     <Box sx={{ display : "flex" , alignItems : "center" , gap : "10px" , flexGrow : 1 , cursor : (currentFriend ? "pointer" : "default") }} onClick={() => {
                         if(currentFriend) {
@@ -359,7 +359,7 @@ const ChattingPage = () => {
                                     </Box>)}
                                     {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto" , borderRadius : "5px"}}  /> 
                                     :undefined}
-                                    {item.voiceMessageUrl ? 
+                                    {item.voiceMessageUrl ?
                                     <AudioWaveform audioUrl={item.voiceMessageUrl} isFromUser={userIdAndFriendIdOfChat.userId === user.id} playersRef={playersRef} />
                                     :undefined}
                                     <Box sx={{ display : "flex" , flexDirection : (item.message.includes("\n") ? "column" : "row") , justifyContent : "space-between" , alignItems : "center" , gap : "5px" , flexWrap : "wrap" , wordBreak : "break-word"  , flexGrow : 1 , pb : "1px" }}>
@@ -384,7 +384,7 @@ const ChattingPage = () => {
                 <SearchList searchListOpen={searchListOpen} setSearchListOpen={setSearchListOpen} currentFriend={currentFriend} messageRef={messageRef} />
             </Box>
             
-            {selectedChats.length ? <Box sx={{ bgcolor : "secondary.main" ,  display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" , px : "5px" , py : "3px" }}>
+            {selectedChats.length ? <Box sx={{ bgcolor : "secondary.main" ,  display : "flex" , justifyContent : "space-between" , alignItems : "center" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" , px : "5px" , py : "3px", zIndex : 100  }}>
                 {selectedChats.length === 1 ? <IconButton onClick={() => {
                     setReplyChat(selectedChats[0]);
                     setNewChat({...newChat , replyId : selectedChats[0].id });
@@ -402,7 +402,7 @@ const ChattingPage = () => {
                     <ShortcutOutlinedIcon sx={{ color : "white", ml : "5px" }} />
                 </IconButton>
             </Box>
-            :<Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" }} >
+            :<Box sx={{ display : "flex" , flexDirection : "column" , gap : "1px" ,  backgroundAttachment : "fixed"  , position : "fixed" , bottom : "0px" , width : "100vw" , zIndex : 100 }} >
                 {replyChat && <ReplyOrEdit chat={replyChat} setChat={setReplyChat}  setNewChat={setNewChat} newChat={newChat} />}
                 {editedChat && <ReplyOrEdit chat={editedChat} setChat={setEditedChat} setSelectedFile={setSelectedFile} />}
                 <Box sx={{ bgcolor : "secondary.main" , display : "flex" , alignItems : "center" , justifyContent : "space-between" , gap : "5px" , py : "3px" }} >

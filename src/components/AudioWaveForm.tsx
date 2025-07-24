@@ -27,12 +27,13 @@ function AudioWaveform({ audioUrl , isFromUser , playersRef }: Props) {
       barWidth: 2,
       barRadius: 3,
       normalize: true,
-      interact: true,
-      url: audioUrl,
+      interact: true, // url here is for create only
     })
 
   useEffect(() => {
-    if (!wavesurfer) return
+    if (!wavesurfer || !audioUrl) return
+
+    wavesurfer.load(audioUrl) // url here is for both create and reuse anytime
 
     if (playersRef.current) {
       playersRef.current.push({ wavesurfer, setIsPlaying })
@@ -60,7 +61,7 @@ function AudioWaveform({ audioUrl , isFromUser , playersRef }: Props) {
       wavesurfer.un('audioprocess', handleProcess)
       wavesurfer.un('ready', handleReady)
     }
-  }, [wavesurfer , playersRef])
+  }, [wavesurfer , playersRef , audioUrl])
 
   const togglePlay = useCallback(() => {
     if (!wavesurfer) return
@@ -90,7 +91,7 @@ function AudioWaveform({ audioUrl , isFromUser , playersRef }: Props) {
             :<PlayCircleFilledRoundedIcon sx={{ color : (isFromUser ? "white" : "info.main") , fontSize : "60px"}} />}
         </IconButton>
         <Box>
-            <Box ref={waveformRef} sx={{ maxWidth : "60vw" , minWidth : "40vw" , height : 40}} />
+            <Box ref={waveformRef} sx={{ maxWidth : "60vw" , minWidth : "40vw" , height : 40 , zIndex : 0}} />
             <Typography sx={{ color : (isFromUser ? "white" : "GrayText") , fontSize : "13px" , lineHeight : 0.5}}>{playingTime ? formatTime(playingTime) : formatTime(totalTime)}</Typography>
         </Box>
     </Box>
