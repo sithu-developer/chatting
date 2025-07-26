@@ -53,8 +53,12 @@ export default async function handler(
     const { id , message , isPin , seenChatsIds , imageMessageUrl } = req.body as UpdatedChat;
     if(seenChatsIds) {
         if(!seenChatsIds.length) return res.status(400).send("Bad request");
+        const unseenChats = await prisma.chats.findMany({ where : { id : { in : seenChatsIds}}})
         const seenChats = await prisma.$transaction(
-          seenChatsIds.map(item => prisma.chats.update({ where : { id : item } , data : { seen : true }}))
+          seenChatsIds.map(item => {
+            const old = unseenChats.find(oldChat => oldChat.id === item);
+            return prisma.chats.update({ where : { id : item } , data : { seen : true , updatedAt : old?.updatedAt }});
+          })
         );
         return res.status(200).json({ seenChats });
     } else {
