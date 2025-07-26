@@ -10,7 +10,7 @@ import { ForwardItemsType } from "@/types/chats";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat } from "@/store/slices/chatsSlice";
-import { changeSnackBar } from "@/store/slices/generalSlice";
+import { changeIsLoading, changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import Image from "next/image";
@@ -74,7 +74,9 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
     const handleForwardMessage = () => {
         const forwardFriendIds = selectedFriends.map(item => item.id);
         if(forwardItems.forwardChats && forwardItems.forwardChats.length) {
+            dispatch(changeIsLoading(true))
             dispatch(createChat({ message : "Forward Chat" , forwardFriendIds , forwardChats : forwardItems.forwardChats , friendId : forwardFriendIds[0] , userId : user.id , replyId : null , isSuccess : () => {
+                dispatch(changeIsLoading(false))
                 dispatch(changeSnackBar({isSnackBarOpen : true , message : (forwardItems.forwardChats && forwardItems.forwardChats.length > 1) ? "Messages forwarded" : "Message forwarded" , severity : Severity.success }));
                 setForwardItems({ open : false , forwardChats : undefined });
                 setSearchOpen(false);
@@ -106,7 +108,7 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
                 </IconButton>}
             </Box>
             <Box sx={{ bgcolor : "primary.main" , minWidth : "300px" , maxHeight : "70vh" }} >
-                {filteredFriendsAndChats.map(item => {
+                {filteredFriendsAndChats.length ? filteredFriendsAndChats.map(item => {
                     const exit = selectedFriends.find(friend => friend.id === item.friend.id );
                     const friendRelation = userIdAndFriendIds.find(relation => (relation.userId === item.userIdAndFriendId.friendId) && (relation.friendId === item.userIdAndFriendId.userId));
                     const unseenMessageCount = chats.filter(chat => (chat.userAndFriendRelationId === friendRelation?.id) && !chat.seen).length;
@@ -172,7 +174,8 @@ const ForwardMessage = ( { forwardItems , setForwardItems , setSelectedChats } :
                             </Box> 
                         </Box>
                     )
-                })}
+                })
+                :<Typography sx={{ fontSize : "25px" , textAlign : "center" , my : "20px" , color : "white"}}>No friend Yet</Typography>}
             </Box>
             <DialogActions sx={{ bgcolor : "primary.main" , display : "flex" , gap : "5px" }} >
                 <IconButton  sx={{ bgcolor : "secondary.main" , ":hover" : { bgcolor : "secondary.dark" }}}

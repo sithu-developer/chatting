@@ -19,6 +19,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { timeCalcFunction } from "@/util/general";
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import { changeIsLoading } from "@/store/slices/generalSlice";
 
 
 export const defaultReturnFriend : User = { id : 0 , email : "" , firstName : "" , lastName : "" , bio : null , day : 0 , isOnline : false , month : 0 , profileUrl : "" , year : 0 }
@@ -80,7 +81,7 @@ const ChatsPage = () => {
             } else {
                 setSelectedFriends([...selectedFriends , item.friend ]);
             }
-        } , 800)
+        } , 1000)
     }
 
     useEffect(() => {
@@ -102,12 +103,14 @@ const ChatsPage = () => {
     };
 
     const handlePinChats = () => {
+        dispatch(changeIsLoading(true))
         const selectedFriendIds = selectedFriends.map(item => item.id);
         const selectedUserIdAndFriendIds = userIdAndFriendIds.filter(item => item.userId === user.id && selectedFriendIds.includes(item.friendId))
         const selectedRelationIds = selectedUserIdAndFriendIds.map(item => item.id)
         dispatch(updateIsPinChats({ selectedRelationIds , allPinValue : !isAllSelectedChatsPin , isSuccess : () => {
             setSelectedFriends([]);
             setIsAllSelectedChatsPin(false);
+            dispatch(changeIsLoading(false))
         } }))
     }
 
@@ -142,7 +145,7 @@ const ChatsPage = () => {
                 <SearchIcon sx={{ color : "white"}}  />
             </IconButton> : undefined}
             <Box sx={{ height : "calc(100vh - 70px)" , overflowY : "auto"}}>
-                {friendsAndChatsAndRelation.map(item => {
+                {friendsAndChatsAndRelation.length ? friendsAndChatsAndRelation.map(item => {
                     const exit = selectedFriends.find(friend => friend.id === item.friend.id );
                     const friendRelation = userIdAndFriendIds.find(relation => (relation.userId === item.userIdAndFriendId.friendId) && (relation.friendId === item.userIdAndFriendId.userId));
                     const unseenMessageCount = chats.filter(chat => (chat.userAndFriendRelationId === friendRelation?.id) && !chat.seen).length;
@@ -233,7 +236,8 @@ const ChatsPage = () => {
                             </Box> 
                         </Box>
                     )
-                })}
+                })
+                :<Typography sx={{ fontSize : "25px" , textAlign : "center" , my : "20px" , color : "white"}}>No chat yet , start explore new friend in side bar</Typography>}
             </Box>
             <Confirmation confirmationItems={confirmationItems} setConfirmationItems={setConfirmationItems} setSelectedFriends={setSelectedFriends} />
             <SearchForAll searchForAllOpen={searchForAllOpen} setSearchForAllOpen={setSearchForAllOpen} />

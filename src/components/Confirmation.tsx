@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import { deleteRelations } from "@/store/slices/userIdAndFriendIdSlice";
-import { changeSnackBar } from "@/store/slices/generalSlice";
+import { changeIsLoading, changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
 
 
@@ -41,7 +41,9 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
     const handleDeleteChat = () => {
        if(confirmationItems.chatsToDelete !== undefined) {
             const deletedIds = confirmationItems.chatsToDelete.map(item => item.id);
+            dispatch(changeIsLoading(true))
             dispatch(deleteChat({ deletedIds  , isSuccess : () => {
+                dispatch(changeIsLoading(false))
                 setConfirmationItems({ open : false , chatsToDelete : undefined });
                 if(setSelectedChats) {
                     setSelectedChats([]);
@@ -62,8 +64,10 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
 
     const handleDeleteRelations = () => {
         if(confirmationItems.relationsToDelete) {
+            dispatch(changeIsLoading(true));
             const deletedRelationIds = confirmationItems.relationsToDelete.map(item => item.id);
             dispatch(deleteRelations({ deletedRelationIds , isSuccess : () => {
+                dispatch(changeIsLoading(false));
                 setConfirmationItems({ open : false , relationsToDelete : undefined });
                 setFirstFriend(undefined)
                 if(setSelectedFriends) {
@@ -75,9 +79,11 @@ const Confirmation = ( { confirmationItems , setConfirmationItems , setSelectedC
 
     const handlePinMessage = () => {
         if(confirmationItems.chatToPin) {
+            dispatch(changeIsLoading(true))
             dispatch(updateChat({...confirmationItems.chatToPin , imageMessageUrl : undefined , isPin : true , isSuccess : () => {
                 setConfirmationItems({ open : false , chatToPin : undefined })
                 dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message pinned." , severity : Severity.success}))
+                dispatch(changeIsLoading(false));
             } }));
         }
     }

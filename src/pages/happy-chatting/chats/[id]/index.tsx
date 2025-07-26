@@ -38,6 +38,7 @@ import { uploadToBlob } from "@/util/upload";
 import VoiceRecorder from "@/components/VoiceAudio";
 import AudioWaveform from "@/components/AudioWaveForm";
 import WaveSurfer from "wavesurfer.js";
+import { changeIsLoading } from "@/store/slices/generalSlice";
 
 const defaultNewChat : NewChat = {
     message : "" , friendId : 0 , userId : 0 , replyId : null , forwardFriendIds : [] , forwardChats : []
@@ -99,18 +100,6 @@ const ChattingPage = () => {
             }
         }
     } , [ friendId , user , chats , currentFriend , userIdAndFriendIds ]);
-
-    const userMessagesLength = currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length; //this is for user message dependency
-    useEffect(() => {
-        setTimeout(() => {
-            if(lastRef.current) {
-                lastRef.current.scrollIntoView({ behavior: 'instant' });
-            }
-        } , 100)
-        if( inputRef.current) {
-            inputRef.current.focus();
-        }
-    } , [ replyChat , editedChat , userMessagesLength ])
         
     useEffect(() => {
         if( !hadRunOneTimeForSearchChat.current && searchedChatId && currentChats.length) {
@@ -126,11 +115,15 @@ const ChattingPage = () => {
         }
     } , [searchedChatId , currentChats.length ])
 
+    const userMessagesLength = currentChats.filter(item => item.userAndFriendRelationId === userAndFriendRelationIdFromUser).length; //this is for user message dependency
     useEffect(() => {
-        if(lastRef.current) {
-            lastRef.current.scrollIntoView({ behavior : 'smooth'})
-        }
-    } , [heightOfInput])
+        setTimeout(() => {
+            if(lastRef.current) {
+                lastRef.current.scrollIntoView({ behavior: 'instant' });
+            }
+        } , 100)
+    } , [ replyChat , editedChat , userMessagesLength , heightOfInput ])
+
 
     useEffect(() => {
         if(currentChats.length && user && userAndFriendRelationIdFromUser && friendId && friendId !== user.id && dispatch) {
@@ -144,6 +137,7 @@ const ChattingPage = () => {
     if(!user || !friendId || (!currentFriend && friendId !== user.id)) return null;
 
     const handleCreateChat = async() => {
+        dispatch(changeIsLoading(true))
         const trimmedMessage = newChat.message.trim().replace(/^\n+|\n+$/g, '');
         if(selectedFile) {
             const imageMessageUrl = await uploadToBlob(selectedFile);
@@ -152,6 +146,7 @@ const ChattingPage = () => {
                 setReplyChat(null);
                 setHeightOfInput(48);
                 setSelectedFile(null)
+                dispatch(changeIsLoading(false))
             }}))
         } else {
             if(trimmedMessage)
@@ -159,27 +154,32 @@ const ChattingPage = () => {
                 setNewChat(defaultNewChat);
                 setReplyChat(null);
                 setHeightOfInput(48);
+                dispatch(changeIsLoading(false))
             }}))
         }
     }
 
     const handleUpdateChat = async() => {
         if(editedChat) {
+            dispatch(changeIsLoading(true))
             const newMessage = editedChat.message.trim().replace(/^\n+|\n+$/g, '');
             if(selectedFile) {
                 const imageMessageUrl = await uploadToBlob(selectedFile);
                 dispatch(updateChat({...editedChat , message : newMessage , imageMessageUrl , isSuccess : () => {
                     setEditedChat(null);
                     setSelectedFile(null);
+                    dispatch(changeIsLoading(false))
                 }}))
             } else {
                 const oldChat = currentChats.find(chat => chat.id === editedChat.id);
                 if(oldChat && newMessage !== oldChat.message ) {
                     dispatch(updateChat({...editedChat , message : newMessage , imageMessageUrl : oldChat.imageMessageUrl , isSuccess : () => {
                         setEditedChat(null);
+                        dispatch(changeIsLoading(false))
                     }}))
                 } else {
                     setEditedChat(null);
+                    dispatch(changeIsLoading(false))
                 }
             }
         }
@@ -193,7 +193,7 @@ const ChattingPage = () => {
             } else {
                 setSelectedChats([...selectedChats , item ]);
             }
-        } , 800)
+        } , 1000)
     }
 
     const handleMouseUp = () => {
@@ -357,7 +357,7 @@ const ChattingPage = () => {
                                             </Box>
                                         </Box>
                                     </Box>)}
-                                    {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto" , borderRadius : "5px"}}  /> 
+                                    {item.imageMessageUrl ? <Image alt="message photo" src={item.imageMessageUrl} width={500} height={500} style={{ maxWidth : "100%" , width : "auto" , height : "auto"  , borderRadius : "5px"}}  /> 
                                     :undefined}
                                     {item.voiceMessageUrl ?
                                     <AudioWaveform audioUrl={item.voiceMessageUrl} isFromUser={userIdAndFriendIdOfChat.userId === user.id} playersRef={playersRef} />
@@ -412,7 +412,7 @@ const ChattingPage = () => {
                     :<IconButton sx={{ alignSelf : "flex-end"}} onClick={() => setEmojiOpen(false)} >
                         <KeyboardOutlinedIcon sx={{ color : "GrayText"}}  />
                     </IconButton>}
-                    <TextField multiline variant="standard" color="secondary" ref={inputRef} sx={{ flexGrow : 1 , maxHeight : "150px" , overflowY : "auto" }} value={editedChat ? editedChat.message : newChat.message} autoFocus placeholder="Message" onChange={(event) => {
+                    <TextField multiline variant="standard" color="secondary" ref={inputRef} sx={{ flexGrow : 1 , maxHeight : "150px" , overflowY : "auto" }} value={editedChat ? editedChat.message : newChat.message} placeholder="Message" onChange={(event) => {
                         if(editedChat) {
                             setEditedChat({...editedChat , message : event.target.value})
                         } else {
@@ -444,7 +444,7 @@ const ChattingPage = () => {
                     </Box>}
                 </Box>
             </Box>}
-            {selectedFile ? <Chip label={selectedFile.name} onDelete={() => setSelectedFile(null)} variant="outlined" sx={{ position : "absolute" , bgcolor : "primary.light" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 59 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + 10 +  "px")}} />
+            {selectedFile ? <Chip label={selectedFile.name} onDelete={() => setSelectedFile(null)} variant="outlined" sx={{ position : "absolute" , zIndex : 100 , bgcolor : "primary.light" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 59 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + 10 +  "px")}} />
             :undefined}
             {emojiOpen ? <Slide direction="up" in={emojiOpen}>
                 <Box sx={{ width : "100vw" , p : "10px" , bgcolor : "secondary.main" ,  position : "absolute" , bottom : (replyChat || editedChat ? (heightOfInput < 160 ? heightOfInput : 160) + 49 + "px" : (heightOfInput < 160 ? heightOfInput : 160) + "px")}} >

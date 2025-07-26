@@ -10,7 +10,7 @@ import { Chats, User, UserIdAndFriendId } from "@prisma/client";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateChat } from "@/store/slices/chatsSlice";
-import { changeSnackBar } from "@/store/slices/generalSlice";
+import { changeIsLoading, changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
 import PhotoOutlinedIcon from '@mui/icons-material/PhotoOutlined';
 
@@ -40,8 +40,10 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
 
     const handleUnpin = () => {
         setMessageMenu({anchorEl : null , chat : null});
+        dispatch(changeIsLoading(true))
         dispatch(updateChat({...messageMenu.chat as Chats , isPin : false , isSuccess : () => {
             dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message unpinned." , severity : Severity.success }))
+            dispatch(changeIsLoading(false))
         } }))
     }
 
@@ -112,9 +114,11 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
         :undefined}
         {messageMenu.chat.imageMessageUrl ? <MenuItem onClick={async() => {
             if(messageMenu.chat && messageMenu.chat.imageMessageUrl) {
+                dispatch(changeIsLoading(true))
                 await handleSaveToGallery(messageMenu.chat)
                 setMessageMenu({anchorEl : null , chat : null});
                 dispatch(changeSnackBar({isSnackBarOpen : true , message : "Photo saved to Gallery" , severity : Severity.success}))
+                dispatch(changeIsLoading(false))
             }
         }}  >
            <PhotoOutlinedIcon sx={{ mr : "15px" , color : "GrayText" }} />

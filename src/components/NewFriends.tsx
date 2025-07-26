@@ -74,7 +74,7 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                 </Box> 
                 :<Box>
                     <Typography sx={{ px : "20px" , py : "5px" , color : "info.main" }}>Your Friends</Typography>
-                    <Typography sx={{ textAlign : "center" , p : "10px"}}>No Friends yet</Typography>
+                    <Typography sx={{ textAlign : "center" , p : "10px"}}>No Friend yet</Typography>
                 </Box> }
                 <Divider variant="middle" />
                 {newFriends.length ? <Box>
@@ -98,8 +98,8 @@ const NewFriends = ( { openSideBarComponent , setOpenSideBarComponent } : Props 
                     : <Typography sx={{ textAlign : "center" , p : "10px"}}>No Result</Typography>}
                 </Box> 
                 :<Box>
-                    <Typography sx={{ px : "20px" , py : "5px" , color : "info.main" }}>Your Friends</Typography>
-                    <Typography sx={{ textAlign : "center" , p : "10px"}}>No new Friends yet</Typography>
+                    <Typography sx={{ px : "20px" , py : "5px" , color : "info.main" }}>New Friends</Typography>
+                    <Typography sx={{ textAlign : "center" , p : "10px"}}>No new Friend yet</Typography>
                 </Box>}
             </Box>
         </Dialog>

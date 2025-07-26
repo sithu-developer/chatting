@@ -95,7 +95,7 @@ const Layout = ( { children } : Props) => {
                 </Alert>
             </Snackbar>
             <Backdrop
-              sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+              sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.tooltip + 1 })}
               open={isLoading}
             >
               <CircularProgress color="inherit" />

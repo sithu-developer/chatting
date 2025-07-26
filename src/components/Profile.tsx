@@ -10,7 +10,7 @@ import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { updateUser } from "@/store/slices/userSlice";
-import { changeSnackBar } from "@/store/slices/generalSlice";
+import { changeIsLoading, changeSnackBar } from "@/store/slices/generalSlice";
 import { Severity } from "@/types/general";
 import { uploadToBlob } from "@/util/upload";
 import { VisuallyHiddenInput } from "@/util/general";
@@ -33,10 +33,12 @@ const Profile = ( { openSideBarComponent , setOpenSideBarComponent } : Props) =>
     const handleChangeProfilePhoto = async(files : FileList | null) => {
         const file = files?.[0];
         if(file) {
+            dispatch(changeIsLoading(true))
             const url = await uploadToBlob(file);
             if(url) {
                 dispatch(updateUser({...user , profileUrl : url , isSuccess : () => {
                     dispatch(changeSnackBar({message : "Profile photo successfully changed" , isSnackBarOpen : true , severity : Severity.success}))
+                    dispatch(changeIsLoading(false))
                 } }));
             }
         }
