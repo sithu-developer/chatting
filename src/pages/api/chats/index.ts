@@ -69,7 +69,7 @@ export default async function handler(
         if(exit.message === message && !imageMessageUrl ) {
           const chat = await prisma.chats.update({ where : { id } , data : { isPin , updatedAt : exit.updatedAt }});
           return res.status(200).json({ chat });
-        } else {
+        } else { 
           const chat = await prisma.chats.update({ where : { id } , data : { message , imageMessageUrl }});
           return res.status(200).json({ chat });
         }

@@ -41,7 +41,7 @@ const MessageMenu = ({ messageMenu , setMessageMenu , setReplyChat , setNewChat 
     const handleUnpin = () => {
         setMessageMenu({anchorEl : null , chat : null});
         dispatch(changeIsLoading(true))
-        dispatch(updateChat({...messageMenu.chat as Chats , isPin : false , isSuccess : () => {
+        dispatch(updateChat({...messageMenu.chat as Chats , imageMessageUrl : undefined , isPin : false , isSuccess : () => {
             dispatch(changeSnackBar({isSnackBarOpen : true , message : "Message unpinned." , severity : Severity.success }))
             dispatch(changeIsLoading(false))
         } }))
