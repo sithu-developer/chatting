@@ -17,15 +17,19 @@ export default function Component() {
       <Fade in timeout={{ enter : 3000}}>
         <Image alt="Chat logo" src={"/Chat-Logo.png"} width={300} height={300} style={{ width : "200px" , height :"auto" , position : "absolute" , top : "80px" , left : "50%" , transform: "translateX(-50%)"}} />
       </Fade>
-      <Slide direction="left" in timeout={{ enter : 1000}} >
-        <Box>
+      <Box>
+        <Slide direction="right" in timeout={{ enter : 1000}} >
           <Typography variant="body1" sx={{ textAlign : "center" , color : "white"}} >Chat with your parents , love , friends , customers ... </Typography>
+        </Slide>
+        <Slide direction="left" in timeout={{ enter : 1000}} >
           <Typography variant="body1" sx={{ textAlign : "center" , color : "white"}} >Explore new friends </Typography>
+        </Slide>
+        <Slide direction="right" in timeout={{ enter : 1000}} >
           <Typography variant="body1" sx={{ textAlign : "center" , color : "white"}} >Sign in and start chatting </Typography>
-        </Box>
-      </Slide>
+        </Slide>
+      </Box>
       <Zoom in timeout={{ enter : 1000}}>
-        <Button variant="contained" color="info" onClick={() => signIn()} sx={{ display : "flex" , gap : "10px" }} > <GoogleIcon sx={{ color : "black"}}/><Typography sx={{ color : "black" , fontWeight : "500"}}>Sign In With google</Typography> </Button>
+        <Button variant="contained" color="info" onClick={() => signIn("google")} sx={{ display : "flex" , gap : "10px" }} > <GoogleIcon sx={{ color : "black"}}/><Typography sx={{ color : "black" , fontWeight : "500"}}>Sign In With google</Typography> </Button>
       </Zoom>
     </Box>
   )
