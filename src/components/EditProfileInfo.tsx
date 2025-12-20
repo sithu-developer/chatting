@@ -3,7 +3,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { useEffect, useState } from "react";
-import { User } from "@prisma/client";
+import { User }  from "../../generated/prisma/client";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import dayjs, { Dayjs } from "dayjs";
 import { updateUser } from "@/store/slices/userSlice";

@@ -1,4 +1,4 @@
-import { Chats, UserIdAndFriendId } from "@prisma/client";
+import { Chats, UserIdAndFriendId } from "../../generated/prisma/client";
 import { SuccessOrFailType } from "./user";
 
 export interface NewChat extends SuccessOrFailType {

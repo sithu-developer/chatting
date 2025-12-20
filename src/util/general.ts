@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import { Chats, User, UserIdAndFriendId } from "@prisma/client";
+import { Chats, User, UserIdAndFriendId } from "../../generated/prisma/client";
 
 interface Props {
     currentFriend : User | undefined;

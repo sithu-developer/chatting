@@ -6,7 +6,7 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { MessageMenuType, ConfirmationItemsType, ForwardItemsType, NewChat } from "@/types/chats";
-import { Chats, User, UserIdAndFriendId } from "@prisma/client";
+import { Chats, User, UserIdAndFriendId } from "../../generated/prisma/client";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateChat } from "@/store/slices/chatsSlice";

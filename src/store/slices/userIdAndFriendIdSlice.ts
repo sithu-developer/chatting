@@ -1,6 +1,6 @@
 import { DeletedRelations, UpdateIsPinChatsItems } from "@/types/userIdAndFriendId";
 import { envValues } from "@/util/envValues";
-import { UserIdAndFriendId } from "@prisma/client";
+import { UserIdAndFriendId } from "../../../generated/prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { removeChats } from "./chatsSlice";
 

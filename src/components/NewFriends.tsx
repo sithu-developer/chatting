@@ -4,7 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { OpenSideBarComponent } from "@/types/sideBarComponent";
 import { useState } from "react";
-import { User } from "@prisma/client";
+import { User } from "../../generated/prisma/client";
 import FiberNewRoundedIcon from '@mui/icons-material/FiberNewRounded';
 import { useRouter } from "next/router";
 import Image from "next/image";

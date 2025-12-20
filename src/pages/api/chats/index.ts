@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import { DeletedChats, NewChat, UpdatedChat } from "@/types/chats";
 import { prisma } from "@/util/prisma";
-import { UserIdAndFriendId } from "@prisma/client";
+import { UserIdAndFriendId } from "../../../../generated/prisma/client";
 
 export default async function handler(
   req: NextApiRequest,

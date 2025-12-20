@@ -1,7 +1,7 @@
 import { Menu, MenuItem, Typography } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import { UserIdAndFriendId } from "@prisma/client";
+import { UserIdAndFriendId }  from "../../generated/prisma/client";
 import { ConfirmationItemsType } from "@/types/chats";
 
 

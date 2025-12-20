@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import { CreateUserType } from "@/types/user";
 import { prisma } from "@/util/prisma";
-import { User } from "@prisma/client";
+import { User } from "../../../../generated/prisma/client";
 
 
 export default async function handler(

@@ -3,7 +3,7 @@ import { TransitionGroup } from 'react-transition-group';
 import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import { Chats, User, UserIdAndFriendId } from '@prisma/client';
+import { Chats, User, UserIdAndFriendId } from "../../generated/prisma/client";
 import { NewChat } from '@/types/chats';
 import { useAppSelector } from '@/store/hooks';
 import { useEffect, useRef, useState } from 'react';

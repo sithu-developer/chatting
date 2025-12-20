@@ -2,7 +2,7 @@ import { Box, Divider, IconButton, Typography } from "@mui/material";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Chats, User, UserIdAndFriendId } from "@prisma/client";
+import { Chats, User, UserIdAndFriendId } from "../../../../generated/prisma/client";
 import { useEffect, useRef, useState } from "react";
 import { FriendAndChatAndRelationType } from "@/types/user";
 import { useRouter } from "next/router";

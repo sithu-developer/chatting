@@ -2,7 +2,7 @@ import { useAppSelector } from '@/store/hooks';
 import { FriendAndChatAndRelationType } from '@/types/user';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import { Box, Dialog, Divider, IconButton, TextField, Typography } from "@mui/material";
-import { Chats } from '@prisma/client';
+import { Chats } from "../../generated/prisma/client";
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

@@ -1,4 +1,4 @@
-import { Chats, User, UserIdAndFriendId } from "@prisma/client";
+import { Chats, User, UserIdAndFriendId } from "../../generated/prisma/client";
 
 export interface CreateUserType extends SuccessOrFailType {
     email : string;

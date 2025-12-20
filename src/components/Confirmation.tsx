@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { deleteChat, updateChat } from "@/store/slices/chatsSlice";
 import { ConfirmationItemsType, NewChat } from "@/types/chats";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
-import { Chats, User } from "@prisma/client";
+import { Chats, User }  from "../../generated/prisma/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';

@@ -1,6 +1,6 @@
 import { CreateUserType, UpdatedUserType } from "@/types/user";
 import { envValues } from "@/util/envValues";
-import { User } from "@prisma/client";
+import { User } from "../../../generated/prisma/client";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { setUserIdAndFriendIds } from "./userIdAndFriendIdSlice";
 import { setChats } from "./chatsSlice";

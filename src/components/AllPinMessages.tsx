@@ -1,6 +1,6 @@
 import { useAppSelector } from "@/store/hooks";
 import { Box, Dialog, DialogTitle, IconButton, Typography } from "@mui/material"
-import { Chats, UserIdAndFriendId } from "@prisma/client";
+import { Chats, UserIdAndFriendId } from "../../generated/prisma/client";
 import { RefObject } from "react";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';

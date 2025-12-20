@@ -4,7 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { FriendAndChatAndRelationType } from "@/types/user";
-import { Chats, User } from "@prisma/client";
+import { Chats, User } from "../../generated/prisma/client";
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
 import { ForwardItemsType } from "@/types/chats";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';

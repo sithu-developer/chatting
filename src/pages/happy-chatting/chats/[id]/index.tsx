@@ -8,7 +8,7 @@ import AttachmentOutlinedIcon from '@mui/icons-material/AttachmentOutlined';
 import { useEffect , useRef, useState } from "react";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import { createChat, updateChat } from "@/store/slices/chatsSlice";
-import { Chats, UserIdAndFriendId } from "@prisma/client";
+import { Chats, UserIdAndFriendId } from "../../../../../generated/prisma/client";
 import { MessageMenuType,  ConfirmationItemsType,  ForwardItemsType,  NewChat } from "@/types/chats";
 import MessageMenu from "@/components/MessageMenu";
 import ReplyOrEdit from "@/components/ReplyOrEdit";

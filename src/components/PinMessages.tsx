@@ -1,5 +1,5 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import { Chats } from "@prisma/client";
+import { Chats } from "../../generated/prisma/client";
 import { RefObject, useEffect, useRef, useState } from "react";
 import FormatAlignRightOutlinedIcon from '@mui/icons-material/FormatAlignRightOutlined';
 import AllPinMessages from "./AllPinMessages";
